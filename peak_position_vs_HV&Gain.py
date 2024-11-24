@@ -4,7 +4,7 @@ import MoraPyRoot as mpr
 import LabLibrary as ll
 
 #Andrea
-percorso_file = "/mnt/c/Users/User/Desktop/info/Compton/AMP-TSCA/CalibrazioneRivelatoreUgo/"
+percorso_file = "/mnt/c/Users/User/Desktop/info/AMP-TSCA/CalibrazioneRivelatoreUgo/"
 
 # Funzione per cancellare i canali finali con solo 0
 def pulizia_dati(data, MaxNZeros, noise_threshold=0):
