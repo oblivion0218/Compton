@@ -90,7 +90,7 @@ def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, 
         canvas.Print(destination_png, "png")
 
 # SetRange
-def stampa_graph_fit(point, function, min_graph, max_graph, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
+def stampa_graph_fit_range(point, function, min_graph, max_graph, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
     canvas = ROOT.TCanvas()
     
     point.Draw(graphic_option)
