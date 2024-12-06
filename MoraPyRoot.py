@@ -90,7 +90,8 @@ def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, 
         canvas.Print(destination_png, "png")
 
 # SetRange
-def stampa_graph_fit_range(point, function, min_graph, max_graph, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
+# extreme = [x_min, x_max, y_muin, y_max]
+def stampa_graph_fit_range(point, function, extreme_graph, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
     canvas = ROOT.TCanvas()
     
     point.Draw(graphic_option)
@@ -123,14 +124,16 @@ def stampa_graph_fit_range(point, function, min_graph, max_graph, destination_pn
 
         text_box.Draw()
 
-        point.GetXaxis().SetRangeUser(min_graph, max_graph) 
+        point.GetXaxis().SetRangeUser(extreme_graph[0], extreme_graph[1])
+        point.GetYaxis().SetRangeUser(extreme_graph[2], extreme_graph[3])
 
         canvas.Print(destination_png, "png")
         del text_box
     
     else:            
-        point.GetXaxis().SetRangeUser(min_graph, max_graph)    
-
+        point.GetXaxis().SetRangeUser(extreme_graph[0], extreme_graph[1])
+        point.GetYaxis().SetRangeUser(extreme_graph[2], extreme_graph[3])
+        
         canvas.Print(destination_png, "png")
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
