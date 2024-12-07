@@ -2,6 +2,8 @@
 
 This repository contains the code and images related to our work in a particle physics laboratory, where we are studying the **Compton Effect** using two **NaI scintillation detectors** and a radioactive source of **Na-22**.
 
+---
+
 ## Experimental Setup
 <div align="center">
   <img src="experimental_setup.png" alt="Experimental setup" width="600">
@@ -46,4 +48,9 @@ This repository contains the code and images related to our work in a particle p
 5. The Dual Timer stretches the signal to make it correctly readable by the MCA.
 6. Signals from the Dual Timer (NIM) is sent to the NIM-TTL converter to ensure compatibility with the MCA.
 7. The processed signals are analyzed by the MCA and displayed on a computer, showing the energy spectrum of the detected events.
+
+---
+
+## Characterization of the electronic chain
+### Choosing the best parameters for the amplifiers
 
