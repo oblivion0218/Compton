@@ -21,16 +21,21 @@ This repository contains the code and images related to our work in a particle p
 4. **Amplifiers TSCA:**
    - Further process the signals received from the pre-amplifiers.
 
-5. **NIM-TTL Converter:**
+5. **Amplifiers:**
+   - Further process the signals received from the pre-amplifiers.
+   - The TSCA acts as a single-channel analyzer (SCA), selecting signals based on their amplitude, which corresponds to the energy of the detected gamma ray.
+   - The TSCA generates timing signals (TTL) when a valid event is detected.
+
+6. **NIM-TTL Converter:**
    - Converts NIM signals to TTL signals for compatibility with other electronic components.
 
-6. **Dual Timer:**
+7. **Dual Timer:**
    - Generates precise timing signals to gate the data acquisition.
 
-7. **MultiChannel Analyzer (MCA):**
+8. **MultiChannel Analyzer (MCA):**
    - Records the energy spectrum of detected gamma rays and visualizes it on a computer.
 
-8. **Target (Optional):**
+9. **Target (Optional):**
    - Serves as the scattering medium for gamma rays, used to measure Compton scattering.
 
 ### Signal Flow
