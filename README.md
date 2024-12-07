@@ -41,14 +41,3 @@ This repository contains the code and images related to our work in a particle p
 5. The Dual Timer provides timing signals to the MCA for data acquisition.
 6. The processed signals are analyzed by the MCA and displayed on a computer, showing the energy spectrum of the detected events.
 
-
-1. **Source**: Sodium-22 (Na-22), emitting gamma rays of 511 keV and 1274 keV.
-2. **Detectors**: 
-   - **Franco**: Detector with better energy resolution.
-   - **Ugo**: Secondary detector for comparison.
-3. **Electronics**:
-   - two PreAMP
-   - AMP
-   - AMP TSCA
-   - ADC
-   - MCA
