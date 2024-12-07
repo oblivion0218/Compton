@@ -62,8 +62,8 @@ def residuals(graph, fit_function, destinationPNG):
     plt.axhline(0, color='red', linestyle='--', linewidth=1.5)
 
     plt.xlabel(graph.GetXaxis().GetTitle())
-    plt.ylabel("Residuals")
-    plt.ylim(-2, 2)
+    plt.ylabel(r'$\sigma$')
+    # plt.ylim(-2, 2)
     plt.grid(True)
     plt.savefig(destinationPNG)
 
