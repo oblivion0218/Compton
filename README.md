@@ -11,6 +11,10 @@ The purpose of this project is to explore and analyze the Compton scattering of 
 - Understanding the interaction of 511 keV and 1274 keV gamma rays in the detector.
 
 ## Experimental Setup
+<div align="center">
+  <img src="Experimental setup.png" alt="Experimental setup">
+</div>
+
 
 1. **Source**: Sodium-22 (Na-22), emitting gamma rays of 511 keV and 1274 keV.
 2. **Detectors**: 
