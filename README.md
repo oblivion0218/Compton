@@ -12,7 +12,7 @@ The purpose of this project is to explore and analyze the Compton scattering of 
 
 ## Experimental Setup
 <div align="center">
-  <img src="experimental_setup.png" alt="Experimental setup">
+  <img src="experimental_setup.png" alt="Experimental setup" width="400">
 </div>
 
 
