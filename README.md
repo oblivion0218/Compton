@@ -18,10 +18,10 @@ This repository contains the code and images related to our work in a particle p
 3. **Pre-amplifiers:**
    - Amplify the electrical signals produced by the NaI detectors.
 
-4. **Amplifiers TSCA:**
+4. **Amplifier:**
    - Further process the signals received from the pre-amplifiers.
 
-5. **Amplifiers:**
+5. **Amplifier TSCA:**
    - Further process the signals received from the pre-amplifiers.
    - The TSCA acts as a single-channel analyzer (SCA), selecting signals based on their amplitude, which corresponds to the energy of the detected gamma ray.
    - The TSCA generates timing signals (TTL) when a valid event is detected.
@@ -41,8 +41,9 @@ This repository contains the code and images related to our work in a particle p
 ### Signal Flow
 1. Gamma rays from the Na-22 source are detected by the NaI detectors ("Ugo" and "Franco").
 2. The electrical signals from the detectors are sent to their respective pre-amplifiers through coaxial cables.
-3. The amplified signals are routed to the amplifiers TSCA, where further processing occurs.
-4. Signals from the amplifiers are sent to the NIM-TTL converter to ensure compatibility with the Dual Timer.
-5. The Dual Timer provides timing signals to the MCA for data acquisition.
-6. The processed signals are analyzed by the MCA and displayed on a computer, showing the energy spectrum of the detected events.
+3. The amplified signals are routed to the amplifier and amplifier TSCA, where further processing occurs.
+4. Signals from the amplifier TSCA (TTL) is sent to the NIM-TTL converter to ensure compatibility with the Dual Timer.
+5. The Dual Timer stretches the signal to make it correctly readable by the MCA.
+6. Signals from the Dual Timer (NIM) is sent to the NIM-TTL converter to ensure compatibility with the MCA.
+7. The processed signals are analyzed by the MCA and displayed on a computer, showing the energy spectrum of the detected events.
 
