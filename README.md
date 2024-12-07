@@ -9,6 +9,8 @@ This repository contains the code and images related to our work in a particle p
   <img src="experimental_setup.png" alt="Experimental setup" width="600">
 </div>
 
+We named the detector used for gating **Ugo** and the one dedicated to spectroscopy **Franco**.
+
 ### Components
 1. **Radioactive Source (Na-22):**
    - Emits two 511 keV gamma rays in opposite directions due to positron annihilation.
@@ -53,4 +55,20 @@ This repository contains the code and images related to our work in a particle p
 
 ## Characterization of the electronic chain
 ### Choosing the best parameters for the amplifiers
+We need to determine the optimal High Voltage (HV) and Gain settings for the Ugo detector, in combination with the TSCA amplifier, as well as for the Franco detector coupled with its amplifier. This ensures the detectors operate with maximum energy resolution and signal quality.
+<p align="center">
+  <img src="HV&Gain_calibration/Energetic_resolution/Heatmap/heatmap_Calibrazione_Franco_AMP.png" alt="Best parameters for Ugo - AMP TSCA" width="45%">
+  <img src="HV&Gain_calibration/Energetic_resolution/Heatmap/heatmap_Calibrazione_Ugo_AMP-TSCA.png" alt="Best parameters for Franco - AMP" width="45%">
+</p>
+
+
+
+
+
+
+
+
+
+
+
 
