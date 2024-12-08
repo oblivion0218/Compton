@@ -57,9 +57,49 @@ We named the detector used for gating **Ugo** and the one dedicated to spectrosc
 ### Choosing the best parameters for the amplifiers
 We need to determine the optimal High Voltage (HV) and Gain settings for the Ugo detector, in combination with the TSCA amplifier, as well as for the Franco detector coupled with its amplifier. This ensures the detectors operate with maximum energy resolution and signal quality.
 <p align="center">
-  <img src="HV&Gain_calibration/Energetic_resolution/Heatmap/heatmap_Calibrazione_Franco_AMP.png" alt="Best parameters for Ugo - AMP TSCA" width="45%">
-  <img src="HV&Gain_calibration/Energetic_resolution/Heatmap/heatmap_Calibrazione_Ugo_AMP-TSCA.png" alt="Best parameters for Franco - AMP" width="45%">
+  <img src="HV&Gain_calibration/Energetic_resolution/Heatmap/heatmap_Calibrazione_Franco_AMP.png" alt="Best parameters for Franco - AMP" width="35%">
+  <img src="HV&Gain_calibration/Energetic_resolution/Heatmap/heatmap_Calibrazione_Ugo_AMP-TSCA.png" alt="Best parameters for Ugo - AMP TSCA" width="35%">
 </p>
+Analyzing these images we can see how the best values are:
+
+  - **Ugo:** (HV = 600, Gain = 20)
+  - **Franco:** (HV = 650, Gain = 100)
+
+We select these values to minimize the energy resolution, $\frac{\text{FWHM}}{\langle E \rangle}\$, while avoiding operation near the boundary of the detector's optimal performance range. 
+
+<p align="center">
+  <img src="HV&Gain_calibration/Peak_position/Heatmap/h_Franco - AMP.png" alt="Best parameters for Franco - AMP" width="35%">
+  <img src="HV&Gain_calibration/Peak_position/Heatmap/h_Ugo - AMP-TSCA.png" alt="Best parameters for Ugo - AMP TSCA" width="35%">
+</p>
+However, after evaluating the number of channels utilized out of the total 2048 with these parameters, we decided to adjust the settings and selected the following values:
+
+  - **Ugo:** (HV = 600, Gain = 20) CONTROLLA
+  - **Franco:** (HV = 600, Gain = 50) CONTROLLA
+
+### ADC linearity
+We need to verify the linearity of the Analog-to-Digital Converter (ADC). To do this, we began by using pulses with Gaussian shaping. Our measurements showed that the linearity is well maintained up to the first 300 channels. However, we encountered a limitation with the pulse generator module, which cannot produce amplitudes higher than 7 volts.
+
+<p align="center">
+  <img src="ADC/ADC_differenziale_formatura_gaussiana.png" alt="Differential ADC linearity" width="28%">
+  <img src="ADC/ADC_integrale_formatura_gaussiana.png" alt="Integral ADC linearity" width="28%">
+  <img src="ADC/formatura_gaussiana_residui.png" alt="Integral ADC linearity - Residuals" width="32%">
+</p>
+
+To address the issue described above, we replaced the module and were required to switch to semi-Gaussian shaping for the pulses.
+
+<p align="center">
+  <img src="ADC/ADC_differenziale_formatura_preamplificata.png" alt="Differential ADC linearity" width="28%">
+  <img src="ADC/ADC_integrale_formatura_preamplificata.png" alt="Integral ADC linearity" width="28%">
+  <img src="ADC/formatura_preamplificata_residui.png" alt="Integral ADC linearity - Residuals" width="32%">
+</p>
+
+Both types of shaping show linearity, but we observe two distinct linearity curves. 
+Since the photopeak for the Franco detector is located around channel 1400, and the entire Compton spectrum falls below channel 1000, we are not concerned with studying the discontinuity observed near channel 1300.
+
+
+
+
+
 
 
 
