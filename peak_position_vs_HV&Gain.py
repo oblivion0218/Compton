@@ -66,7 +66,7 @@ for fileName in fileNames:
         hist.SetBinContent(i + 1, data[i])  # i+1 perché i bin in ROOT partono da 1
 
     mpr.plot_hist_MPL(hist, file_path + fileName + ".png")
-    RE.append((fit_photopeak(hist, file_path + "h_fit_" + fileName + ".png", noise_threshold=0.5, n_peaks=2), voltage, gain))
+    RE.append((fit_photopeak(hist, file_path + "h_fit" + fileName + ".png", noise_threshold=0.5, n_peaks=2), voltage, gain))
 
 with open("h_Ugo_AMP-TSCA.txt", "w") as file:
     file.write("\nh_peak\terr_h\tHV\tGain\n")
