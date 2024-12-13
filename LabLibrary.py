@@ -1,5 +1,6 @@
 import os
 import ROOT
+import MoraPyRoot as mpr
 
 def get_file_names(directory_path):
     # Lista per contenere i nomi dei file
@@ -79,3 +80,46 @@ def search_photopeak(hist, noise_threshold, n_peaks, fileName=None):
         canvas.SaveAs(fileName + "_spectrum" + ".png")
     
     return max_position
+
+# Ritorna (hist, TF1) dopo il fit con fondo lineare
+def fit_photopeak_linear_background(hist, fileNamePNG, noise_threshold, n_peaks):
+    coo2 = [0.6, 0.13, 0.9, 0.53]
+    str2 = ["f1", "f2", "Amp", "<x>", "#sigma"]
+
+    photopeak_x = search_photopeak(hist, noise_threshold, n_peaks)
+    
+    n_bins = hist.GetNbinsX()
+
+    # Determina l'estremo per il fit
+    if n_bins >= 1800: 
+        extreme = hist.GetXaxis().GetBinUpEdge(n_bins) / 10
+    else: 
+        extreme = hist.GetXaxis().GetBinUpEdge(n_bins) / 50
+
+    # Fit gaussiano
+    f_picco = ROOT.TF1("picco", "gaus(0)", 0, 2000)
+    # L'inizializzazione dei parametri varia al variare del numero di bin
+    f_picco.SetParameters(0, 40000 / n_bins)
+    f_picco.SetParameters(1, photopeak_x)
+    f_picco.SetParameters(2, 0.001 * n_bins)
+    mpr.fit(hist, f_picco, 3, "S", 1000, photopeak_x - extreme, photopeak_x + extreme)
+
+    # Fit lineare
+    f_fondo = ROOT.TF1("fondo", "pol1(0)", 0, 2000)
+    f_fondo.SetParameters(0, 1)
+    f_fondo.SetParameters(1, 1)
+    mpr.fit(hist, f_fondo, 3, "S", 1000, photopeak_x - extreme * 2, photopeak_x + extreme * 2)
+
+    # Modello combinato (fondo + picco)
+    f_true = ROOT.TF1("modello", "pol1(0) + gaus(2)", 0, 2000)
+    f_true.SetParameter(0, f_fondo.GetParameter(0))
+    f_true.SetParameter(1, f_fondo.GetParameter(1))
+    f_true.SetParameter(2, f_picco.GetParameter(0))
+    f_true.SetParameter(3, f_picco.GetParameter(1))
+    f_true.SetParameter(4, f_picco.GetParameter(2))
+
+    extreme_graph = ("x", [photopeak_x - extreme, photopeak_x + extreme])
+
+    mpr.stampa_graph_fit_range(hist, f_true, extreme_graph, fileNamePNG, "", "", "Counts", "", photopeak_x - extreme, photopeak_x + extreme, 5, coo2, str2)
+
+    return (hist, f_true)

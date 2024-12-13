@@ -90,7 +90,19 @@ def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, 
         canvas.Print(destination_png, "png")
 
 # SetRange
-# extreme = [x_min, x_max, y_muin, y_max]
+def set_range(point, ax, coordinates):
+    if ax == "x" or ax == "X":
+        point.GetXaxis().SetRangeUser(coordinates[0], coordinates[1])
+    elif ax == "y" or ax == "Y":
+        point.GetYaxis().SetRangeUser(coordinates[0], coordinates[1])
+    elif ax == "xy" or ax == "XY":
+        point.GetXaxis().SetRangeUser(coordinates[0], coordinates[1])
+        point.GetYaxis().SetRangeUser(coordinates[2], coordinates[3])
+    elif ax == "yx" or ax == "YX":
+        point.GetYaxis().SetRangeUser(coordinates[0], coordinates[1])
+        point.GetXaxis().SetRangeUser(coordinates[2], coordinates[3])
+    
+# extreme_graph = ("xy", [x_min, x_max, y_muin, y_max])
 def stampa_graph_fit_range(point, function, extreme_graph, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
     canvas = ROOT.TCanvas()
     
@@ -124,16 +136,14 @@ def stampa_graph_fit_range(point, function, extreme_graph, destination_png, grap
 
         text_box.Draw()
 
-        point.GetXaxis().SetRangeUser(extreme_graph[0], extreme_graph[1])
-        point.GetYaxis().SetRangeUser(extreme_graph[2], extreme_graph[3])
+        set_range(point, extreme_graph[0], extreme_graph[1])
 
         canvas.Print(destination_png, "png")
         del text_box
     
     else:            
-        point.GetXaxis().SetRangeUser(extreme_graph[0], extreme_graph[1])
-        point.GetYaxis().SetRangeUser(extreme_graph[2], extreme_graph[3])
-        
+        set_range(point, extreme_graph[0], extreme_graph[1])
+                
         canvas.Print(destination_png, "png")
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -184,7 +194,6 @@ def plot_TGraphErrors_MPL(graph, fileNamePNG, grid=True):
     plt.ylabel(graph.GetYaxis().GetTitle())
     plt.grid(grid)
     plt.savefig(fileNamePNG)
-
 
 def plot_TF1_MPL(function, x_min, x_max, fileNamePNG, grid=True, n_points=1000):
     # Genera i punti x e calcola y
