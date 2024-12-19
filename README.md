@@ -73,8 +73,8 @@ We select these values to minimize the energy resolution, $\frac{\text{FWHM}}{\l
 </p>
 However, after evaluating the number of channels utilized out of the total 2048 with these parameters, we decided to adjust the settings and selected the following values:
 
-  - **Ugo:** (HV = 600, Gain = 20) CONTROLLA
-  - **Franco:** (HV = 600, Gain = 50) CONTROLLA
+  - **Ugo:** (HV = 900, Gain = 20) 
+  - **Franco:** (HV = 600, Gain = 50) 
 
 ### ADC linearity
 We need to verify the linearity of the Analog-to-Digital Converter (ADC). To do this, we began by using pulses with Gaussian shaping. Our measurements showed that the linearity is well maintained up to the first 300 channels. However, we encountered a limitation with the pulse generator module, which cannot produce amplitudes higher than 7 volts.
@@ -96,9 +96,19 @@ To address the issue described above, we replaced the module and were required t
 Both types of shaping show linearity, but we observe two distinct linearity curves. 
 Since the photopeak for the Franco detector is located around channel 1400, and the entire Compton spectrum falls below channel 1000, we are not concerned with studying the discontinuity observed near channel 1300.
 
+### Auto-coincidence measurement
 
+For this measurement, we modified the experimental setup to observe the spectrum detected by Ugo, the gate detector. To achieve this, the signal was duplicated and sent to both the amplifier and the TSCA.
 
+<div align="center">
+  <img src="Auto-coincidence/autocoincidence_setup.png" alt="Experimental setup" width="350">
+</div>
 
+In this configuration, it is possible to select the optimal signal window. Specifically, we focus on isolating the photopeak of the 511 keV gamma ray, as shown in the following figure: 
+
+<div align="center">
+  <img src="Auto-coincidence/CoincidenceON.png" alt="Experimental setup" width="300">
+</div>
 
 
 

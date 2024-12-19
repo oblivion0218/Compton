@@ -24,6 +24,8 @@ def remove_extension(file_list):
     # Usa os.path.splitext per separare il nome del file dall'estensione
     return [os.path.splitext(file)[0] for file in file_list]
 
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
 # Funzione per leggere i dati dell'istogramma da file .Spe
 def read_histogram_data(filename):
     with open(filename, "r") as file:
@@ -51,6 +53,8 @@ def read_histogram_data(filename):
                 break
 
     return histogram_data
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 # ritorna la posizione del photopeack for 511 keV photon in Na22 
 def search_photopeak(hist, noise_threshold, n_peaks, fileName=None):

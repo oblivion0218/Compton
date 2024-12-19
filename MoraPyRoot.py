@@ -178,7 +178,6 @@ def plot_TGraph_MPL(graph, fileNamePNG, grid=True):
     plt.grid(grid)
     plt.savefig(fileNamePNG)
 
-
 def plot_TGraphErrors_MPL(graph, fileNamePNG, grid=True):
     # Estrai i punti (x, y) e le incertezze dal TGraphErrors
     n_points = graph.GetN()
