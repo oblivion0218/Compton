@@ -1,5 +1,7 @@
 import os
+
 import ROOT
+
 import MoraPyRoot as mpr
 
 def get_file_names(directory_path):
@@ -125,5 +127,5 @@ def fit_photopeak_linear_background(hist, fileNamePNG, noise_threshold, n_peaks)
     extreme_graph = ("x", [photopeak_x - extreme, photopeak_x + extreme])
 
     mpr.stampa_graph_fit_range(hist, f_true, extreme_graph, fileNamePNG, "", "", "Counts", "", photopeak_x - extreme, photopeak_x + extreme, 5, coo2, str2)
-
+    
     return (hist, f_true)
