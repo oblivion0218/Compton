@@ -33,22 +33,20 @@ def random_directions(n): # n = number of photons
     return np.vstack((x, y, z)).T
 
 # Function to calculate hit position
-def hit_position(source_pos, direction, distance):
+def hit_position(direction, distance, source_pos=source_position):
     x = source_pos[0] + direction[0] * distance
     y = source_pos[1] + direction[1] * distance
     z = source_pos[2] + direction[2] * distance
     return np.array([x, y, z])
 
 # Function to check if a photon is within a detector's volume
-def is_in_detector(hit_points, detector, source_pos):  
+def is_in_detector(hit_points, detector, source_pos=source_position):  
     if detector == "ugo":
         detector_pos = ugo_position
         detector_radius = detector_ugo_radius
-        detector_width = detector_ugo_width
     elif detector == "franco":
         detector_pos = franco_position
         detector_radius = detector_franco_radius
-        detector_width = detector_franco_width
 
     hits = 0
 
@@ -146,7 +144,7 @@ def visualize_coincidence(fileNamePNG, directions, source_pos= source_position, 
     franco_distance = norm(franco_pos, source_position)
     
     # Calculate hit positions
-    hit_points = [hit_position(source_position, dir, ugo_distance) for dir in directions]
+    hit_points = [hit_position(dir, ugo_distance) for dir in directions]
     hit_points = np.array(hit_points)
     
     # Count photons detected by each detector
