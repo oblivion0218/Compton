@@ -138,7 +138,7 @@ def norm(v, w):
     return np.sqrt((v[0] - w[0]) ** 2 + (v[1] - w[1]) ** 2 + (v[2] - w[2]) ** 2)
 
 # Function to visualize hit positions in 3D and projections with detection count
-def visualize_coincidence(fileNamePNG, directions, source_pos= source_position, ugo_pos= ugo_position, ugo_radius= detector_ugo_radius, ugo_width= detector_ugo_width, franco_pos= franco_position, franco_radius= detector_franco_radius, franco_width= detector_franco_width):
+def visualize_coincidence(fileNamePNG, directions, distance, source_pos= source_position, ugo_pos= ugo_position, ugo_radius= detector_ugo_radius, ugo_width= detector_ugo_width, franco_pos= franco_position, franco_radius= detector_franco_radius, franco_width= detector_franco_width):
     # Distances to the detectors
     ugo_distance = norm(ugo_pos, source_position)
     franco_distance = norm(franco_pos, source_position)
