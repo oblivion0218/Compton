@@ -40,7 +40,7 @@ for distance in distances:
     plt.subplot(1, 2, 1)
     ugo_mean = np.mean(ugo_hits) 
     plt.hist(ugo_hits, bins=100, color='blue', alpha=0.7, edgecolor='blue')
-    plt.title(f"Histogram of Hits in Ugo Detector (Distance: {distance} cm, Photons: {n_photons})")
+    plt.title(f"Histogram of Hits in Ugo Detector (Distance: {distance} cm)")
     plt.xlabel("Number of Hits / Number of Photons")
     plt.ylabel("Frequency")
 
@@ -51,7 +51,7 @@ for distance in distances:
     plt.subplot(1, 2, 2)
     franco_mean = np.mean(franco_hits)  
     plt.hist(franco_hits, bins=100, color='orange', alpha=0.7, edgecolor='orange')
-    plt.title(f"Histogram of Hits in Franco Detector (Distance: {distance} cm, Photons: {n_photons})")
+    plt.title(f"Histogram of Hits in Franco Detector (Distance: {distance} cm)")
     plt.xlabel("Number of Hits / Number of Photons")
     plt.ylabel("Frequency")
 
@@ -67,7 +67,7 @@ for distance in distances:
 plt.figure(figsize=(10, 6))
 plt.plot(distances, mean_ugo_hits, label="Ugo Detector", marker='o', color='blue')
 plt.plot(distances, mean_franco_hits, label="Franco Detector", marker='s', color='orange')
-plt.title("Mean Hits vs. Distance")
+plt.title(f"Mean Hits vs. Distance for {n_photons} Photons")
 plt.xlabel("Distance (cm)")
 plt.ylabel(f"Mean Number of Hits of {n_tries} Trials")
 plt.legend()
