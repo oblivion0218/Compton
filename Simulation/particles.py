@@ -73,6 +73,7 @@ class Photon:
         normalization, _ = quad(self.klein_nishina, 0, np.pi)
 
         max_pdf = 0.9  # Max value of the probability distribution for rejection sampling
+        
         while True:
             theta = np.random.uniform(0, np.pi)  # Random angle between 0 and pi
             u = np.random.uniform(0, max_pdf)  # Random uniform value for rejection sampling

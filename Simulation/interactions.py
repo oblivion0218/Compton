@@ -95,7 +95,7 @@ def photoelectric_effect(photon: p.Photon)-> p.Electron:
     photon.energy = 0
     return p.Electron(energy)
 
-def compton_scattering(photon: p.Photon) -> p.Electron:
+def compton_scattering(photon: p.Photon)-> p.Electron:
     """
     Simulate Compton scattering, producing a scattered photon and an electron.
 
