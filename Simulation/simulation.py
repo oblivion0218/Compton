@@ -10,8 +10,8 @@ import interactions as i
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/"
 
 # Initialize detectors with their respective positions and dimensions
-ugo = d.Detector([0, 5, 0], 1.27, 2.58, 0.0695)  # Detector "Ugo" at (0, 5, 0)
-franco = d.Detector([0, -5, 0], 2.54, 5.08, 0.903)  # Detector "Franco" at (0, -5, 0)
+ugo = d.Detector([0, 5, 0], 1.27, 2.58, 0.903 )  # Detector "Ugo" at (0, 5, 0)
+franco = d.Detector([0, -5, 0], 2.54, 5.08, 0.0695)  # Detector "Franco" at (0, -5, 0)
 source = s.Source()
 
 # Function to simulate the detection of gamma photons
