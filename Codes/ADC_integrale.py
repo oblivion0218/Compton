@@ -19,8 +19,8 @@ def read_data(fileName):
     return x_values, x_errors
 
 def fill_TGraphError(formatura):
-    amp_values, amp_errors = read_data(file_path + "dati/formatura_" + formatura + "_amp(mV).txt")
-    channel_values, channel_errors = read_data(file_path + "dati/formatura_" + formatura + "_canale.txt")
+    amp_values, amp_errors = read_data(file_path + "data/formatura_" + formatura + "_amp(mV).txt")
+    channel_values, channel_errors = read_data(file_path + "data/formatura_" + formatura + "_canale.txt")
 
     # Convert data in array for ROOT 
     import array
@@ -79,9 +79,9 @@ f_gaus.SetParameters(0, 0)
 f_gaus.SetParameters(1, 0.2)
 
 extreme = [0, 300, 0, 2000]
-mpr.stampa_graph_fit(T_gaus, f_gaus, file_path +  "ADC_integrale_formatura_" + formatura + ".png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 300, 2000, 2, coo1, str1)
+mpr.stampa_graph_fit(T_gaus, f_gaus, file_path +  "plots/ADC_integrale_formatura_" + formatura + ".png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 300, 2000, 2, coo1, str1)
 residuals(T_gaus, f_gaus, formatura)
-mpr.stampa_graph_fit_range(T_gaus, f_gaus, extreme, file_path +  "ADC_integrale_formatura_" + formatura + "_zoom.png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 5, 300, 2, coo1, str1)
+mpr.stampa_graph_fit_range(T_gaus, f_gaus, extreme, file_path +  "plots/ADC_integrale_formatura_" + formatura + "_zoom.png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 5, 300, 2, coo1, str1)
 
 # Formatura preamplificataa
 formatura = "preamplificata"
@@ -91,7 +91,7 @@ f_preamp.SetParameters(0, 0)
 f_preamp.SetParameters(1, 0.2)
 
 extreme = [1600, 1900, 8000, 10000]
-mpr.stampa_graph_fit(T_preamp, f_preamp, file_path +  "ADC_integrale_formatura_" + formatura + ".png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 950, 1600, 2, coo1, str1)
+mpr.stampa_graph_fit(T_preamp, f_preamp, file_path +  "plots/ADC_integrale_formatura_" + formatura + ".png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 950, 1600, 2, coo1, str1)
 residuals(T_preamp, f_preamp, formatura)
-mpr.stampa_graph_fit_range(T_preamp, f_preamp, extreme, file_path +  "ADC_integrale_formatura_" + formatura + "_zoom.png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 1600, 1900, 2, coo1, str1)
+mpr.stampa_graph_fit_range(T_preamp, f_preamp, extreme, file_path +  "plots/ADC_integrale_formatura_" + formatura + "_zoom.png", "ADC integrale formatura " + formatura, "Canale", "Ampiezza (mV)", "AP", 1600, 1900, 2, coo1, str1)
 

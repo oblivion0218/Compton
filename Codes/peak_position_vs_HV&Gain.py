@@ -43,7 +43,7 @@ def fit_photopeak(hist, fileNamePNG, noise_threshold, n_peaks):
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-fileNames = ll.remove_extension(ll.get_file_names(file_path + "HV&Gain/"))
+fileNames = ll.remove_extension(ll.get_file_names(file_path + "data/"))
 
 RE = []
 
@@ -51,7 +51,7 @@ for fileName in fileNames:
     voltage = int(fileName.split('V_')[0])
     gain = int(fileName.split('V_')[1].split('G')[0])
 
-    data_brutti = ll.read_histogram_data(file_path + "HV&Gain/" + fileName + ".Spe")
+    data_brutti = ll.read_histogram_data(file_path + "data/" + fileName + ".Spe")
     data = pulizia_dati(data_brutti, MaxNZeros=100, noise_threshold=50) # [Ugo (50, 50) Franco (30, 100)](AMP) 
 
     # if fileName == "550V_500G_0F": # correzione per AMP-TSCA Ugo
@@ -65,8 +65,8 @@ for fileName in fileNames:
     for i in range(len(data)):
         hist.SetBinContent(i + 1, data[i])  # i+1 perché i bin in ROOT partono da 1
 
-    mpr.plot_hist_MPL(hist, file_path + fileName + ".png")
-    RE.append((fit_photopeak(hist, file_path + "h_fit" + fileName + ".png", noise_threshold=0.5, n_peaks=2), voltage, gain))
+    mpr.plot_hist_MPL(file_path + "plots/hist/h_fit" +fileName + ".png")
+    RE.append((fit_photopeak(hist, file_path + "plots/fit/h_fit" + fileName + ".png", noise_threshold=0.5, n_peaks=2), voltage, gain))
 
 with open("h_Ugo_AMP-TSCA.txt", "w") as file:
     file.write("\nh_peak\terr_h\tHV\tGain\n")
@@ -81,7 +81,7 @@ print("\nFine\n")
 # Franco - AMP (550V, 100G)
 #--------------------------------------------------------------------------------------------
 
-# data_brutti = ll.read_histogram_data(percorso_file + "HV&Gain/550V_100G_0F.Spe")
+# data_brutti = ll.read_histogram_data(percorso_file + "data/550V_100G_0F.Spe")
 # data = pulizia_dati(data_brutti, MaxNZeros=30, noise_threshold=100) # Ugo (50, 50) Franco (30, 100)
 
 # # Creazione istogramma
@@ -89,8 +89,8 @@ print("\nFine\n")
 # for i in range(len(data)):
 #     hist.SetBinContent(i + 1, data[i])  # i+1 perché i bin in ROOT partono da 1
 
-# # mpr.plot_hist_MPL(hist, file_path + fileName + ".png")
-# print(fit_photopeak(hist, file_path + fileName + ".png", noise_threshold=0.3, n_peaks=2))
+# # mpr.plot_hist_MPL(hist, file_path + "plots/hist/h_fit" +fileName + ".png")
+# print(fit_photopeak(hist, file_path + "plots/fit/h_fit" + fileName + ".png", noise_threshold=0.3, n_peaks=2))
 
 #--------------------------------------------------------------------------------------------
 # Franco - AMP-TSCA (600V, 10G) (550V, 20G) (500V, 50G)
@@ -104,7 +104,7 @@ print("\nFine\n")
 #     voltage = int(fileName.split('V_')[0])
 #     gain = int(fileName.split('V_')[1].split('G')[0])
 
-#     data_brutti = ll.read_histogram_data( file_path + "HV&Gain/" + fileName + ".Spe")
+#     data_brutti = ll.read_histogram_data( file_path + "data/" + fileName + ".Spe")
 #     data = pulizia_dati(data_brutti, MaxNZeros=100, noise_threshold=50) # [Ugo (50, 50) Franco (30, 100)](AMP) 
 
 #     # Creazione istogramma
@@ -113,7 +113,7 @@ print("\nFine\n")
 #     for i in range(1500):
 #         hist.SetBinContent(i + 1, data[i])  # i+1 perché i bin in ROOT partono da 1
 
-#     RE_bis.append((fit_photopeak(hist, file_path + fileName + ".png", noise_threshold=0.6, n_peaks=2), voltage, gain))
+#     RE_bis.append((fit_photopeak(hist, file_path + "plots/fit/h_fit" + fileName + ".png", noise_threshold=0.6, n_peaks=2), voltage, gain))
 # print(RE_bis)
 
 #--------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ print("\nFine\n")
 #     voltage = int(fileName.split('V_')[0])
 #     gain = int(fileName.split('V_')[1].split('G')[0])
 
-#     data_brutti = ll.read_histogram_data( file_path + "HV&Gain/" + fileName + ".Spe")
+#     data_brutti = ll.read_histogram_data( file_path + "data/" + fileName + ".Spe")
 #     data = pulizia_dati(data_brutti, MaxNZeros=100, noise_threshold=50) # [Ugo (50, 50) Franco (30, 100)](AMP) 
 
 #     # Creazione istogramma
@@ -137,5 +137,5 @@ print("\nFine\n")
 #     for i in range(1500):
 #         hist.SetBinContent(i + 1, data[i])  # i+1 perché i bin in ROOT partono da 1
 
-#     RE_bis.append((fit_photopeak(hist, file_path + fileName + ".png", noise_threshold=0.6, n_peaks=2), voltage, gain))
+#     RE_bis.append((fit_photopeak(hist, file_path + "plots/fit/h_fit" + fileName + ".png", noise_threshold=0.6, n_peaks=2), voltage, gain))
 # print(RE_bis)

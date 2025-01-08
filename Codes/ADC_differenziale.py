@@ -19,8 +19,8 @@ def read_data(fileName):
                 x_errors.append(dx)
     return x_values, x_errors
 
-channel_values, channel_errors = read_data(file_path + "dati/formatura_" + formatura + "_canale.txt")
-counts_values, counts_errors = read_data(file_path + "dati/formatura_" + formatura + "_conteggi.txt")
+channel_values, channel_errors = read_data(file_path + "data/formatura_" + formatura + "_canale.txt")
+counts_values, counts_errors = read_data(file_path + "data/formatura_" + formatura + "_conteggi.txt")
 
 plt.errorbar(channel_values, counts_values, xerr=channel_errors, yerr=counts_errors)
 
@@ -29,4 +29,4 @@ plt.ylabel("Conteggi")
 plt.ylim(0, 90)
 plt.title("ADC differenziale formatura " + formatura)
 plt.grid(True)
-plt.savefig(file_path + "ADC_differenziale_formatura_" + formatura + ".png")
+plt.savefig(file_path + "plots/ADC_differenziale_formatura_" + formatura + ".png")
