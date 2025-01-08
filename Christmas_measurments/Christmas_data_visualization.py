@@ -27,13 +27,19 @@ for t in times_po:
 
 # Plot RE vs times con barre d'errore, punti più piccoli e griglia più fitta lungo l'asse x
 plt.figure(figsize=(22, 5))
-plt.errorbar(times, RE, yerr=RE_error, fmt='o', capsize=5, color='blue', markersize=2)  # Punti più piccoli
+plt.errorbar(times, RE, yerr=RE_error, fmt='o', capsize=5, color='blue', markersize=2, label="Valori delle misure natalizie")  # Punti più piccoli
 plt.xlabel('Time (min)')
 plt.ylabel(r"$\frac{FWHM}{<E_{\gamma}>}$")
 plt.title(r"$\frac{FWHM}{<E_{\gamma}>}$" + " vs Time")
 plt.grid(True) 
 
+true_value = 0.06952372784942827
+true_error = 0.0003986994307091226
+plt.axhline(true_value, 0, 23500, color="red", label="Valore misurato durante la calibrazione")
+plt.fill_between(times, true_value - true_error, true_value + true_error, color='red', alpha=0.3)
+
 plt.xticks(range(0, int(max(times)) + 10, 1000))
+plt.legend(loc="lower right")
 
 plt.savefig(file_path + "plots/RE_vs_time.png")
 
