@@ -45,12 +45,18 @@ plt.savefig(file_path + "plots/RE_vs_time.png")
 
 # Plot <E>_mean vs times con barre d'errore, punti più piccoli e griglia più fitta lungo l'asse x
 plt.figure(figsize=(22, 5))
-plt.errorbar(times, E_mean, yerr=E_mean_error, fmt='o', capsize=5, color='blue', markersize=2)  # Punti più piccoli
+plt.errorbar(times, E_mean, yerr=E_mean_error, fmt='o', capsize=5, color='blue', markersize=2 , label="Valori delle misure natalizie") # Punti più piccoli
 plt.xlabel('Time (min)')
 plt.ylabel('<E>')
 plt.title('<E> vs Time')
 plt.grid(True)
 
+# true_value = 1398.5585559377448
+# true_error = 0.27309155059643514
+# plt.axhline(true_value, 0, 23500, color="red", label="Valore misurato durante la calibrazione")
+# plt.fill_between(times, true_value - true_error, true_value + true_error, color='red', alpha=0.3)
+
 plt.xticks(range(0, int(max(times)) + 10, 1000))
+plt.legend(loc="upper right")
 
 plt.savefig(file_path + "plots/<E>_vs_time.png")
