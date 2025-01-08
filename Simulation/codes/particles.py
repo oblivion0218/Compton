@@ -23,7 +23,7 @@ class Photon:
         """
         Return a string representation of the Photon object for easy printing.
         """
-        return f"Photon(energy={self.energy} keV, direction={self.direction})"
+        return f"Photon(energy={self.energy} keV, direction={self.direction}, position={self.position})"
 
     def info(self):
         """
@@ -85,26 +85,40 @@ class Photon:
                 return theta  # Return the accepted angle
 
 class Electron:
-    def __init__(self, energy: float):
+    def __init__(self, energy: float, direction: list[float], position: list[float] = [0, 0, 0]):
         """
         Initializes a Electron object with energy and direction.
 
         :param energy: Electron energy in keV.
         """
         self.energy = energy
+        self.direction = np.array(direction)
+        self.position = np.array(position)
+
 
     def __repr__(self):
         """
         Return a string representation of the Electron object for easy printing.
         """
-        return f"Electron(energy={self.energy} keV)"
+        return f"Electron(energy={self.energy} keV, direction={self.direction}, position={self.position})"
 
     def info(self):
         """
-        Print the energy of the electron.
+        Print the energy and the direction of the electron.
         """
         print("Energy:")
         print(self.energy)
+        print("Direction:")
+        print(self.direction)
+
+    def propagation(self, distance: float):
+        """
+        Calculate the new position of the electron after traveling a given distance.
+        
+        :param distance: The distance traveled by the electron.
+        :return: The new position as a 3D vector.
+        """
+        self.position = self.direction * distance
 
     def compton_scattering(self, angle: float, photon: Photon) -> float:
         """
