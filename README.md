@@ -107,7 +107,7 @@ For this measurement, we modified the experimental setup to observe the spectrum
 In this configuration, it is possible to select the optimal signal window. Specifically, we focus on isolating the photopeak of the 511 keV gamma ray, as shown in the following figure: 
 
 <div align="center">
-  <img src="Auto-coincidence/plots/CoincidenceON.png" alt="Experimental setup" width="300">
+  <img src="Auto-coincidence/plots/CoincidenceON.png" alt="Experimental setup" width="500">
 </div>
 
 
