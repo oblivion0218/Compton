@@ -5,9 +5,19 @@ import matplotlib.patches as patches
 # Constants
 density = 3.67  # g/cm^3 (Density of NaI, the material of the detector)
 Z_detector = 49.7  # Z_eff for NaI (effective atomic number of NaI material)
+molar_mass = 149.89 # g/mol
 
 class Detector:
-    def __init__(self, position: list[float], radius: float, width: float, energetic_resolution: float, Z: float = Z_detector):
+    def __init__(
+            self, 
+            position: list[float], 
+            radius: float, # cm
+            width: float, #cm
+            energetic_resolution: float, 
+            Z: float = Z_detector, 
+            density: float = density, # g/cm^3
+            molar_mass: float = molar_mass # g/mol
+        ):
         """
         Initialize the Detector object with parameters for position, size, and energetic resolution.
 
@@ -21,7 +31,10 @@ class Detector:
         self.radius = radius  # Radius of the detector (size)
         self.width = width  # Width of the detector (depth or size depending on setup)
         self.energetic_resolution = energetic_resolution  # Energy resolution of the detector (in keV or percentage)
-        self.Z = Z  # Atomic number of the detector material
+        self.Z = Z  # Atomic number of the detector 
+        self.density = density
+        self.molar_mass = molar_mass 
+
 
     def __repr__(self):
         """
@@ -29,7 +42,8 @@ class Detector:
 
         :return: A string representing the detector’s main properties.
         """
-        return f"Detector(Position={self.position}, Radius={self.radius}, Width={self.width}, Energetic Resolution={self.energetic_resolution}, Z={self.Z})"
+        return f"Detector(Position={self.position}, Radius={self.radius}, Width={self.width}, Energetic Resolution={self.energetic_resolution}, Z={self.Z}, Density={self.density}, Molar mass={self.molar_mass})"
+
 
     def info(self):
         """
@@ -43,6 +57,9 @@ class Detector:
         print(f"Width: {self.width} m")
         print(f"Energetic Resolution: {self.energetic_resolution} keV")
         print(f"Z: {self.Z}")
+        print(f"Density: {self.density}")
+        print(f"Molar mass: {self.molar_mass}")
+
     
     def will_be_in_detector(self, point: np.ndarray, direction: np.ndarray) -> bool:
         """
@@ -73,6 +90,7 @@ class Detector:
         
         return within_radius and same_side  # Return if both conditions are met
     
+
     def is_in_detector(self, point: np.ndarray) -> bool:
         """
         Checks if a given particle is inside the detector.
@@ -91,6 +109,7 @@ class Detector:
 
         return r and y  # Both conditions must be true to be inside the detector
     
+
     def resolution(self, energy: float) -> float:
         """
         Simulates the energy resolution of the detector by adding random fluctuations.
@@ -100,6 +119,7 @@ class Detector:
         """
         return np.random.normal(energy, energy * self.energetic_resolution)  # Simulate energy resolution by adding Gaussian noise
     
+
     def detection(self, electron: p.Electron)-> float:
         """
         Simulates the energy detected by the interaction of an electron.
@@ -109,6 +129,7 @@ class Detector:
         """
         return self.resolution(electron.energy)  # Apply energy resolution to the detected electron's energy
     
+
     def draw_detector_3D(self, ax, axis='y', color='blue', alpha=0.5, label=None):
         """
         Draws the 3D representation of the detector using matplotlib.
@@ -155,6 +176,7 @@ class Detector:
         
         # Plot the surface of the detector as a 3D object
         ax.plot_surface(X, Y, Z, color=color, alpha=alpha, edgecolor='none', label=label)
+    
     
     def draw_detector_2D(self, ax, plane='xy', color='blue', label=None):
         """

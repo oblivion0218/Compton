@@ -20,6 +20,7 @@ class Source:
         self.position = np.array(position)
         self.activity = activity
 
+
     def info(self):
         """
         Print the information about the source: energies, position, and activity.
@@ -28,10 +29,9 @@ class Source:
         energies = self.energies.keys()
         for energy in energies:
             print(f"{energy} keV with probability of {self.energies[energy] * 100} %")
-        print("\nPosition:")
-        print(self.position)
-        print("\nActivity:")
-        print(self.activity)
+        print(f"Position: {self.position}")
+        print(f"Activity: {self.activity}")
+
 
     def random_energies(self, number_of_photons: int = 1) -> np.ndarray:
         """
@@ -43,6 +43,7 @@ class Source:
         possible_energies = list(self.energies.keys())
         probabilities = [self.energies[energy] for energy in possible_energies]
         return np.random.choice(possible_energies, size=number_of_photons, p=probabilities)
+
 
     def random_directions(self, number_of_photons: int = 1) -> np.ndarray:
         """
@@ -62,6 +63,7 @@ class Source:
         ]).T
         return directions
 
+
     def photon_emission(self, number_of_photons: int = 1) -> list:
         """
         Generate a list of Photon objects with random energies and directions.
@@ -72,6 +74,7 @@ class Source:
         energies = self.random_energies(number_of_photons)  # Generate random photon energies
         directions = self.random_directions(number_of_photons)  # Generate random photon directions
         return [p.Photon(energy, direction) for energy, direction in zip(energies, directions)]  # Create and return Photon objects
+
     
     def testing_photons(self, number_of_photons: int = 1, direction: list = [0, 1, 0]) -> list:
         """

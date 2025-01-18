@@ -1,0 +1,77 @@
+import numpy as np
+import random  
+import target as t  
+import experiments as e 
+import particles as p  
+import source as s 
+import interactions as i
+
+# Create a source object with specified photon energies (511 keV and 1274 keV)
+source = s.Source(energies={511: 1, 1274: 0})
+
+# Define the number of photons to simulate
+number_of_photons = 10000
+# Generate a list of test photons using the source
+photons = source.testing_photons(number_of_photons)
+
+target_position = [0, 5, 0]
+
+# Create target objects for different materials (Pb, Al, and Cu) with different properties
+target_Pb = t.Target(position=target_position, radius=2, width=0.27, Z=82, density=11.34, molar_mass=207.2)
+target_Al = t.Target(position=target_position, radius=2, width=3.17, Z=13, density=2.7, molar_mass=26.98)
+target_Cu = t.Target(position=target_position, radius=2, width=0.93, Z=29, density=8.96, molar_mass=63.55)
+
+# Function to simulate photons interacting with a target
+def photon_in_target(photons, target, number_of_steps=10):
+    # Calculate the distance between the source and the target
+    distance = np.linalg.norm(target_position - source.position)
+    
+    # Step size for photon propagation (target width divided by number of steps)
+    step = target.width / number_of_steps
+
+    # List to store photons that scatter in the target
+    photons_scattering = []
+    
+    # Loop over each photon in the list
+    for photon in photons:
+        # Propagate the photon towards the target
+        photon = e.photon_propagation_to_target(photon, distance)
+
+        # Simulate photon propagation inside the target in steps
+        for j in range(number_of_steps):
+            # If a random number is less than the interaction probability, the photon scatters
+            if random.uniform(0, 1) < i.interaction_probability(photon, step, target):
+                photons_scattering.append(photon) 
+                break  # Exit the loop if the photon scatters
+
+    return photons_scattering
+
+# Simulate photon scattering in the three different target materials
+photons_Pb = photons
+photons_Al = photons
+photons_Cu = photons
+
+# Perform scattering simulations for each target
+photons_scattering_Pb = photon_in_target(photons_Pb, target_Pb, number_of_steps=100)
+photons_scattering_Al = photon_in_target(photons_Al, target_Al, number_of_steps=100)
+photons_scattering_Cu = photon_in_target(photons_Cu, target_Cu, number_of_steps=100)
+
+# Calculate the probability of photon interaction in each target material
+Prob_interaction_Pb = len(photons_scattering_Pb) / len(photons_Pb)
+Prob_interaction_Al = len(photons_scattering_Al) / len(photons_Al)
+Prob_interaction_Cu = len(photons_scattering_Cu) / len(photons_Cu)
+
+# Calculate the probability of Compton scattering for each target material
+Prob_compton_Pb = i.cross_section_compton(photons[0], target_Pb.Z) / (i.cross_section_compton(photons[0], target_Pb.Z) + i.cross_section_photoelectric(photons[0], target_Pb.Z))
+Prob_compton_Al = i.cross_section_compton(photons[0], target_Al.Z) / (i.cross_section_compton(photons[0], target_Al.Z) + i.cross_section_photoelectric(photons[0], target_Al.Z))
+Prob_compton_Cu = i.cross_section_compton(photons[0], target_Cu.Z) / (i.cross_section_compton(photons[0], target_Cu.Z) + i.cross_section_photoelectric(photons[0], target_Cu.Z))
+
+# Print the results for each target material (Pb, Al, Cu)
+print(f"Pb\tProbability that the photon interact in the target: {Prob_interaction_Pb}")
+print(f"  \tProbability of Compton interaction: {Prob_interaction_Pb * Prob_interaction_Pb}\n")
+
+print(f"Al\tProbability that the photon interact in the target: {Prob_interaction_Al}")
+print(f"  \tProbability of Compton interaction: {Prob_interaction_Al * Prob_interaction_Al}\n")
+
+print(f"Cu\tProbability that the photon interact in the target: {Prob_interaction_Cu}")
+print(f"  \tProbability of Compton interaction: {Prob_interaction_Cu * Prob_compton_Cu}\n")

@@ -19,21 +19,23 @@ class Photon:
         self.direction = np.array(direction)
         self.position = np.array(position)
 
+
     def __repr__(self):
         """
         Return a string representation of the Photon object for easy printing.
         """
         return f"Photon(energy={self.energy} keV, direction={self.direction}, position={self.position})"
 
+
     def info(self):
         """
         Print the energy and direction of the photon.
         """
-        print("Energy:")
-        print(self.energy)
-        print("Direction:")
-        print(self.direction)        
-    
+        print(f"Energy: {self.energy}")
+        print(f"Direction: {self.direction}")
+        print(f"Position: {self.position}")      
+
+
     def propagation(self, distance: float):
         """
         Calculate the new position of the photon after traveling a given distance.
@@ -43,6 +45,7 @@ class Photon:
         """
         self.position = self.direction * distance
 
+
     def compton_scattering(self, angle: float) -> float:
         """
         Calculate the energy of the photon after Compton scattering.
@@ -51,6 +54,7 @@ class Photon:
         :return: Scattered photon energy.
         """
         return self.energy / (1 + (self.energy / m_e) * (1 - np.cos(angle)))        
+
 
     def klein_nishina(self, angle: float) -> float:
         """
@@ -62,7 +66,8 @@ class Photon:
         r = self.compton_scattering(angle) / self.energy
         c = alpha ** 2 / (2 * m_e ** 2)  # Constant for Klein-Nishina formula
         return c * r ** 2 * (r + 1 / r - np.sin(angle) ** 2)
-    
+
+
     def compton_angle(self) -> float:
         """
         Generate random angles for Compton scattering using rejection sampling.
@@ -83,6 +88,7 @@ class Photon:
             # Accept or reject based on the probability density
             if u <= pdf_compton:
                 return theta  # Return the accepted angle
+
 
 class Electron:
     def __init__(self, energy: float, direction: list[float], position: list[float] = [0, 0, 0]):
@@ -106,10 +112,10 @@ class Electron:
         """
         Print the energy and the direction of the electron.
         """
-        print("Energy:")
-        print(self.energy)
-        print("Direction:")
-        print(self.direction)
+        print(f"Energy: {self.energy}")
+        print(f"Direction: {self.direction}")
+        print(f"Position: {self.position}")
+
 
     def propagation(self, distance: float):
         """
@@ -119,6 +125,7 @@ class Electron:
         :return: The new position as a 3D vector.
         """
         self.position = self.direction * distance
+
 
     def compton_scattering(self, angle: float, photon: Photon) -> float:
         """

@@ -1,7 +1,6 @@
 #include <Servo.h>
 #define SERVO1 23 // Alto
 #define SERVO2 29 // Basso
-#define POTENZIOMETRO A8
 
 Servo myservo1;  // create servo object to control a servo
 Servo myservo2;  // create servo object to control a servo

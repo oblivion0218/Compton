@@ -6,7 +6,7 @@ import experiments as e
 import source as s
 
 # File path to save the output spectrum plot
-file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/plots/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/"
 
 # Function to plot the energy spectrum
 def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum"):
@@ -136,15 +136,15 @@ photons = source.photon_emission(1000)  # Simulate photon emission
 visualization_3D(file_path + "coincidence_3D_visualization.png", [ugo, franco], photons)
 print("End coicidence")
 
-# Simulate the Compton scattering experiment
-target = e.Target([0, -5, 0], 2, 0.5)  # Initialize the target for Compton scattering
-angle = np.pi / 6  # Set scattering angle (30 degrees)
-distance = np.linalg.norm(target.position - franco.position)  # Calculate distance from Franco detector to target
-photons = e.target_scattering(1000, angle, target, ugo, franco, True)  # Simulate scattering
-[photon.propagation(np.linalg.norm(distance)) for photon in photons]  # Propagate scattered photons
+# # Simulate the Compton scattering experiment
+# target = e.Target([0, -5, 0], 2, 0.5)  # Initialize the target for Compton scattering
+# angle = np.pi / 6  # Set scattering angle (30 degrees)
+# distance = np.linalg.norm(target.position - franco.position)  # Calculate distance from Franco detector to target
+# photons = e.target_scattering(1000, angle, target, ugo, franco, True)  # Simulate scattering
+# [photon.propagation(np.linalg.norm(distance)) for photon in photons]  # Propagate scattered photons
 
-# Visualize the 3D photon hit positions and detectors for Compton scattering
-visualization_3D(file_path + "compton_3D_visualization.png", [ugo, franco], photons, target)
+# # Visualize the 3D photon hit positions and detectors for Compton scattering
+# visualization_3D(file_path + "compton_3D_visualization.png", [ugo, franco], photons, target)
 
 # print("End compton")
 print("End")
