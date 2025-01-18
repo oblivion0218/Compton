@@ -80,17 +80,17 @@ However, after evaluating the number of channels utilized out of the total 2048 
 We need to verify the linearity of the Analog-to-Digital Converter (ADC). To do this, we began by using pulses with Gaussian shaping. Our measurements showed that the linearity is well maintained up to the first 300 channels. However, we encountered a limitation with the pulse generator module, which cannot produce amplitudes higher than 7 volts.
 
 <p align="center">
-  <img src="ADC/ADC_differenziale_formatura_gaussiana.png" alt="Differential ADC linearity" width="28%">
-  <img src="ADC/ADC_integrale_formatura_gaussiana.png" alt="Integral ADC linearity" width="28%">
-  <img src="ADC/formatura_gaussiana_residui.png" alt="Integral ADC linearity - Residuals" width="32%">
+  <img src="ADC/plots/ADC_differenziale_formatura_gaussiana.png" alt="Differential ADC linearity" width="28%">
+  <img src="ADC/plots/ADC_integrale_formatura_gaussiana.png" alt="Integral ADC linearity" width="28%">
+  <img src="ADC/plots/formatura_gaussiana_residui.png" alt="Integral ADC linearity - Residuals" width="32%">
 </p>
 
 To address the issue described above, we replaced the module and were required to switch to semi-Gaussian shaping for the pulses.
 
 <p align="center">
-  <img src="ADC/ADC_differenziale_formatura_preamplificata.png" alt="Differential ADC linearity" width="28%">
-  <img src="ADC/ADC_integrale_formatura_preamplificata.png" alt="Integral ADC linearity" width="28%">
-  <img src="ADC/formatura_preamplificata_residui.png" alt="Integral ADC linearity - Residuals" width="32%">
+  <img src="ADC/plots/ADC_differenziale_formatura_preamplificata.png" alt="Differential ADC linearity" width="28%">
+  <img src="ADC/plots/ADC_integrale_formatura_preamplificata.png" alt="Integral ADC linearity" width="28%">
+  <img src="ADC/plots/formatura_preamplificata_residui.png" alt="Integral ADC linearity - Residuals" width="32%">
 </p>
 
 Both types of shaping show linearity, but we observe two distinct linearity curves. 
@@ -107,10 +107,8 @@ For this measurement, we modified the experimental setup to observe the spectrum
 In this configuration, it is possible to select the optimal signal window. Specifically, we focus on isolating the photopeak of the 511 keV gamma ray, as shown in the following figure: 
 
 <div align="center">
-  <img src="Auto-coincidence/CoincidenceON.png" alt="Experimental setup" width="300">
+  <img src="Auto-coincidence/plots/CoincidenceON.png" alt="Experimental setup" width="300">
 </div>
-
-
 
 
 
