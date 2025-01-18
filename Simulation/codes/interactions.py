@@ -3,11 +3,10 @@ import random
 import particles as p
 
 # Physical constants
-bn = 1e-28  # 1 barn in square meters, unit of cross-section
 r_e = 2.817e-13  # Classical electron radius in cm
 m_e = 511  # Electron rest mass energy in keV
 alpha = 1 / 137  # Fine-structure constant (dimensionless)
-N_a = 6.022e23 
+N_a = 6.022e23 # mol^(-1)
  
 # Cross section from wikipedia "https://en.wikipedia.org/wiki/Gamma_ray_cross_section"
 

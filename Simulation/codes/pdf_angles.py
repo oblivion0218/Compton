@@ -5,7 +5,7 @@ from scipy.integrate import quad
 import random
 
 # File path to save the output spectrum plot
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/Compton_angles_distributions/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/compton_angles_distributions/"
 
 # Instantiate a Photon object with arbitrary energy and direction
 

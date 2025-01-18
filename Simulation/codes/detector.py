@@ -26,6 +26,8 @@ class Detector:
         :param width: The width of the detector (could represent depth or size depending on your setup).
         :param energetic_resolution: The energy resolution of the detector (could be in keV, % etc.).
         :param Z: atomic number of the detector material.
+        :param density: density of the detector material.
+        :param molar_mass: molar mass of the detector material.
         """
         self.position = np.array(position)  # Position of the detector in space (3D coordinates)
         self.radius = radius  # Radius of the detector (size)

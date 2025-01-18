@@ -2,6 +2,10 @@
 
 This repository provides a comprehensive simulation framework for modeling and analyzing gamma-ray interactions, particularly focusing on Compton scattering experiments. The project is structured with modular classes and functions to facilitate various experimental setups and visualizations.
 
+## Dimension of the physical variables
+- Lenght in **cm**.
+- Energy in **keV**.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -30,53 +34,7 @@ In addition, the framework integrates 3D visualization tools. These tools allow 
 
 ## Photon Interaction Types
 
-### 1. Photoelectric Effect
-A photon is completely absorbed by an atom, ejecting an electron with energy equal to the photon's energy minus the binding energy of the electron.
-
-#### Cross-section calculation
-The cross-section for the photoelectric effect is computed using a formula involving the atomic number of the detector material and the photon's energy. (form "A Modern Primer to Particle and Nuclear Physycs" by F.Terranova page 69).
-
-The **Photoelectric cross-section** is computed using:
-
-For $\epsilon << 1$ (low-energy photons):
-
-$$
-\sigma_{\text{photoelectric}} = c \cdot Z^5 \cdot \epsilon^{-3.5} \hspace{1.5cm} c = 0.665 \cdot \sqrt{32} \cdot \alpha^4 \cdot b
-$$
-
-For $\epsilon >> 1$ (high-energy photons):
-
-$$
-\sigma_{\text{photoelectric}} = c \cdot Z^5 \cdot \epsilon^{-1} \hspace{1.5cm} c =  0.665 \cdot \frac{3}{2} \cdot \alpha^4 \cdot b
-$$
-
-Where: 
-- $\epsilon = \frac{E_{\gamma}}{m_{e}}$
-  - $E_{\gamma}$ is the **photon energy**.
-  - $m_{e}$ is the **electron rest mass energy**.
-- $Z$ is the **atomic number** of the detector.
-- $\alpha \approx \frac{1}{137}$ is the **fine-structure constant**.
-- $b=10^{-28}$ m $^2$ is the symbol for the **barn** unit.
- 
-### 2. Compton Scattering
-A photon collides with an electron, transferring part of its energy to the electron, which is ejected from the atom. The photon scatters with reduced energy and changes direction.
-
-#### Cross-section calculation
-The cross-section for Compton scattering is computed based on the Thomson scattering cross-section and other parameters like the photon energy and the scattering angle.
-(form "A Modern Primer to Particle and Nuclear Physycs" by F.Terranova page 71).
-
-The **Compton cross-section** is computed using:
-
-$$
-\sigma_{\text{Compton}} = c \cdot Z \left( \frac{(1 + \epsilon)}{\epsilon^2} \left( \frac{2(1 + \epsilon)}{1 + 2\epsilon} - \frac{\ln(1 + 2\epsilon)}{\epsilon} \right) + \frac{\ln(1 + 2\epsilon)}{2\epsilon} - \frac{1 + 3\epsilon}{(1 + 2\epsilon)^2} \right)
-$$
-
-Where:
-- $\epsilon = \frac{E_{\gamma}}{m_e}$
-  - $E_{\gamma}$ is the **photon energy**.
-  - $m_{e}$ is the **electron rest mass energy**.
-- $Z$ is the **atomic number** of the detector.
-- $c$ is a constant: $c = \frac{3}{4} \sigma_{\text{Thompson}}$.
+### Thomson scattering cross-section
 
 The **Thomson scattering cross-section** is given by:
 
@@ -87,8 +45,48 @@ $$
 Where $r_e = 2.817 \cdot 10^{-15}$ m is the **classical electron radius**.
 
 
+### 1. Photoelectric Effect
+A photon is completely absorbed by an atom, ejecting an electron with energy equal to the photon's energy minus the binding energy of the electron.
+
+#### Cross-section calculation
+The cross-section for the photoelectric effect is computed using a formula involving the atomic number of the detector material and the photon's energy (form https://en.wikipedia.org/wiki/Gamma_ray_cross_section).
+
+The **Photoelectric cross-section** is computed using:
+
+$$
+\sigma_{\text{photoelectric}} = c \left( \frac{Z m_e}{E_{\gamma}} \right)^5 \left( \gamma^2 - 1 \right)^{3/2} \left[ \frac{4}{3} + \frac{\gamma (\gamma - 2)}{\gamma + 1} \left( 1 - \frac{1}{2 \gamma \sqrt{\gamma^2 - 1}} \ln \left( \frac{\gamma + \sqrt{\gamma^2 - 1}}{\gamma - \sqrt{\gamma^2 - 1}} \right) \right) \right]
+$$
+
+where:
+- $c = \frac{3}{2} \alpha^4 \sigma_{\text{Thomson}}$.
+- $\gamma = \frac{E_{\gamma} + m_e - E_b}{m_e}$.
+- $E_{\gamma}$ is the **photon energy**.
+- $m_e$ = 511 keV is the **electron rest mass energy**.
+- $E_b \approx 0$ is the **bond energy** for the electron.
+- $Z$ is the **atomic number**.
+- $\alpha\approx \frac{1}{137}$ is the **fine-structure constant**.
+ 
+### 2. Compton Scattering
+A photon collides with an electron, transferring part of its energy to the electron, which is ejected from the atom. The photon scatters with reduced energy and changes direction.
+
+#### Cross-section calculation
+The cross-section for Compton scattering is computed based on the Thomson scattering cross-section and other parameters like the photon energy and the scattering angle (form https://en.wikipedia.org/wiki/Gamma_ray_cross_section).
+
+The **Compton cross-section** is computed using:
+
+$$
+\sigma_{\text{Compton}} = c Z \left[ \frac{(1 + \epsilon)}{\epsilon^2} \left( \frac{2(1 + \epsilon)}{1 + 2\epsilon} - \frac{\ln(1 + 2\epsilon)}{\epsilon} \right) + \frac{\ln(1 + 2\epsilon)}{2\epsilon} - \frac{1 + 3\epsilon}{(1 + 2\epsilon)^2} \right]
+$$
+
+where:
+- $c = \frac{3}{4} \sigma_{\text{Thomson}}$.
+- $\epsilon = \frac{E_{\gamma}}{m_e}$.
+- $E_{\gamma}$ is the **photon energy**.
+- $m_e$ = 511 keV is the **electron rest mass energy**.
+
+
 <div align="center">
-  <img src="utilities/CrossSections.png" alt="Cross Section" width="480">
+  <img src="plots/cross_sections/cross_section_&_interaction_probability.png" alt="Cross Section" width="600">
 </div>
 
 ---
@@ -123,7 +121,7 @@ Represents a photon with energy, direction, and position.
     
   - `compton_angle()`: Generate random scattering angles using rejection sampling, using the Klein-Nishina probability density function.
     <div align="center">
-      <img src="Compton_angles_distributions/angle_distributions_Klein_Nishina.png" alt="Klein-Nishina probability density function" width="750">
+      <img src="plots/compton_angles_distributions/angle_distributions_Klein_Nishina.png" alt="Klein-Nishina probability density function" width="750">
     </div>
 
 ### 2. `Electron`
@@ -159,15 +157,15 @@ Simulates a radioactive source emitting gamma photons. It allows customization o
 
 ### 4. `Detector`
 ```python
-detector = Detector(position: list[float], radius: float, width: float, energetic_resolution: float, Z: float = 49.7)
+detector = Detector(position: list[float], radius: float, width: float, energetic_resolution: float, Z: float = 49.7, density: float = 3.67, molar_mass: float = 149.89)
 ```
 
-Represents a cylindrical gamma-ray detector with customizable position, size, and energy resolution.
+Represents a cylindrical gamma-ray detector with customizable position, size, energy resolution, atomic number, density and molar mass.
 
-- **Attributes**: `position`, `radius`, `width`, `energetic_resolution`,`Z`(defaulting to 49.7 for NaI).
+- **Attributes**: `position`, `radius`, `width`, `energetic_resolution`,`Z`(defaulting to 49.7 for NaI), `density`(defaulting to 3.67 g/cm^3 for NaI), `molar_mass`(defaulting to 149.89 for NaI).
 
 - **Methods**:
-    - `info()`: Prints position, size, and energy resolution.
+    - `info()`: Prints detailed information about the target.
       
     - `will_be_in_detector(point: np.ndarray, direction: np.ndarray) -> bool`: Determines if a particle starting at a given point with a specified direction will hit the detector.
       
@@ -183,12 +181,12 @@ Represents a cylindrical gamma-ray detector with customizable position, size, an
 
 ### 5. `Target`
 ```python
-target = Target(position: list[float], radius: float, width: float, density: float = 11.34, Z: float = 82)
+target = Target(position: list[float], radius: float, width: float,  Z: float, density: float, molar_mass: float)
 ```
 
-Represents a cylindrical target material with defined position, dimensions, density, and atomic number. The target is assumed to be made of lead (Pb) by default.
+Represents a cylindrical target material with defined position, dimensions, atomic number, density and molar mass.
 
-- **Attributes**: `position`, `radius`,`width`, `density`, `Z`.
+- **Attributes**: `position`, `radius`, `width`, `Z`, `density`, `molar_mass`.
 
 - **Methods**:
     - `info()`: Prints detailed information about the target.
@@ -211,7 +209,7 @@ This class allows for the modeling photoelectric effect and Compton scattering, 
 - **Methods**:
     - `info()`: Prints the interaction type.
       
-    - `cross_section(photon: Photon, detector)`: Calculates the cross-section for the specified interaction type (photoelectric or Compton).
+    - `cross_section(photon: Photon, Z)`: Calculates the cross-section for the specified interaction type (photoelectric or Compton).
       
     - `interaction(photon: p.Photon)`: Simulates the interaction (photoelectric or Compton), returning the resulting product (an electron).
 
@@ -221,15 +219,13 @@ This class allows for the modeling photoelectric effect and Compton scattering, 
 
 1. **Spectroscopy of Na-22 Spectrum**: Simulates the energy spectrum emitted by a Na-22 gamma-ray source, modeling the detection of characteristic energy peaks.
 <p align="center">
-  <img src="plots/spettroscopy_franco.png" alt="Example of spettroscopy of Na-22 Spectrum" width="600">
+  <img src="plots/spectrum/spettroscopy_franco.png" alt="Example of spettroscopy of Na-22 Spectrum" width="600">
 </p>
 
 2. **Coincidence Measurement**: Simulates experiments where two detectors simultaneously measure correlated photon events, such as those from pair production. One detector is the gate and the other is the spettroscopy.
 <p align="center">
-  <img src="plots/coincidence_spectrum.png" alt="Example of coincidence measurment (spectrum)" width="600">
+  <img src="plots/spectrum/coincidence_spectrum.png" alt="Example of coincidence measurment (spectrum)" width="600">
 </p>
-
-3. **Compton Scattering on a Target**: Models the scattering of photons off a target material, analyzing the energy and angular distribution of the scattered photons.
 
 ## Visualization
 
@@ -240,5 +236,5 @@ The project includes 3D visualization capabilities that allow users to:
 - Understand the spatial distribution and dynamics of interactions within the simulated environment.
 
 <p align="center">
-  <img src="plots/coincidence_3D_visualization.png" alt="Example coincidence measurment (3D)" width="900">
+  <img src="plots/3D_plots/coincidence_3D_visualization.png" alt="Example coincidence measurment (3D)" width="900">
 </p>

@@ -5,7 +5,7 @@ import interactions as i
 import target as t
 
 # File path to save the output plots
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/cross_sections/"
 
 # Define the energy range for plotting (in keV)
 energies = np.linspace(10, 1500, 1000)  # Generates 1000 points between 10 keV and 1500 keV

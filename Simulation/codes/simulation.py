@@ -117,15 +117,15 @@ number_of_photons = 1000000  # Number of photons to simulate
 
 # Simulate spectroscopy measurements and plot the energy spectrum 
 energies = e.spectroscopy_measurement(number_of_photons, ugo, True)
-plot_energy_spectrum(energies, file_path + "spettroscopy_ugo.png", 10000)
+plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_ugo.png", 10000)
 energies = e.spectroscopy_measurement(number_of_photons, franco, True)
-plot_energy_spectrum(energies, file_path + "spettroscopy_franco.png", 10000)
+plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_franco.png", 10000)
 
 print("End spettroscopy")
 
 # Simulate coincidence measurement and plot the energy spectrum
 energies = e.coincidence_measurement(number_of_photons, ugo, franco, True)
-plot_energy_spectrum(energies, file_path + "coincidence_spectrum.png", 10000)
+plot_energy_spectrum(energies, file_path + "spectrum/coincidence_spectrum.png", 10000)
 
 # Simulate photon emission from a source
 source = s.Source()  # Create a source object
@@ -133,19 +133,8 @@ photons = source.photon_emission(1000)  # Simulate photon emission
 [photon.propagation(np.linalg.norm(franco.position)) for photon in photons]  # Propagate the photons
 
 # Visualize the 3D photon hit positions and detectors for coincidence measurement
-visualization_3D(file_path + "coincidence_3D_visualization.png", [ugo, franco], photons)
+visualization_3D(file_path + "3D_plots/coincidence_3D_visualization.png", [ugo, franco], photons)
 print("End coicidence")
 
-# # Simulate the Compton scattering experiment
-# target = e.Target([0, -5, 0], 2, 0.5)  # Initialize the target for Compton scattering
-# angle = np.pi / 6  # Set scattering angle (30 degrees)
-# distance = np.linalg.norm(target.position - franco.position)  # Calculate distance from Franco detector to target
-# photons = e.target_scattering(1000, angle, target, ugo, franco, True)  # Simulate scattering
-# [photon.propagation(np.linalg.norm(distance)) for photon in photons]  # Propagate scattered photons
-
-# # Visualize the 3D photon hit positions and detectors for Compton scattering
-# visualization_3D(file_path + "compton_3D_visualization.png", [ugo, franco], photons, target)
-
-# print("End compton")
 print("End")
 
