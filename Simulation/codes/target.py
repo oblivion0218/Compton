@@ -54,7 +54,7 @@ class Target:
         :param point: The position of the particle (numpy array).
         :return: True if the point is within the target, False otherwise.
         """
-        r = np.linalg.norm(point[[0, 2]]) <= self.radius  # Check radial distance
+        r = np.linalg.norm([point[0], point[2]]) <= self.radius  # Check radial distance
         if self.position[1] > 0:
             y = self.position[1] <= point[1] <= self.position[1] + self.width  # Check y-range
         else:

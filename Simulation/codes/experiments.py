@@ -18,8 +18,7 @@ def photon_propagation_to_target(photon: p.Photon, distance_source_detector: flo
     L = H / np.cos(alpha_angle)
 
     # Adjust the propagation distance based on the offset
-    distance_source_detector += L
-    photon.propagation(distance_source_detector)
+    photon.propagation(L)
 
     return photon
 
@@ -37,7 +36,7 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
     photon = photon_propagation_to_target(photon, distance_source_detector)
 
     # Initialize a variable for tracking the traveled distance within the detector
-    r = 0
+
     electron = p.Electron(0, [0, 0, 0])
     # Propagate the photon within the detector until it exits or interacts
     while detector.is_in_detector(photon.position):
@@ -45,7 +44,7 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
         total_cross_section = i.cross_section_photoelectric(photon, detector.Z) + i.cross_section_compton(photon, detector.Z)
 
         # Check if the photon interacts with the detector material
-        if random.uniform(0, 1) < i.interaction_probability(photon, r, detector):
+        if random.uniform(0, 1) < i.interaction_probability(photon, step, detector):
 
             # Determine the interaction type (e.g., photoelectric or Compton)
             interaction = i.Interaction(i.which_interaction(photon, detector.Z))
@@ -53,8 +52,7 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
 
             break  # Stop propagation after interaction
 
-        r += step
-        photon.propagation(distance_source_detector + r)
+        photon.propagation(step)
 
     return detector.detection(electron)
 

@@ -30,9 +30,8 @@ def photon_in_target(photons, target, number_of_steps=10):
     # Step size for photon propagation (target width divided by number of steps)
     step = target.width / number_of_steps
 
-    # List to store photons that scatter in the target
-    photons_scattering = []
-    
+    n_scattering_photons = 0
+
     # Loop over each photon in the list
     for photon in photons:
         # Propagate the photon towards the target
@@ -42,25 +41,22 @@ def photon_in_target(photons, target, number_of_steps=10):
         for j in range(number_of_steps):
             # If a random number is less than the interaction probability, the photon scatters
             if random.uniform(0, 1) < i.interaction_probability(photon, step, target):
-                photons_scattering.append(photon) 
+                n_scattering_photons += 1
                 break  # Exit the loop if the photon scatters
 
-    return photons_scattering
+    return n_scattering_photons
 
 # Simulate photon scattering in the three different target materials
-photons_Pb = photons
-photons_Al = photons
-photons_Cu = photons
 
 # Perform scattering simulations for each target
-photons_scattering_Pb = photon_in_target(photons_Pb, target_Pb, number_of_steps=100)
-photons_scattering_Al = photon_in_target(photons_Al, target_Al, number_of_steps=100)
-photons_scattering_Cu = photon_in_target(photons_Cu, target_Cu, number_of_steps=100)
+photons_scattering_Pb = photon_in_target(photons, target_Pb, number_of_steps=100)
+photons_scattering_Al = photon_in_target(photons, target_Al, number_of_steps=100)
+photons_scattering_Cu = photon_in_target(photons, target_Cu, number_of_steps=100)
 
 # Calculate the probability of photon interaction in each target material
-Prob_interaction_Pb = len(photons_scattering_Pb) / len(photons_Pb)
-Prob_interaction_Al = len(photons_scattering_Al) / len(photons_Al)
-Prob_interaction_Cu = len(photons_scattering_Cu) / len(photons_Cu)
+Prob_interaction_Pb = photons_scattering_Pb / len(photons)
+Prob_interaction_Al = photons_scattering_Al / len(photons)
+Prob_interaction_Cu = photons_scattering_Cu / len(photons)
 
 # Calculate the probability of Compton scattering for each target material
 Prob_compton_Pb = i.cross_section_compton(photons[0], target_Pb.Z) / (i.cross_section_compton(photons[0], target_Pb.Z) + i.cross_section_photoelectric(photons[0], target_Pb.Z))
@@ -102,9 +98,9 @@ for width in target_widths:
     photons_scattering_Cu = photon_in_target(photons, target_Cu, number_of_steps=100)
     
     # Compute interaction probabilities
-    prob_interaction_Pb.append(len(photons_scattering_Pb) / len(photons))
-    prob_interaction_Al.append(len(photons_scattering_Al) / len(photons))
-    prob_interaction_Cu.append(len(photons_scattering_Cu) / len(photons))
+    prob_interaction_Pb.append(photons_scattering_Pb / len(photons))
+    prob_interaction_Al.append(photons_scattering_Al / len(photons))
+    prob_interaction_Cu.append(photons_scattering_Cu / len(photons))
     
     # Compute Compton probabilities (assuming cross_section functions are correctly implemented)
     prob_compton_Pb.append(

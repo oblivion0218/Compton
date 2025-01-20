@@ -43,7 +43,7 @@ class Photon:
         :param distance: The distance traveled by the photon.
         :return: The new position as a 3D vector.
         """
-        self.position = self.direction * distance
+        self.position = self.position + np.array(self.direction) * distance
 
 
     def compton_scattering(self, angle: float) -> float:
