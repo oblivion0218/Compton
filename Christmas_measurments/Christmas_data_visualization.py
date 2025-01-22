@@ -5,7 +5,7 @@ import pandas as pd
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Christmas_measurments/"
 
 # Read data from the text file using whitespace as delimiter
-data = pd.read_csv(file_path + "results/Misure_gennaio_2.txt", delim_whitespace=True)
+data = pd.read_csv(file_path + "results/Misure_gennaio_3.txt", delim_whitespace=True)
 
 # Extract specific columns into numpy arrays
 times_po = data["time"]
@@ -55,7 +55,7 @@ plt.fill_between(times, true_value - true_error, true_value + true_error, color=
 # Set x-ticks and plot the legend
 plt.xticks(range(0, int(max(times)) + 10, 1000))
 plt.legend(loc="lower right")
-plt.savefig(file_path + "plots/RE_vs_time_gennaio_2.png")  # Save the figure to a file
+plt.savefig(file_path + "plots/RE_vs_time_gennaio_3.png")  # Save the figure to a file
 
 # Plot <E>_mean vs times 
 plt.figure(figsize=(22, 5))
@@ -74,7 +74,7 @@ plt.grid(True)
 # Set x-ticks and plot the legend
 plt.xticks(range(0, int(max(times)) + 10, 1000))
 plt.legend(loc="lower left")
-plt.savefig(file_path + "plots/<E>_vs_time_gennaio_2.png")  # Save the figure to a file
+plt.savefig(file_path + "plots/<E>_vs_time_gennaio_3.png")  # Save the figure to a file
 
 # #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- 
 
