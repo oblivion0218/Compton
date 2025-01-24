@@ -16,7 +16,7 @@ E_mean_error = data["sigma_<E>"]
 
 # Convert time to minutes and accumulate the time values
 times = []
-sum = 0
+s = 0
 for t in times_po:
     t_str = str(t)
 
@@ -26,7 +26,7 @@ for t in times_po:
     # n_iteration = float(t_str[3:])  # Extract iteration part of the time
 
     # minutes = 60 * n_hour  # Convert hours to minutes
-    # sum += minutes  # Accumulate the total time in minutes
+    # s += minutes  # Accumulate the total time in minutes
 
     # # Misure gennaio
     # minutes = float(t_str[:4]) / 60 # Extract hour value 20 min
@@ -35,7 +35,7 @@ for t in times_po:
     # Misure gennaio 2
     minutes = 20
 
-    sum += minutes
+    s += minutes
     times.append(sum)
 
 # Plot RE vs times
