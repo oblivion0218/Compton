@@ -110,13 +110,62 @@ In this configuration, it is possible to select the optimal signal window. Speci
   <img src="Auto-coincidence/plots/CoincidenceON.png" alt="Experimental setup" width="400">
 </div>
 
+### Stability
+Before the Christmas holiday, we turned off the high voltage (HV) for a full day to study the stability of the photopeak position after a prolonged blackout.
 
+<p align="center"> 
+<img src="Christmas_measurments/plots/<E>_vs_time.png" alt="Photopeak Energy Stability" width="100%"> <img src="Christmas_measurments/plots/RE_vs_time.png" alt="Energy Resolution Stability" width="100%"> 
+</p>
 
+Our observations revealed significant oscillations in the photopeak position and energy resolution, with values that differed considerably from those recorded at the beginning of the laboratory. However, after conducting additional measurements in the following weeks, we noticed that the system became more stable over time. Interestingly, the stability settled at values distinct from the initial measurements.
 
+This discrepancy is attributed to the changes in the setup. When the initial measurements were performed, the NIM-TTL converter and the Dual Timer were not yet integrated into the system. 
 
+<div align="center"> 
+<img src="Christmas_measurments/plots/fit_results.png" alt="Fitted Stability Results" width="600"> 
+</div>
 
+Based on our latest results, we consider the following to be the optimal and stable parameters for the system:
 
+- $\frac{\text{FWHM}}{\langle E \rangle} = 0.068916 \pm 0.000018$
+- $\langle E \rangle = 1434.107 \pm 0.015$ (Represents the channel number corresponding to the photopeak position)
 
+---
+## Target 
 
+### Target material 
+We conducted a simulation to study how the probability of Compton interaction within the target varies with the target's thickness for different materials: copper(Cu), lead(Pb), and aluminum(Al). From these studies, we observed that **copper provided the highest probability of interaction**, making it the most suitable choice for our experiment.
+
+<div align="center"> 
+<img src="Simulation/plots/Interaction_probability/interaction_probability_vs_width_02.png" alt="Interaction probability simulation" width="550"> 
+</div>
+
+Additionally, we analyzed how the probability of a second Compton scattering event changes with the target's thickness. 
+
+<div align="center"> 
+<img src="Simulation/plots/Interaction_probability/multi_compton_probability_02.png" alt="2-Compton probability simulation" width="300"> 
+</div>
+
+While copper exhibited significantly higher values compared to the other materials, this probability was found to be approximately 0.4%. Given its negligible contribution to the overall measurements, we consider it insignificant for our purposes.
+
+### Target dimension
+
+We calculated the optimal thickness of the target for various energies and decided to use a target thickness of **1 cm**. Below is a summary of the results for different energies:
+
+| Energy (MeV) | Thickness (cm) |
+|---------------|-----------------|
+| 0.2      | 0.4537112315       |
+| 0.3      | 0.9257343299        |
+| 0.4      | 1.166766302      |
+
+### Target structure 
+
+We built the target structure using LEGO bricks.
+
+<div align="center"> 
+<img src="Target_structure/Lego_structure/Image2.png" alt="Lego structure" width="600"> 
+</div>
+
+To precisely rotate the target, we will use two servo motors controlled by an Arduino. One of these servo motors moves a laser to accurately align the spectroscopy detector, which will be positioned at a minimum distance of 60 cm from the target. The second servo motor will be responsible for rotating the target itself to specific angles required for the measurements.
 
 

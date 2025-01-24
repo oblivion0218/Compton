@@ -69,7 +69,7 @@ def plot_fit_results(T_RE, T_E, f_RE, f_E):
     legend_RE = ROOT.TLegend(0.6, 0.65, 0.9, 0.9)
     legend_RE.SetHeader("Fit Parameters for ER", "C")
     legend_RE.AddEntry(T_RE, "Data Points", "p")
-    legend_RE.AddEntry(f_RE, f"Fit: q = {f_RE.GetParameter(0):.4f} #pm {f_RE.GetParError(0):.4f}", "l")
+    legend_RE.AddEntry(f_RE, f"Fit: q = {f_RE.GetParameter(0):.6f} #pm {f_RE.GetParError(0):.6f}", "l")
     legend_RE.Draw()
 
     # Plot T_E on the second pad

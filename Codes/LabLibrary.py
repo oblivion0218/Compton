@@ -58,32 +58,40 @@ def read_histogram_data(filename):
 
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# ritorna la posizione del photopeack for 511 keV photon in Na22 
-def search_photopeak(hist, noise_threshold, n_peaks, fileName=None):
+def search_peak(hist, noise_threshold, n_peaks, fileName=None):
     spectrum = ROOT.TSpectrum()
     n_found_peaks = spectrum.Search(hist, n_peaks, "", noise_threshold)
-    
-    print(f"Numero di picchi trovati: {n_found_peaks}")
-    
+
     if n_found_peaks == 0:
         raise Exception("Nessun picco trovato")
     
     # Ottieni le posizioni dei picchi trovati
     peak_positions = spectrum.GetPositionX()
+    peak_positions_list = [peak_positions[i] for i in range(n_found_peaks)]
+
+    print(f"Numero di picchi trovati: {n_found_peaks}")
+    for i in range(n_found_peaks):
+        print(f"Picco {i + 1}: posizione = {peak_positions[i]}")
+
+    if fileName != None:
+        canvas = ROOT.TCanvas("c1", "Istogramma con Picchi", 800, 600)
+        hist.Draw() 
+        canvas.SaveAs(fileName + "_spectrum" + ".png")
+
+    return peak_positions_list
+
+# ritorna la posizione del photopeack for 511 keV photon in Na22 
+def search_photopeak(hist, noise_threshold, n_peaks, fileName=None):
     
+    peak_positions = search_peak(hist, noise_threshold, n_peaks, fileName)
     max_position = peak_positions[0]
     
+    n_found_peaks = len(peak_positions)
     # Trova la posizione del picco massimo
     for i in range(n_found_peaks):
         print(f"Picco {i + 1}: posizione = {peak_positions[i]}")
         if peak_positions[i] > max_position:
             max_position = peak_positions[i]
-    
-    # Disegna l'istogramma e aggiungi marker sui picchi trovati
-    if fileName != None:
-        canvas = ROOT.TCanvas("c1", "Istogramma con Picchi", 800, 600)
-        hist.Draw() 
-        canvas.SaveAs(fileName + "_spectrum" + ".png")
     
     return max_position
 

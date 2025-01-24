@@ -1,29 +1,52 @@
+#include <LiquidCrystal.h>
 #include <Servo.h>
-#define SERVO1 23 // Alto
-#define SERVO2 29 // Basso
+#define SERVO1 23 
+#define SERVO2 29
 
-Servo myservo1;  // create servo object to control a servo
-Servo myservo2;  // create servo object to control a servo
+// initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 51, en = 47, d4 = 43, d5 = 41, d6 = 39, d7 = 37;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+Servo alto;  // create servo object to control a servo
+Servo basso;  // create servo object to control a servo
+int offset_alto = 19;
+int offset_basso = 59;
+
+int angolo_alto = 0;
+int angolo_basso = 90;
 
 void setup() {
-// Servo motore con potenziometro
-  myservo1.attach(SERVO1);  // attaches the servo on pin 9 to the servo object
-  myservo2.attach(SERVO2);  // attaches the servo on pin 9 to the servo object
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+
+  // Scrivi il primo messaggio sulla prima riga
+  lcd.setCursor(0, 0); // Cursore a colonna 0, riga 0
+  lcd.print("COMPTON");
+
+  // Scrivi il secondo messaggio sulla seconda riga
+  lcd.setCursor(0, 1); // Cursore a colonna 0, riga 1
+  lcd.print("DESPERADOS ;)");
+  
+  alto.attach(SERVO1);  
+  basso.attach(SERVO2);  
 }
 
-void loop() {
-// // Servo motore con potenziometro
-  // int input = analogRead(POTENZIOMETRO);            // reads the value of the potentiometer (value between 0 and 1023)
-  // int angolo = map(input, 0, 1023, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
+void loop() {    
 
-  myservo1.write(23 + 0);     //23 x 90        // sets the servo position according to the scaled value
-  myservo2.write(59 + 90);      //59 x 90            // sets the servo position according to the scaled value
+  alto.write(offset_alto + angolo_alto);     
+  basso.write(offset_basso + angolo_basso);
 
-  // for(int i = 0; i <= 90; i += 10){
-  //   myservo1.write(i + 23); 
-  //   myservo2.write(i + 59); 
-  //   delay(1500);     
-  //   }            // sets the servo position according to the scaled value
+  lcd.clear();
 
-  delay(100);                           // waits for the servo to get there
+  lcd.setCursor(0, 0); // Cursore a colonna 0, riga 0
+  lcd.print("Target: ");
+  lcd.print(angolo_alto + 90);
+
+  lcd.setCursor(0, 1); // Cursore a colonna 0, riga 0
+  lcd.print("Detector: ");
+  lcd.print(angolo_basso);
+
+  delay(500); 
 }
