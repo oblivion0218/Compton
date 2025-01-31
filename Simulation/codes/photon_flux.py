@@ -1,10 +1,10 @@
 import numpy as np
 import random  
-import target as t  
-import experiments as e 
-import particles as p  
-import source as s 
-import interactions as i
+import libraries.target as t  
+import libraries.experiments as e 
+import libraries.particles as p  
+import libraries.source as s 
+import libraries.interactions as i
 import matplotlib.pyplot as plt
 
 # Create a source object with specified photon energies (511 keV and 1274 keV)

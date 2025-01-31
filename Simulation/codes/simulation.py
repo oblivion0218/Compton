@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import detector as d
-import particles as p
-import experiments as e
-import source as s
+import libraries.detector as d
+import libraries.particles as p
+import libraries.experiments as e
+import libraries.source as s
 
 # File path to save the output spectrum plot
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/"

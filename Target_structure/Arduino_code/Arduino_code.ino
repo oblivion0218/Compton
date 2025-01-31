@@ -10,10 +10,10 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 Servo alto;  // create servo object to control a servo
 Servo basso;  // create servo object to control a servo
-int offset_alto = 19;
-int offset_basso = 59;
+int offset_alto = 19; //23 x0 -- 
+int offset_basso = 55; //59 x0 --
 
-int angolo_alto = 0;
+int angolo_alto = 90;
 int angolo_basso = 90;
 
 void setup() {
