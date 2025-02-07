@@ -1,6 +1,6 @@
 import numpy as np
 import random
-import particles as p
+from . import particles as p
 import matplotlib.patches as patches
 
 class Target:

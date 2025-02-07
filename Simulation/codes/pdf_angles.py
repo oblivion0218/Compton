@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import particles as p
+from lib import particles as p
 from scipy.integrate import quad
 import random
 

@@ -1,5 +1,5 @@
 import numpy as np
-import particles as p
+from . import particles as p
 
 # Define energies and source properties
 energies = {511: 0.903, 1274: 0.097}  # Energies in keV with corresponding probabilities

@@ -1,5 +1,5 @@
 import numpy as np
-import particles as p
+from . import particles as p
 import matplotlib.patches as patches
 
 # Constants

@@ -1,6 +1,6 @@
 import numpy as np
 import random
-import Compton.Simulation.codes.particles as p
+from . import particles as p
 
 # Physical constants
 r_e = 2.817e-13  # Classical electron radius in cm

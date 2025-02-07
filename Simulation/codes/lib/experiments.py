@@ -1,9 +1,9 @@
 import numpy as np
 import random
-import particles as p
-import detector as d
-import Compton.Simulation.codes.source as s
-import interactions as i
+from . import particles as p
+from . import detector as d
+from . import source as s
+from . import interactions as i
 import matplotlib.patches as patches
         
 step = 0.1 #cm
