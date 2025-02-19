@@ -1,5 +1,5 @@
 import ROOT
-import MoraPyRoot as mpr
+from lib import MoraPyRoot as mpr
 import matplotlib.pyplot as plt
 
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/ADC/"

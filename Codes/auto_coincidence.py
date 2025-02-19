@@ -1,5 +1,5 @@
-import MoraPyRoot as mpr
-import LabLibrary as ll
+from lib import MoraPyRoot as mpr
+from lib import LabLibrary as ll
 import ROOT
 
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Auto-coincidence/"

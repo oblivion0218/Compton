@@ -3,11 +3,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class ScientificNotation:
+    """
+    Represents a number in scientific notation.
+    
+    :param n: The coefficient of the number.
+    :param exp: The exponent of the number.
+    """
     def __init__(self, n, exp):
         self.n = n
         self.exp = exp
 
 def exponential(n):
+    """
+    Converts a number to scientific notation.
+    
+    :param n: The number to convert.
+    :return: A ScientificNotation object.
+    """
     i = 0
     if n < 1:
         while n < 1:
@@ -19,8 +31,14 @@ def exponential(n):
             i += 1
     return ScientificNotation(n, i)
 
-# Serve per importare un oggetto da un root file
 def import_Tobject(file_name, object_name):
+    """
+    Imports an object from a ROOT file.
+    
+    :param file_name: Path to the ROOT file.
+    :param object_name: Name of the object to import.
+    :return: A cloned instance of the requested object.
+    """
     file = ROOT.TFile(file_name)
     if file.IsZombie():
         raise Exception("Error opening the ROOT file")
@@ -32,14 +50,25 @@ def import_Tobject(file_name, object_name):
     return obj.Clone(object_name)
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# Funzioni per fit
+# Function to fit a ROOT object with a given function
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 def fit(point, function, n_parameters, option, precision, min_val=None, max_val=None, cov_mat=False):
+    """
+    Performs a fit on a given dataset using a specified function.
+    
+    :param point: ROOT object containing the data to be fitted.
+    :param function: ROOT function used for the fit.
+    :param n_parameters: Number of parameters in the fit function.
+    :param option: Fit options string for ROOT.
+    :param precision: Fit precision.
+    :param min_val: Minimum x-range for the fit (optional).
+    :param max_val: Maximum x-range for the fit (optional).
+    :param cov_mat: If True, prints the covariance matrix of the fit.
+    """
     fit_result = point.Fit(function, option, "", min_val, max_val) if min_val and max_val else point.Fit(function, option)
     
     print("\n\nFit result:", fit_result.IsValid())
-    print("\n")
     for i in range(n_parameters):
         print(f"par {i}:\t{function.GetParameter(i)} ± {function.GetParError(i)}")
     
@@ -51,6 +80,22 @@ def fit(point, function, n_parameters, option, precision, min_val=None, max_val=
         fit_result.PrintCovMatrix(ROOT.std.cout)
 
 def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
+    """
+    Plots a ROOT graph and fits it with a given function.
+
+    :param point: ROOT object containing the data to be plotted.
+    :param function: ROOT function used for the fit.
+    :param destination_png: Path to save the plot.
+    :param graph_name: Title of the plot.
+    :param x_axis_name: Label for the x-axis.
+    :param y_axis_name: Label for the y-axis.
+    :param graphic_option: Options for the plot.
+    :param min_val: Minimum x-value for the fit range (optional).
+    :param max_val: Maximum x-value for the fit range (optional).
+    :param n_parameters: Number of parameters in the fit function.
+    :param pave_coordinates: Coordinates for the fit results box (optional).
+    :param pave_entries: Labels for the fit results box (optional).
+    """
     canvas = ROOT.TCanvas()
     
     point.Draw(graphic_option)
@@ -89,21 +134,41 @@ def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, 
     else:            
         canvas.Print(destination_png, "png")
 
-# SetRange
 def set_range(point, ax, coordinates):
-    if ax == "x" or ax == "X":
+    """
+    Sets the range of the x or y axis of a ROOT graph.
+    
+    :param point: ROOT object whose axis range is being modified.
+    :param ax: Axis to modify ('x', 'y', 'xy', or 'yx').
+    :param coordinates: List of min and max values for the axis.
+    """
+    if ax.lower() == "x":
         point.GetXaxis().SetRangeUser(coordinates[0], coordinates[1])
-    elif ax == "y" or ax == "Y":
+    elif ax.lower() == "y":
         point.GetYaxis().SetRangeUser(coordinates[0], coordinates[1])
-    elif ax == "xy" or ax == "XY":
+    elif ax.lower() in ["xy", "yx"]:
         point.GetXaxis().SetRangeUser(coordinates[0], coordinates[1])
         point.GetYaxis().SetRangeUser(coordinates[2], coordinates[3])
-    elif ax == "yx" or ax == "YX":
-        point.GetYaxis().SetRangeUser(coordinates[0], coordinates[1])
-        point.GetXaxis().SetRangeUser(coordinates[2], coordinates[3])
-    
+
 # extreme_graph = ("xy", [x_min, x_max, y_muin, y_max])
 def stampa_graph_fit_range(point, function, extreme_graph, destination_png, graph_name, x_axis_name, y_axis_name, graphic_option, min_val = None, max_val = None, n_parameters = 0, pave_coordinates = None, pave_entries = None):
+    """
+    Plots a ROOT graph and fits it with a given function, setting the axis range.
+
+    :param point: ROOT object containing the data to be plotted.
+    :param function: ROOT function used for the fit.
+    :param extreme_graph: Tuple containing the axis to modify and the range values.
+    :param destination_png: Path to save the plot.
+    :param graph_name: Title of the plot.
+    :param x_axis_name: Label for the x-axis.
+    :param y_axis_name: Label for the y-axis.
+    :param graphic_option: Options for the plot.
+    :param min_val: Minimum x-value for the fit range (optional).
+    :param max_val: Maximum x-value for the fit range (optional).
+    :param n_parameters: Number of parameters in the fit function.
+    :param pave_coordinates: Coordinates for the fit results box (optional).
+    :param pave_entries: Labels for the fit results box (optional).   
+    """    
     canvas = ROOT.TCanvas()
     
     point.Draw(graphic_option)
@@ -147,16 +212,21 @@ def stampa_graph_fit_range(point, function, extreme_graph, destination_png, grap
         canvas.Print(destination_png, "png")
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# Funzioni per stampare velocemente con matplotlib un oggetto root
+# Function to plot with matplotlib a ROOT object
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-def plot_hist_MPL(hist, fileNamePNG, grid = True):
-    # Estrai il numero di bin, i contenuti e i bordi del TH1D
+def plot_hist_MPL(hist, fileNamePNG, grid=True):
+    """
+    Plots a ROOT histogram using Matplotlib.
+    
+    :param hist: ROOT histogram object.
+    :param fileNamePNG: Path to save the plot.
+    :param grid: Whether to display the grid (default: True).
+    """
     n_bins = hist.GetNbinsX()
     bin_contents = [hist.GetBinContent(i+1) for i in range(n_bins)]
     bin_edges = [hist.GetBinLowEdge(i+1) for i in range(n_bins+1)]
     
-    # Plotta usando matplotlib
     plt.figure(figsize=(8, 6))
     plt.hist(bin_edges[:-1], bins=bin_edges, weights=bin_contents, histtype='step')
     plt.xlabel(hist.GetXaxis().GetTitle())
@@ -165,12 +235,17 @@ def plot_hist_MPL(hist, fileNamePNG, grid = True):
     plt.savefig(fileNamePNG)
 
 def plot_TGraph_MPL(graph, fileNamePNG, grid=True):
-    # Estrai i punti (x, y) dal TGraph
+    """
+    Plots a ROOT TGraph using Matplotlib.
+    
+    :param graph: ROOT TGraph object.
+    :param fileNamePNG: Path to save the plot.
+    :param grid: Whether to display the grid (default: True).
+    """
     n_points = graph.GetN()
     x_values = [graph.GetPointX(i) for i in range(n_points)]
     y_values = [graph.GetPointY(i) for i in range(n_points)]
     
-    # Plotta con matplotlib
     plt.figure(figsize=(8, 6))
     plt.plot(x_values, y_values, 'o-')
     plt.xlabel(graph.GetXaxis().GetTitle())
@@ -179,14 +254,19 @@ def plot_TGraph_MPL(graph, fileNamePNG, grid=True):
     plt.savefig(fileNamePNG)
 
 def plot_TGraphErrors_MPL(graph, fileNamePNG, grid=True):
-    # Estrai i punti (x, y) e le incertezze dal TGraphErrors
+    """
+    Plots a ROOT TGraphErrors using Matplotlib.
+    
+    :param graph: ROOT TGraph object.
+    :param fileNamePNG: Path to save the plot.
+    :param grid: Whether to display the grid (default: True).
+    """
     n_points = graph.GetN()
     x_values = [graph.GetPointX(i) for i in range(n_points)]
     y_values = [graph.GetPointY(i) for i in range(n_points)]
     x_errors = [graph.GetErrorX(i) for i in range(n_points)]
     y_errors = [graph.GetErrorY(i) for i in range(n_points)]
     
-    # Plotta con matplotlib
     plt.figure(figsize=(8, 6))
     plt.errorbar(x_values, y_values, xerr=x_errors, yerr=y_errors, fmt='o')
     plt.xlabel(graph.GetXaxis().GetTitle())
@@ -195,11 +275,19 @@ def plot_TGraphErrors_MPL(graph, fileNamePNG, grid=True):
     plt.savefig(fileNamePNG)
 
 def plot_TF1_MPL(function, x_min, x_max, fileNamePNG, grid=True, n_points=1000):
-    # Genera i punti x e calcola y
+    """
+    Plots a ROOT TF1 function using Matplotlib.
+    
+    :param function: ROOT TF1 function to plot.
+    :param x_min: Minimum x-value.
+    :param x_max: Maximum x-value.
+    :param fileNamePNG: Path to save the plot.
+    :param grid: Whether to display the grid (default: True).
+    :param n_points: Number of points to sample in the plot.
+    """
     x_values = np.linspace(x_min, x_max, n_points)
     y_values = [function.Eval(x) for x in x_values]
     
-    # Plotta con matplotlib
     plt.figure(figsize=(8, 6))
     plt.plot(x_values, y_values, '-')
     plt.xlabel("x")

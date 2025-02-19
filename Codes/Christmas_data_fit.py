@@ -1,8 +1,8 @@
 import ROOT
 import pandas as pd
 import numpy as np
-import MoraPyRoot as mpr
-import LabLibrary as ll
+from lib import MoraPyRoot as mpr
+from lib import LabLibrary as ll
 
 #Andrea
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Christmas_measurments/"

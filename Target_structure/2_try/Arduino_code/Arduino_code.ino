@@ -8,7 +8,7 @@ const int rs = 51, en = 47, d4 = 43, d5 = 41, d6 = 39, d7 = 37;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 Servo servo;  // create servo object to control a servo
-int offset = 60; // +- 3
+int offset = 62; // +- 3
 
 int angolo = 40;
 

@@ -6,7 +6,7 @@ from iminuit.cost import LeastSquares
 
 # Load the CSV file (make sure to replace 'your_file.csv' with the actual filename)
 file_path = '/mnt/c/Users/User/Desktop/info/Compton/Calibration/'
-df = pd.read_csv(file_path + "Dati_calibrazione - Foglio1.csv", delimiter=',', dtype=str)
+df = pd.read_csv(file_path + "Dati_calibrazione14_02_25.csv", delimiter=',', dtype=str)
 
 # Convert numeric columns, replacing commas with dots
 df["ENERGIA"] = df["ENERGIA"].str.replace(',', '.').astype(float)
@@ -55,7 +55,7 @@ plt.ylabel("Energy (keV)")
 plt.title("Energy vs. Channel with Linear Fit")
 plt.legend()
 plt.grid()
-plt.savefig(file_path + "calibration.png")
+plt.savefig(file_path + "calibration14_02_25.png")
 
 # Print fit results
 print(m)
