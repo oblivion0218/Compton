@@ -24,12 +24,12 @@ def fit_peaks(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_
     f_picco.SetParameters(0, 40000 / n_bins)
     f_picco.SetParameters(1, peak)
     f_picco.SetParameters(2, 0.001 * n_bins)
-    mpr.stampa_graph_fit(H, f_picco, file_path + "plots/peak_" + fileNamePNG, "", "", "Counts", "", peak - extreme, peak + extreme)
+    mpr.stampa_graph_fit(H, f_picco, file_path + "plots/fit/peak_" + fileNamePNG, "", "", "Counts", "", peak - extreme, peak + extreme)
 
     f_fondo = ROOT.TF1("fondo", "[0] + [1]/x", 0, 2500)
     f_fondo.SetParameters(0, 1)
     f_fondo.SetParameters(1, 1)
-    mpr.stampa_graph_fit(H, f_fondo, file_path + "plots/background_" + fileNamePNG, "", "", "Counts", "", peak - extreme * 3, peak + extreme * 3)
+    mpr.stampa_graph_fit(H, f_fondo, file_path + "plots/fit/background_" + fileNamePNG, "", "", "Counts", "", peak - extreme * 3, peak + extreme * 3)
 
     # Background + peak
     f_true = ROOT.TF1("modello", "[0] + [1]/x + gaus(2)", 0, 2500)
@@ -87,11 +87,11 @@ def fit_peaks(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_
 
         text_box.Draw()
 
-        canvas.Print(file_path + "plots/" + fileNamePNG, "png")
+        canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
         del text_box
     
     else:            
-        canvas.Print(file_path + "plots/" + fileNamePNG, "png")
+        canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
 
 peakCompton = ll.search_photopeak(H, 0.4, 4)
 fit_peaks(H, peakCompton, 150, "Compton_fit.png", "Compton peak", "Energy [keV]", "Counts", "", [0.1, 0.68, 0.4, 0.9])
