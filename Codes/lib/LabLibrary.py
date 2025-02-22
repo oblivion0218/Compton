@@ -94,7 +94,7 @@ def search_peak(hist, noise_threshold, n_peaks, fileName=None):
     if fileName != None:
         canvas = ROOT.TCanvas("c1", "Istogramma con Picchi", 800, 600)
         hist.Draw() 
-        canvas.SaveAs(fileName + "_spectrum" + ".png")
+        canvas.SaveAs(fileName)
 
     return peak_positions_list
 

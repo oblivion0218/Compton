@@ -8,7 +8,6 @@ from lib import source as s
 # File path to save the output spectrum plot
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/"
 
-# Function to plot the energy spectrum
 def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum"):
     """
     Plots a histogram of the detected photon energies.
@@ -47,7 +46,6 @@ def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum
     plt.savefig(fileNamePNG)  # Save the plot as PNG
     plt.close()  # Close the plot to free up resources
 
-# Function for 3D visualization of photon hit positions
 def visualization_3D(fileNamePNG, detectors, photons, target=None):
     """
     Creates a 3D visualization of the photon hit points and detector positions.
@@ -116,15 +114,15 @@ franco = d.Detector([0, -15, 0], 2.54, 5.08, 0.0695)  # Detector "Franco"
 number_of_photons = 1000000  # Number of photons to simulate
 
 # Simulate spectroscopy measurements and plot the energy spectrum 
-energies = e.spectroscopy_measurement(number_of_photons, ugo, True)
+energies = e.spectroscopy_measurement(number_of_photons, ugo, s.Source(), True)
 plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_ugo.png", 10000)
-energies = e.spectroscopy_measurement(number_of_photons, franco, True)
+energies = e.spectroscopy_measurement(number_of_photons, franco, s.Source(), True)
 plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_franco.png", 10000)
 
 print("End spettroscopy")
 
 # Simulate coincidence measurement and plot the energy spectrum
-energies = e.coincidence_measurement(number_of_photons, ugo, franco, True)
+energies = e.coincidence_measurement(number_of_photons, ugo, franco, s.Source({511: 1, 1274: 0}), True)
 plot_energy_spectrum(energies, file_path + "spectrum/coincidence_spectrum.png", 10000)
 
 # Simulate photon emission from a source

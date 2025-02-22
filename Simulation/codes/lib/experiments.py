@@ -57,7 +57,7 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
     return detector.detection(electron)
 
 
-def spectroscopy_measurement(number_of_photons, detector: d.Detector, testing: bool = False, step: float = step) -> list[float]:
+def spectroscopy_measurement(number_of_photons, detector: d.Detector, source: s.Source, testing: bool = False, step: float = step) -> list[float]:
     """
     Simulates the interaction of multiple gamma photons with a detector to calculate detected energies.
     
@@ -67,7 +67,6 @@ def spectroscopy_measurement(number_of_photons, detector: d.Detector, testing: b
     :param step: Step size for photon propagation (in cm).
     :return: List of detected photon energies (in keV).
     """
-    source = s.Source()
     direction = [0, np.sign(detector.position[1]), 0]
     # Generate photons either for testing or normal emission
     photons = source.testing_photons(number_of_photons, direction) if testing else source.photon_emission(number_of_photons)
@@ -82,7 +81,7 @@ def spectroscopy_measurement(number_of_photons, detector: d.Detector, testing: b
     return detected_energies
 
 
-def coincidence_photons(number_of_photons: int, gate_detector: d.Detector, spettroscopy_detector: d.Detector, testing: bool = False, step: float = step)-> list[p.Photon]:
+def coincidence_photons(number_of_photons: int, gate_detector: d.Detector, spettroscopy_detector: d.Detector, source: s.Source, testing: bool = False, step: float = step)-> list[p.Photon]:
     """
     Simulates the interaction of multiple gamma photons with two detectors to calculate detected energies.
     
@@ -93,8 +92,7 @@ def coincidence_photons(number_of_photons: int, gate_detector: d.Detector, spett
     :param step: Step size for photon propagation (in cm).
     :return: List of detected photon energies (in keV).
     """
-    energies = {511: 1, 1274: 0}
-    source = s.Source(energies)
+
     direction = [0, np.sign(gate_detector.position[1]), 0]
     # Generate photons either for testing or normal emission
     photons = source.testing_photons(number_of_photons, direction) if testing else source.photon_emission(number_of_photons)
@@ -114,7 +112,7 @@ def coincidence_photons(number_of_photons: int, gate_detector: d.Detector, spett
     return coincidence_photons
 
 
-def coincidence_measurement(number_of_photons: int, gate_detector: d.Detector, spettroscopy_detector: d.Detector, testing: bool = False, step: float = step) -> list[float]:
+def coincidence_measurement(number_of_photons: int, gate_detector: d.Detector, spettroscopy_detector: d.Detector, source: s.Source, testing: bool = False, step: float = step) -> list[float]:
     """
     Simulates the detection of coincident gamma photons in two detectors.
     
@@ -125,7 +123,7 @@ def coincidence_measurement(number_of_photons: int, gate_detector: d.Detector, s
     :param step: Step size for photon propagation (in cm).
     :return: List of detected photon energies (in keV).
     """
-    photons = coincidence_photons(number_of_photons, gate_detector, spettroscopy_detector, testing, step)
+    photons = coincidence_photons(number_of_photons, gate_detector, spettroscopy_detector, source, testing, step)
     detected_energies = []
     distance_spettroscopy = np.linalg.norm(spettroscopy_detector.position) # source in [0, 0, 0]
 
