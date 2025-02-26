@@ -122,6 +122,18 @@ class Detector:
         return np.random.normal(energy, energy * self.energetic_resolution)  # Simulate energy resolution by adding Gaussian noise
     
 
+    def exponential_background(self, energy: float, a: float = -3.885, b: float = -0.012) -> float:
+        """
+        Simulates the exponential background of the detector.
+
+        :param energy: The true energy of the photon (float).
+        :param a: The amplitude of the exponential background.
+        :param b: The decay constant of the exponential background.-3.885
+        :return: The energy after applying the exponential background (float).
+        """
+        return np.exp(a + b * energy)
+    
+
     def detection(self, electron: p.Electron)-> float:
         """
         Simulates the energy detected by the interaction of an electron.
@@ -129,8 +141,8 @@ class Detector:
         :param electron: The incident electron.
         :return: The detected energy (simulated by applying resolution).
         """
-        return self.resolution(electron.energy)  # Apply energy resolution to the detected electron's energy
-    
+        return self.resolution(electron.energy) + self.exponential_background(electron.energy)
+
 
     def draw_detector_3D(self, ax, axis='y', color='blue', alpha=0.5, label=None):
         """

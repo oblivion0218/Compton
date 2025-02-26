@@ -18,7 +18,7 @@ def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum
     :param title: Title of the plot.
     """
     # Filter out energies less than or equal to 1 keV, which might be noise or irrelevant
-    energies_def = [energy for energy in energies if energy > 1]
+    energies_def = [energy for energy in energies if energy > 30]
 
     if not energies_def:
         print("No energies to plot.")
@@ -39,7 +39,7 @@ def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum
     plt.xlabel("Energy (keV)", fontsize=14)
     plt.ylabel("Counts", fontsize=14)
     plt.xlim((0, 900))
-    plt.ylim((0, 100))
+    # plt.ylim((0, 100))
     plt.grid(alpha=0.4)  # Grid for readability
     plt.tight_layout()  # Adjust layout to fit everything
     plt.savefig(fileNamePNG)  # Save the plot as PNG
@@ -49,7 +49,7 @@ def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum
 franco = d.Detector([0, 45, 0], 2.54, 5.08, 0.1194)  # Detector "Franco"
 
 number_of_photons = 100000  # Number of photons to simulate
-source = s.Source({380: 0.8, 511: 0.16, 1275: 0.04})
+source = s.Source({380: 0.80, 511: 0.16, 1275: 0.04})
 
 # Simulate spectroscopy measurements and plot the energy spectrum 
 energies = e.spectroscopy_measurement(number_of_photons, franco, source, True)

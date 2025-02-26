@@ -9,6 +9,13 @@ import matplotlib.patches as patches
 step = 0.1 #cm
 
 def photon_propagation_to_target(photon: p.Photon, distance_source_detector: float) -> p.Photon: # figure: geometry_exp.png
+    """
+    Propagates a photon from the source to the detector.
+
+    :param photon: Photon object representing the gamma photon.
+    :param distance_source_detector: Distance between the source and the detector (in cm).
+    :return: Photon object after propagation to the detector.
+    """
     photon.propagation(distance_source_detector)
     # Calculate the angle (α) between the photon's trajectory and the detector surface
     alpha_angle = np.arctan(photon.position[0] / photon.position[2]) if (photon.position[0] != 0 and photon.position[2] != 0) else 0

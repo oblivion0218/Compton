@@ -5,15 +5,41 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/"
+file_path_background = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/background/"
+coo = [0.1, 0.63, 0.45, 0.9]
 
-hs = ll.hist_vector(file_path + "data/")
+def create_hist(file_path, fileNamePNG):
+    hs = ll.hist_vector(file_path + "data/")
 
-for h in hs:
-    mpr.plot_hist_MPL(h, file_path + "plots/hist/" + h.GetName() + ".png")
-H = ll.spectum_sum(hs)
-mpr.plot_hist_MPL(H, file_path + "plots/hist/" + "hist_sum.png")
+    for h in hs:
+        mpr.plot_hist_MPL(h, file_path + "plots/hist/" + h.GetName() + ".png")
+    
+    H = ll.spectum_sum(hs)
+    mpr.plot_hist_MPL(H, file_path + "plots/hist/" + fileNamePNG)
+
+    return H
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# I Approach - Fit peaks with background
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+H = create_hist(file_path, "hist_sum.png")
+integral_H = H.Integral()
+H = ll.normalize_histogram(H)
 
 def fit_peaks(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates = None):
+    """
+    Fit a peak with a gaussian function and a background with a linear function
+    
+    :param hist: ROOT histogram object.
+    :param peak: Peak position.
+    :param extreme: Range of the peak.
+    :param fileNamePNG: Name of the output file.
+    :param graph_name: Name of the graph.
+    :param x_axis_name: Name of the x-axis. 
+    :param y_axis_name: Name of the y-axis.
+    :param graphic_option: Graphic option.
+    :param pave_coordinates: Coordinates of the text box.
+    """
     coo2 = [0.1, 0.5, 0.4, 0.9]
     str2 = ["f1", "f2", "Amp", "<x>", "#sigma"]
 
@@ -39,62 +65,67 @@ def fit_peaks(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_
     f_true.SetParameter(3, f_picco.GetParameter(1))
     f_true.SetParameter(4, f_picco.GetParameter(2))
 
-    canvas = ROOT.TCanvas()
+    min_val = peak - extreme
+    max_val = peak + extreme
+
+    ll.stampa_graph_fit_ComptonStudy(hist, f_true, integral_H, min_val, max_val, file_path, fileNamePNG, graph_name, 
+                                     x_axis_name, y_axis_name, graphic_option, pave_coordinates, f_fondo)
+
+peakCompton = ll.search_photopeak(H, 0.4, 4)
+fit_peaks(H, peakCompton, 150, "Compton_fit.png", "Compton peak", "Energy [keV]", "Counts", "", coo)
+
+peak511 = ll.search_photopeak(H, 0.2, 4)
+fit_peaks(H, peak511, 100, "511_fit.png", "511 peak", "Energy [keV]", "Counts", "", coo)
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# II Approach - Fit peaks without background
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+H_background = ll.normalize_histogram(create_hist(file_path_background, "hist_sum_background.png"))
+
+# The idea is to use the lead peak to normalize the background
+# The height we want that the height of the lead peak is the same in both histograms
+lead_peak_position = ll.search_first_peak(H, 0.4, 4)
+lead_peak_background_position = ll.search_first_peak(H_background, 0.4, 4)
+lead_peak_H = H.GetBinContent(int(lead_peak_position))
+lead_peak_H_background = H_background.GetBinContent(int(lead_peak_background_position))
+
+scale_factor = lead_peak_H / lead_peak_H_background
+
+H_background = ll.normalize_histogram(H_background, scale_factor)
+
+H_nb = ROOT.TH1F("hist_no_background", "Spectra without background", H.GetNbinsX(), H.GetXaxis().GetXmin(), H.GetXaxis().GetXmax())
+
+for i in range(1, H.GetNbinsX() + 1):  # ROOT bins start from 1
+    content = H.GetBinContent(i) - H_background.GetBinContent(i)
+    H_nb.SetBinContent(i, content)
+mpr.plot_hist_MPL(H_nb, file_path + "plots/hist/" + "hist_no_background.png")
+
+def fit_peaks_no_background(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates = None):
+    """
+    Fit a peak with a gaussian function and a background with a linear function
     
-    hist.Draw(graphic_option)
-    hist.SetTitle(graph_name)
-    hist.GetXaxis().SetTitle(x_axis_name)
-    hist.GetYaxis().SetTitle(y_axis_name)
+    :param hist: ROOT histogram object.
+    :param peak: Peak position.
+    :param extreme: Range of the peak.
+    :param fileNamePNG: Name of the output file.
+    :param graph_name: Name of the graph.
+    :param x_axis_name: Name of the x-axis. 
+    :param y_axis_name: Name of the y-axis.
+    :param graphic_option: Graphic option.
+    :param pave_coordinates: Coordinates of the text box.
+    """
+    n_bins = H.GetNbinsX()
+
+    f_true = ROOT.TF1("picco", "gaus(0)", 0, 2500)
+    # L'inizializzazione dei parametri varia al variare del numero di bin
+    f_true.SetParameters(0, 40000 / n_bins)
+    f_true.SetParameters(1, peak)
+    f_true.SetParameters(2, 0.001 * n_bins)
 
     min_val = peak - extreme
     max_val = peak + extreme
 
-    fit_result = hist.Fit(f_true, "S", "", min_val, max_val) 
-
-    if pave_coordinates != None: 
-        text_box = ROOT.TPaveText(pave_coordinates[0], pave_coordinates[1], pave_coordinates[2], pave_coordinates[3], "NDC")
-        text_box.SetFillColor(0)
-        text_box.SetTextAlign(12)
-
-        E_mean = f_true.GetParameter(3)
-        E_mean_error = f_true.GetParError(3)
-        E_mean_SN = mpr.exponential(E_mean_error)
-
-        if abs(E_mean_SN.exp) < 3:
-            text_box.AddText(f"<E> = {E_mean:.3f} #pm {E_mean_error:.3f}")
-        else:   
-            text_box.AddText(f"E_mean = ({E_mean * 10 ** -E_mean_SN.exp:.3f} #pm {E_mean_SN.n:.3f}) * 10^{{{E_mean_SN.exp}}}")
-
-        FWHM = 2.355 * f_true.GetParameter(4)
-
-        ER = FWHM / E_mean
-        ER_error = np.sqrt((2.355 * f_true.GetParError(4) / E_mean)**2 + (FWHM * f_true.GetParError(3) / E_mean**2)**2)
-        ER_SN = mpr.exponential(ER_error)
-
-        if abs(ER_SN.exp) < 3:
-            text_box.AddText(f"ER = {ER:.3f} #pm {ER_error:.3f}")
-        else:    
-            text_box.AddText(f"ER = ({ER * 10 ** -ER_SN.exp:.3f} #pm {ER_SN.n:.3f}) * 10^{{{ER_SN.exp}}}")
-
-        N_hit = f_true.Integral(peak - extreme, peak + extreme) - f_fondo.Integral(peak - extreme, peak + extreme)
-        N_hit_error = np.sqrt(N_hit)
-        N_hit_SN = mpr.exponential(N_hit_error)
-
-        if abs(N_hit_SN.exp) < 3:
-            text_box.AddText(f"N = {N_hit:.0f} #pm {N_hit_error:.3f}")
-        else:
-            text_box.AddText(f"N = ({N_hit * 10 ** -N_hit_SN.exp:.3f} #pm {N_hit_SN.n:.3f}) * 10^{{{N_hit_SN.exp}}}")
-
-        text_box.Draw()
-
-        canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
-        del text_box
+    ll.stampa_graph_fit_ComptonStudy(hist, f_true, integral_H, min_val, max_val, file_path, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates)
     
-    else:            
-        canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
-
-peakCompton = ll.search_photopeak(H, 0.4, 4)
-fit_peaks(H, peakCompton, 150, "Compton_fit.png", "Compton peak", "Energy [keV]", "Counts", "", [0.1, 0.68, 0.4, 0.9])
-
-peak511 = ll.search_photopeak(H, 0.2, 4)
-fit_peaks(H, peak511, 100, "511_fit.png", "511 peak", "Energy [keV]", "Counts", "", [0.1, 0.68, 0.4, 0.9])
+peakCompton_nb = ll.search_photopeak(H_nb, 0.47, 4)
+fit_peaks_no_background(H_nb, peakCompton_nb, 150, "Compton_fit_no_background.png", "Compton peak", "Energy [keV]", "Counts", "", coo)

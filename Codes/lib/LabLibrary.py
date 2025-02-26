@@ -1,7 +1,11 @@
+import numpy as np
 import os
 import ROOT
 from . import MoraPyRoot as mpr
 
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# File Operations
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def get_file_names(directory_path):
     """
     Retrieves the names of all files in the specified directory.
@@ -25,6 +29,7 @@ def get_file_names(directory_path):
     
     return file_names
 
+
 def remove_extension(file_list):
     """
     Removes file extensions from a list of file names.
@@ -34,39 +39,10 @@ def remove_extension(file_list):
     """
     return [os.path.splitext(file)[0] for file in file_list]
 
-def read_histogram_data(filename):
-    """
-    Reads histogram data from a .Spe file.
-    
-    :param filename: Path to the .Spe file.
-    :return: List of bin values from the histogram.
-    """
-    with open(filename, "r") as file:
-        histogram_data = []
-        found_data_section = False
-        
-        # Search for the $DATA section
-        for line in file:
-            if "$DATA:" in line:
-                found_data_section = True
-                break
-        
-        if not found_data_section:
-            raise Exception("Section $DATA not found in file")
-        
-        # Skip the line with the range "0 2047"
-        next(file)
-        
-        # Read the histogram bin values
-        for line in file:
-            try:
-                bin_value = int(line.strip())
-                histogram_data.append(bin_value)
-            except ValueError:
-                break
 
-    return histogram_data
-
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Peak Search and Identification
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def search_peak(hist, noise_threshold, n_peaks, fileName=None):
     """
     Searches for peaks in a histogram using the TSpectrum algorithm.
@@ -98,6 +74,7 @@ def search_peak(hist, noise_threshold, n_peaks, fileName=None):
 
     return peak_positions_list
 
+
 def search_photopeak(hist, noise_threshold, n_peaks, fileName=None):
     """
     Identifies the photopeak in a histogram, typically for 511 keV photons from Na-22.
@@ -120,6 +97,33 @@ def search_photopeak(hist, noise_threshold, n_peaks, fileName=None):
     
     return max_position
 
+
+def search_first_peak(hist, noise_threshold, n_peaks, fileName=None):  
+    """
+    Identifies the first peak in a histogram.
+    
+    :param hist: ROOT histogram object.
+    :param noise_threshold: Minimum threshold to identify peaks.
+    :param n_peaks: Expected number of peaks to be found.
+    :param fileName: (Optional) If provided, saves a plot of the histogram with peaks.
+    :return: Position of the first peak in the histogram.
+    """
+    peak_positions = search_peak(hist, noise_threshold, n_peaks, fileName)
+    min_position = peak_positions[0]
+    
+    n_found_peaks = len(peak_positions)
+    # Find the maximum peak position
+    for i in range(n_found_peaks):
+        print(f"Picco {i + 1}: posizione = {peak_positions[i]}")
+        if peak_positions[i] < min_position:
+            min_position = peak_positions[i]
+    
+    return min_position
+
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Fit functions for Compton study
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def fit_photopeak_linear_background(hist, fileNamePNG, noise_threshold, n_peaks):
     """
     Fits the photopeak in a histogram with a Gaussian function over a linear background.
@@ -168,7 +172,128 @@ def fit_photopeak_linear_background(hist, fileNamePNG, noise_threshold, n_peaks)
     extreme_graph = ("x", [photopeak_x - extreme, photopeak_x + extreme])
 
     mpr.stampa_graph_fit_range(hist, f_true, extreme_graph, fileNamePNG, "", "", "Counts", "", photopeak_x - extreme, photopeak_x + extreme, 5, coo2, str2)
-  
+
+
+# For histograms normalized to have Area = 1
+def stampa_graph_fit_ComptonStudy(hist, f_true, scale_factor, min, max, file_path, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates = None, f_background = None):
+    """
+    Fit a peak with a given function and print the number of events, the mean energy, and the energy resolution.
+    
+    :param hist: ROOT histogram object.
+    :param f_true: Fit function.
+    :param scale_factor: Scale factor for the number of events.
+    :param min: Minimum value for the fit.
+    :param max: Maximum value for the fit.
+    :param file_path: Path to save the plot.
+    :param fileNamePNG: Name of the output file.
+    :param graph_name: Name of the graph.
+    :param x_axis_name: Name of the x-axis.
+    :param y_axis_name: Name of the y-axis.
+    :param graphic_option: Graphic option.
+    :param pave_coordinates: Coordinates of the text box.
+    :param f_background: Background function.
+    """
+    canvas = ROOT.TCanvas()
+    
+    hist.Draw(graphic_option)
+    hist.SetTitle(graph_name)
+    hist.GetXaxis().SetTitle(x_axis_name)
+    hist.GetYaxis().SetTitle(y_axis_name)
+
+    fit_result = hist.Fit(f_true, "S", "", min, max) 
+
+    if pave_coordinates != None: 
+        text_box = ROOT.TPaveText(pave_coordinates[0], pave_coordinates[1], pave_coordinates[2], pave_coordinates[3], "NDC")
+        text_box.SetFillColor(0)
+        text_box.SetTextAlign(12)
+
+        E_mean = f_true.GetParameter(1)
+        E_mean_error = f_true.GetParError(1)
+        E_mean_SN = mpr.exponential(E_mean_error)
+
+        if abs(E_mean_SN.exp) < 3:
+            text_box.AddText(f"<E> = {E_mean:.3f} #pm {E_mean_error:.3f}")
+        else:   
+            text_box.AddText(f"E_mean = ({E_mean * 10 ** -E_mean_SN.exp:.3f} #pm {E_mean_SN.n:.3f}) * 10^{{{E_mean_SN.exp}}}")
+
+        FWHM = 2.355 * f_true.GetParameter(2)
+
+        ER = FWHM / E_mean
+        ER_error = np.sqrt((2.355 * f_true.GetParError(2) / E_mean)**2 + (FWHM * f_true.GetParError(1) / E_mean**2)**2)
+        ER_SN = mpr.exponential(ER_error)
+
+        if abs(ER_SN.exp) < 3:
+            text_box.AddText(f"ER = {ER:.3f} #pm {ER_error:.3f}")
+        else:    
+            text_box.AddText(f"ER = ({ER * 10 ** -ER_SN.exp:.3f} #pm {ER_SN.n:.3f}) * 10^{{{ER_SN.exp}}}")
+
+        if f_background:
+            N_hit_pc = f_true.Integral(min, max) - f_background.Integral(min, max)
+        else:
+            N_hit_pc = f_true.Integral(min, max)
+
+        N_hit = N_hit_pc * scale_factor
+        N_hit_error = np.sqrt(N_hit)
+        N_hit_SN = mpr.exponential(N_hit_error)
+
+        if abs(N_hit_SN.exp) < 3:
+            text_box.AddText(f"N = {N_hit:.3f} #pm {N_hit_error:.3f}")
+        else:
+            text_box.AddText(f"N = ({N_hit * 10 ** -N_hit_SN.exp:.3f} #pm {N_hit_SN.n:.3f}) * 10^{{{N_hit_SN.exp}}}")
+
+        N_hit_pc_error = N_hit_error / scale_factor
+        N_hit_pc_SN = mpr.exponential(N_hit_pc_error)
+
+        if abs(N_hit_pc_SN.exp) < 3:
+            text_box.AddText(f"N% = {N_hit_pc:.3f} #pm {N_hit_pc_error:.3f}")
+        else:
+            text_box.AddText(f"N% = ({N_hit_pc * 10 ** -N_hit_pc_SN.exp:.3f} #pm {N_hit_pc_SN.n:.3f}) * 10^{{{N_hit_pc_SN.exp}}}")
+
+        text_box.Draw()
+
+        canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
+        del text_box
+    
+    else:            
+        canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
+
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Histogram Operations
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+def read_histogram_data(filename):
+    """
+    Reads histogram data from a .Spe file.
+    
+    :param filename: Path to the .Spe file.
+    :return: List of bin values from the histogram.
+    """
+    with open(filename, "r") as file:
+        histogram_data = []
+        found_data_section = False
+        
+        # Search for the $DATA section
+        for line in file:
+            if "$DATA:" in line:
+                found_data_section = True
+                break
+        
+        if not found_data_section:
+            raise Exception("Section $DATA not found in file")
+        
+        # Skip the line with the range "0 2047"
+        next(file)
+        
+        # Read the histogram bin values
+        for line in file:
+            try:
+                bin_value = int(line.strip())
+                histogram_data.append(bin_value)
+            except ValueError:
+                break
+
+    return histogram_data
+
 
 def hist_vector(directory_path):
     """
@@ -192,6 +317,7 @@ def hist_vector(directory_path):
     
     return hist_list
 
+
 def spectum_sum(histograms):
     """
     Computes the sum of multiple histograms.
@@ -205,3 +331,18 @@ def spectum_sum(histograms):
         hist_sum.Add(hist)
     
     return hist_sum
+
+
+def normalize_histogram(hist, normalized_area=1):
+    """
+    Normalizes a histogram to have an area of 1.
+    
+    :param hist: ROOT histogram object.
+    :return: Normalized ROOT histogram object.
+    """
+    integral = hist.Integral()
+    scale_factor = normalized_area / integral
+    for i in range(1, hist.GetNbinsX() + 1):
+        hist.SetBinContent(i, hist.GetBinContent(i) * scale_factor)
+    
+    return hist
