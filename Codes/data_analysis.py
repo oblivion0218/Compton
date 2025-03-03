@@ -82,14 +82,17 @@ fit_peaks(H, peak511, 100, "511_fit.png", "511 peak", "Energy [keV]", "Counts", 
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 H_background = ll.normalize_histogram(create_hist(file_path_background, "hist_sum_background.png"))
 
-# The idea is to use the lead peak to normalize the background
-# The height we want that the height of the lead peak is the same in both histograms
-lead_peak_position = ll.search_first_peak(H, 0.4, 4)
-lead_peak_background_position = ll.search_first_peak(H_background, 0.4, 4)
-lead_peak_H = H.GetBinContent(int(lead_peak_position))
-lead_peak_H_background = H_background.GetBinContent(int(lead_peak_background_position))
+# # The idea is to use the lead peak to normalize the background
+# # The height we want that the height of the lead peak is the same in both histograms
+# lead_peak_position = ll.search_first_peak(H, 0.4, 4)
+# lead_peak_background_position = ll.search_first_peak(H_background, 0.4, 4)
+# lead_peak_H = H.GetBinContent(int(lead_peak_position))
+# lead_peak_H_background = H_background.GetBinContent(int(lead_peak_background_position))
 
-scale_factor = lead_peak_H / lead_peak_H_background
+# scale_factor = lead_peak_H / lead_peak_H_background
+
+# The idea is to normalize the background using the time of acquisition
+scale_factor = 10 / 18 
 
 H_background = ll.normalize_histogram(H_background, scale_factor)
 
@@ -98,7 +101,7 @@ H_nb = ROOT.TH1F("hist_no_background", "Spectra without background", H.GetNbinsX
 for i in range(1, H.GetNbinsX() + 1):  # ROOT bins start from 1
     content = H.GetBinContent(i) - H_background.GetBinContent(i)
     H_nb.SetBinContent(i, content)
-mpr.plot_hist_MPL(H_nb, file_path + "plots/hist/" + "hist_no_background.png")
+mpr.plot_hist_MPL(H_nb, file_path + "plots/hist/" + "hist_no_background(timelike).png")
 
 def fit_peaks_no_background(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates = None):
     """
@@ -128,4 +131,4 @@ def fit_peaks_no_background(hist, peak, extreme, fileNamePNG, graph_name, x_axis
     ll.stampa_graph_fit_ComptonStudy(hist, f_true, integral_H, min_val, max_val, file_path, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates)
     
 peakCompton_nb = ll.search_photopeak(H_nb, 0.47, 4)
-fit_peaks_no_background(H_nb, peakCompton_nb, 150, "Compton_fit_no_background.png", "Compton peak", "Energy [keV]", "Counts", "", coo)
+fit_peaks_no_background(H_nb, peakCompton_nb, 150, "Compton_fit_no_background(timelike).png", "Compton peak", "Energy [keV]", "Counts", "", coo)
