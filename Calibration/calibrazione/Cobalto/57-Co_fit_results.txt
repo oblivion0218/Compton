@@ -1,0 +1,2 @@
+# Picco, Centro, Altezza 
+1, 362.5, 629.0

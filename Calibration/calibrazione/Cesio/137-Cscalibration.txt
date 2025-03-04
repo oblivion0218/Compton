@@ -1,0 +1,2 @@
+#N, center, center_error, height, height_error, width, width_error, background, background_error 
+1, 92.0, 0.0, 1843.5, 0.0, 8.0, 0.0, 8.150446403508223, 0.0
