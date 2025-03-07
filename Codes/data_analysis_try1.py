@@ -4,7 +4,7 @@ import math
 from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/35_deg/"
 file_path_background = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/background/"
 coo = [0.1, 0.63, 0.45, 0.9]
 
@@ -58,12 +58,12 @@ def fit_peaks(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_
     mpr.stampa_graph_fit(H, f_fondo, file_path + "plots/fit/background_" + fileNamePNG, "", "", "Counts", "", peak - extreme * 3, peak + extreme * 3)
 
     # Background + peak
-    f_true = ROOT.TF1("modello", "[0] + [1]/x + gaus(2)", 0, 2500)
-    f_true.SetParameter(0, f_fondo.GetParameter(0))
-    f_true.SetParameter(1, f_fondo.GetParameter(1))
-    f_true.SetParameter(2, f_picco.GetParameter(0))
-    f_true.SetParameter(3, f_picco.GetParameter(1))
-    f_true.SetParameter(4, f_picco.GetParameter(2))
+    f_true = ROOT.TF1("modello", "gaus(0) + [3] + [4]/x", 0, 2500)
+    f_true.SetParameter(0, f_picco.GetParameter(0))
+    f_true.SetParameter(1, f_picco.GetParameter(1))
+    f_true.SetParameter(2, f_picco.GetParameter(2))
+    f_true.SetParameter(3, f_fondo.GetParameter(0))
+    f_true.SetParameter(4, f_fondo.GetParameter(1))
 
     min_val = peak - extreme
     max_val = peak + extreme
@@ -82,17 +82,9 @@ fit_peaks(H, peak511, 100, "511_fit.png", "511 peak", "Energy [keV]", "Counts", 
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 H_background = ll.normalize_histogram(create_hist(file_path_background, "hist_sum_background.png"))
 
-# # The idea is to use the lead peak to normalize the background
-# # The height we want that the height of the lead peak is the same in both histograms
-# lead_peak_position = ll.search_first_peak(H, 0.4, 4)
-# lead_peak_background_position = ll.search_first_peak(H_background, 0.4, 4)
-# lead_peak_H = H.GetBinContent(int(lead_peak_position))
-# lead_peak_H_background = H_background.GetBinContent(int(lead_peak_background_position))
-
-# scale_factor = lead_peak_H / lead_peak_H_background
-
 # The idea is to normalize the background using the time of acquisition
-scale_factor = 10 / 18 
+# scale_factor = 9 / 18 # 50 deg
+scale_factor = 9 / 14 # 35 deg
 
 H_background = ll.normalize_histogram(H_background, scale_factor)
 
@@ -101,7 +93,7 @@ H_nb = ROOT.TH1F("hist_no_background", "Spectra without background", H.GetNbinsX
 for i in range(1, H.GetNbinsX() + 1):  # ROOT bins start from 1
     content = H.GetBinContent(i) - H_background.GetBinContent(i)
     H_nb.SetBinContent(i, content)
-mpr.plot_hist_MPL(H_nb, file_path + "plots/hist/" + "hist_no_background(timelike).png")
+mpr.plot_hist_MPL(H_nb, file_path + "plots/hist/" + "hist_no_background.png")
 
 def fit_peaks_no_background(hist, peak, extreme, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates = None):
     """
@@ -128,7 +120,8 @@ def fit_peaks_no_background(hist, peak, extreme, fileNamePNG, graph_name, x_axis
     min_val = peak - extreme
     max_val = peak + extreme
 
-    ll.stampa_graph_fit_ComptonStudy(hist, f_true, integral_H, min_val, max_val, file_path, fileNamePNG, graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates)
+    ll.stampa_graph_fit_ComptonStudy(hist, f_true, integral_H, min_val, max_val, file_path, fileNamePNG, 
+                                     graph_name, x_axis_name, y_axis_name, graphic_option, pave_coordinates)
     
 peakCompton_nb = ll.search_photopeak(H_nb, 0.47, 4)
-fit_peaks_no_background(H_nb, peakCompton_nb, 150, "Compton_fit_no_background(timelike).png", "Compton peak", "Energy [keV]", "Counts", "", coo)
+fit_peaks_no_background(H_nb, peakCompton_nb, 150, "Compton_fit_no_background.png", "Compton peak", "Energy [keV]", "Counts", "", coo)

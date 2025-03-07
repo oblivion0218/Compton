@@ -108,17 +108,17 @@ def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, 
     if pave_coordinates != None and pave_entries != None : 
         text_box = ROOT.TPaveText(pave_coordinates[0], pave_coordinates[1], pave_coordinates[2], pave_coordinates[3], "NDC")
 
-        chi2 = exponential(fit_result.Chi2())
+        # chi2 = exponential(fit_result.Chi2())
         par_errors = [exponential(function.GetParError(i)) for i in range(n_parameters)]
 
         text_box.SetFillColor(0)
         text_box.SetTextAlign(12)
         text_box.AddText("Fit result:")
 
-        if abs(chi2.exp) < 3:
-            text_box.AddText(f"#chi^{{2}}/dof = {fit_result.Chi2():.3f}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.3f}")
-        else:
-            text_box.AddText(f"#chi^{{2}}/dof = {chi2.n:.2f} * 10^{{{chi2.exp}}}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.2f} * 10^{{{exponential(fit_result.Chi2() / fit_result.Ndf()).exp}}}")
+        # if abs(chi2.exp) < 3:
+        #     text_box.AddText(f"#chi^{{2}}/dof = {fit_result.Chi2():.3f}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.3f}")
+        # else:
+        #     text_box.AddText(f"#chi^{{2}}/dof = {chi2.n:.2f} * 10^{{{chi2.exp}}}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.2f} * 10^{{{exponential(fit_result.Chi2() / fit_result.Ndf()).exp}}}")
 
         for i in range(n_parameters):
             if abs(par_errors[i].exp) < 3:
@@ -181,17 +181,17 @@ def stampa_graph_fit_range(point, function, extreme_graph, destination_png, grap
     if pave_coordinates != None and pave_entries != None : 
         text_box = ROOT.TPaveText(pave_coordinates[0], pave_coordinates[1], pave_coordinates[2], pave_coordinates[3], "NDC")
 
-        chi2 = exponential(fit_result.Chi2())
+        # chi2 = exponential(fit_result.Chi2())
         par_errors = [exponential(function.GetParError(i)) for i in range(n_parameters)]
 
         text_box.SetFillColor(0)
         text_box.SetTextAlign(12)
         text_box.AddText("Fit result:")
 
-        if abs(chi2.exp) < 3:
-            text_box.AddText(f"#chi^{{2}}/dof = {fit_result.Chi2():.3f}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.3f}")
-        else:
-            text_box.AddText(f"#chi^{{2}}/dof = {chi2.n:.2f} * 10^{{{chi2.exp}}}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.2f} * 10^{{{exponential(fit_result.Chi2() / fit_result.Ndf()).exp}}}")
+        # if abs(chi2.exp) < 3:
+        #     text_box.AddText(f"#chi^{{2}}/dof = {fit_result.Chi2():.3f}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.3f}")
+        # else:
+        #     text_box.AddText(f"#chi^{{2}}/dof = {chi2.n:.2f} * 10^{{{chi2.exp}}}/{fit_result.Ndf()} = {fit_result.Chi2() / fit_result.Ndf():.2f} * 10^{{{exponential(fit_result.Chi2() / fit_result.Ndf()).exp}}}")
 
         for i in range(n_parameters):
             if abs(par_errors[i].exp) < 3:
