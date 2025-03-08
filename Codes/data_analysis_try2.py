@@ -1,14 +1,15 @@
 import ROOT
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/35_deg/"
 coo = [0.1, 0.63, 0.45, 0.9]
 
 # 35 --> 750 ; 50 --> 700
-E_t = 700
+E_t = 750
 
 def compute_background(E, E_t, p2, p3, p4):
     """Helper function to compute polynomial and exponential background components."""
@@ -33,7 +34,6 @@ def compute_background(E, E_t, p2, p3, p4):
 def background_smooth(x, par):
     """Background function without peaks."""
     E = x[0]  # Independent variable (energy)
-    E_t = 750  # Transition energy
 
     # Quadratic polynomial parameters
     p2, p3, p4 = par[2], par[3], par[4]
@@ -44,7 +44,6 @@ def background_smooth(x, par):
 def background_smooth_peak(x, par):
     """Background function with additional Gaussian peaks."""
     E = x[0]  # Independent variable (energy)
-    E_t = 750  # Transition energy
 
     # Quadratic polynomial parameters
     p2, p3, p4 = par[2], par[3], par[4]
@@ -57,6 +56,27 @@ def background_smooth_peak(x, par):
     peak2 = par[8] * math.exp(-((E - par[9]) ** 2) / par[10])
 
     return background + peak1 + peak2
+
+# Funzione a pezzi continua e derivabile
+def final_function(x, par):
+    E = x[0]  # Energia (variabile indipendente)
+
+    # Parametri del polinomio quadratico
+    p2, p3, p4 = par[2], par[3], par[4]
+
+    # Calcoliamo i parametri dell'esponenziale imponendo continuità e derivabilità
+    f_pol = p2 + p3 * E_t + p4 * E_t**2
+    df_pol = p3 + 2 * p4 * E_t
+
+    # Risolviamo per p0 e p1
+    p0 = np.log(f_pol)
+    p1 = df_pol / f_pol
+
+    # Applichiamo il modello corretto nelle diverse regioni
+    if E < E_t:
+        return p2 + p3 * E + p4 * E**2 + par[5] * np.exp(-((E - par[6]) ** 2) / par[7]) + par[8] * np.exp(-((E - par[9]) ** 2) / par[10]) + par[11] * np.exp(-((E - par[12]) ** 2) / par[13])
+    else:
+        return np.exp(p0 + p1 * (E - E_t)) + par[5] * np.exp(-((E - par[6]) ** 2) / par[7]) + par[8] * np.exp(-((E - par[9]) ** 2) / par[10]) + par[11] * np.exp(-((E - par[12]) ** 2) / par[13])
 
 
 def create_hist(file_path, fileNamePNG):
@@ -108,7 +128,7 @@ def fit_peaks(hist, peak, sigma, fileNamePNG, graph_name, x_axis_name, y_axis_na
                          lead_pos - 2 * lead_sigma, lead_pos + 2 * lead_sigma, 3, [0.6, 0.6, 0.9, 0.9], str0)
     
     # 35 --> 0.4, 4 ; 50 --> 0.2, 4
-    p511_pos = ll.search_photopeak(hist, 0.2, 4, file_path + "plots/fit/find_511_peak.png")
+    p511_pos = ll.search_photopeak(hist, 0.4, 4, file_path + "plots/fit/find_511_peak.png")
     p511_sigma = 50
     f_511 = ROOT.TF1("511_peak", "gaus(0)", 0, 2000)
     f_511.SetParameter(0, 0.001)
@@ -168,27 +188,6 @@ def fit_peaks(hist, peak, sigma, fileNamePNG, graph_name, x_axis_name, y_axis_na
     mpr.stampa_graph_fit(hist, f_Compton, file_path + "plots/fit/Compton_peak.png", "Compton peak", "Energy [channels]", "Counts", "",
                          peak - 2 * sigma, peak + 2 * sigma, 3, coo0, str0)
     
-    # Funzione a pezzi continua e derivabile
-    def final_function(x, par):
-        E = x[0]  # Energia (variabile indipendente)
-
-        # Parametri del polinomio quadratico
-        p2, p3, p4 = par[2], par[3], par[4]
-
-        # Calcoliamo i parametri dell'esponenziale imponendo continuità e derivabilità
-        f_pol = p2 + p3 * E_t + p4 * E_t**2
-        df_pol = p3 + 2 * p4 * E_t
-
-        # Risolviamo per p0 e p1
-        p0 = np.log(f_pol)
-        p1 = df_pol / f_pol
-
-        # Applichiamo il modello corretto nelle diverse regioni
-        if E < E_t:
-            return p2 + p3 * E + p4 * E**2 + par[5] * np.exp(-((E - par[6]) ** 2) / par[7]) + par[8] * np.exp(-((E - par[9]) ** 2) / par[10]) + par[11] * np.exp(-((E - par[12]) ** 2) / par[13])
-        else:
-            return np.exp(p0 + p1 * (E - E_t)) + par[5] * np.exp(-((E - par[6]) ** 2) / par[7]) + par[8] * np.exp(-((E - par[9]) ** 2) / par[10]) + par[11] * np.exp(-((E - par[12]) ** 2) / par[13])
-   
     f_true = ROOT.TF1("model", final_function, 0, 2000, 14)
     f_true.SetParameter(0, f_back_def.GetParameter(0))
     f_true.SetParameter(1, f_back_def.GetParameter(1))
@@ -209,7 +208,36 @@ def fit_peaks(hist, peak, sigma, fileNamePNG, graph_name, x_axis_name, y_axis_na
                         10, 2000)
     mpr.plot_TF1_MPL(f_true, 0, 2000, file_path + "plots/fit/final_TF1.png")  
 
-# 35 --> 0.5, 2 ; 50 --> 0.4, 2
-peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
-fit_peaks(H, peakCompton, 60, "Compton_fit.png", "Compton peak", "Energy [channels]", "Counts", "", coo)
+    for i in range(11): 
+        f_back_def.SetParameter(i, f_true.GetParameter(i))
 
+    c1 = ROOT.TCanvas("c1", "Spectrum Fit", 800, 600)
+
+    # Draw histogram
+    H.SetLineColor(ROOT.kGray + 1)  # Black color for histogram
+    H.SetMarkerStyle(20)
+    H.Draw("HIST SAME")  # "E" keeps error bars visible
+
+    # Draw full spectrum function
+    f_true.SetLineColor(ROOT.kRed)  # Red color for full model
+    f_true.SetLineWidth(2)
+    f_true.Draw("SAME")
+
+    # Draw background function
+    f_back_def.SetLineColor(ROOT.kBlue)  # Blue color for background
+    f_back_def.SetLineStyle(2)  # Dashed line
+    f_back_def.Draw("SAME")
+
+    # Add legend
+    legend = ROOT.TLegend(0.1, 0.65, 0.4, 0.9)
+    legend.AddEntry(H, "Histogram", "lep")
+    legend.AddEntry(f_back_def, "Background", "l")
+    legend.AddEntry(f_true, "Full Model", "l")
+    legend.Draw()
+
+    # Save the plot
+    c1.SaveAs(file_path + "plots/fit/comparison.png")
+
+# 35 --> 0.5, 2 ; 50 --> 0.4, 2
+peakCompton = ll.search_photopeak(H, 0.5, 2, file_path + "plots/fit/find_Compton_peak.png")
+fit_peaks(H, peakCompton, 60, "Compton_fit.png", "Compton peak", "Energy [channels]", "Counts", "", coo)
