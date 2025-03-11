@@ -4,17 +4,6 @@ import matplotlib.pyplot as plt
 from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
-#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-# Parameters to set for begin
-#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/"
-
-# E_t = 750 # 35°
-E_t = 700 # 50°
-
-# [lead peak , 511 peak, Compton peak]
-# find_peak_param = [(0.5, 2), (0.4, 4), (0.5, 2)] # 35°
-find_peak_param = [(0.5, 2), (0.2, 4), (0.4, 2)] # 50°
 
 def compute_background(E, E_t, p2, p3, p4):
     """Helper function to compute polynomial and exponential background components."""
@@ -91,11 +80,6 @@ def create_hist(file_path, fileNamePNG):
     mpr.plot_hist_MPL(H, file_path + "plots/hist/" + fileNamePNG)
 
     return H
-
-
-H = create_hist(file_path, "hist_sum.png")
-integral_H = H.Integral()
-H = ll.normalize_histogram(H)
 
 
 def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_axis_name):
@@ -211,7 +195,7 @@ def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_a
     f_true.SetParameter(12, f_Compton.GetParameter(1))
     f_true.SetParameter(13, f_Compton.GetParameter(2))
 
-    mpr.stampa_graph_fit(hist, f_true, file_path + "plots/fit/final_fit.png", "Spectrum", x_axis_name, y_axis_name, "",
+    fit_result = mpr.stampa_graph_fit(hist, f_true, file_path + "plots/fit/final_fit.png", "Spectrum", x_axis_name, y_axis_name, "",
                         10, 2000)
     mpr.plot_TF1_MPL(f_true, 0, 2000, file_path + "plots/fit/final_TF1.png")  
 
@@ -223,17 +207,23 @@ def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_a
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # Relevant parameters
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    chi2 = fit_result.Chi2()
+    ndf = fit_result.Ndf()
+    chi2_ndf = chi2 / ndf
+
     E_mean = (f_true.GetParameter(12), f_true.GetParError(12))
     FWHM = (2.355 * f_true.GetParameter(13), 2.355 * f_true.GetParError(13))
     ER = (FWHM[0] / E_mean[0], np.sqrt((FWHM[1] / E_mean[0]) ** 2 + (FWHM[0] * E_mean[1] / E_mean[0] ** 2) ** 2))
     min = E_mean[0] - n_sigma_integral * f_true.GetParameter(13)
     max = E_mean[0] + n_sigma_integral * f_true.GetParameter(13)
-    N_pc = f_true.Integral(min, max) - f_back_def.Integral(min, max)
-    N = integral_H * N_pc
+    N = f_true.Integral(min, max) - f_back_def.Integral(min, max)
     N_hit = (N, np.sqrt(N))
-    N_hit_pc = (N_pc, N_hit[1] / integral_H)
+    integral_hist = hist.Integral()
+    N_hit_pc = (N_hit[0]/integral_hist, N_hit[1]/integral_hist)
 
-    text = f"<E> = {E_mean[0]:.0f} ± {E_mean[1]:.0f}\n"
+    text = rf"$\chi^{{2}}/\mathrm{{dof}} = {chi2:.3f}/{ndf} = {chi2_ndf:.3f}$"
+    text += "\n"
+    text += f"<E> = {E_mean[0]:.0f} ± {E_mean[1]:.0f}\n"
     text += f"ER = {ER[0]:.3f} ± {ER[1]:.3f}\n"
     text += f"N = {N_hit[0]:.0f} ± {N_hit[1]:.0f}\n"
     text += f"N = ({N_hit_pc[0] * 100:.3f} ± {N_hit_pc[1] * 100:.3f})%"
@@ -241,12 +231,13 @@ def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_a
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # Print result
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    bin_edges = np.array([H.GetBinLowEdge(i+1) for i in range(H.GetNbinsX()+1)])
+    n_bins = hist.GetNbinsX()
+    bin_edges = np.array([hist.GetBinLowEdge(i+1) for i in range(n_bins+1)])
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-    bin_values = np.array([H.GetBinContent(i+1) for i in range(H.GetNbinsX())])
+    bin_values = np.array([hist.GetBinContent(i+1) for i in range(n_bins)])
 
     # Define x-range for functions
-    x_values = np.linspace(bin_edges[0], bin_edges[-1], 1000)
+    x_values = np.linspace(bin_edges[0], bin_edges[-1], n_bins)
 
     # Assuming f_true and f_back_def are TF1 (convert them to callable functions)
     f_true_func = np.vectorize(lambda x: f_true.Eval(x))
@@ -267,18 +258,58 @@ def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_a
     plt.plot(x_values, y_back, color="blue", linestyle="dashed", label="Background")
 
     # Add the text to the plot
-    plt.text(0.2, 0.8, text, fontsize=12, color="black", ha='left', transform=plt.gca().transAxes)
+    plt.text(0.2, 0.75, text, fontsize=12, color="black", ha='left', transform=plt.gca().transAxes)
 
-    # Labels and title
     plt.xlabel(x_axis_name)
     plt.ylabel(y_axis_name)
-
-    # Legend
     plt.legend(loc="upper right")
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)  
+    plt.xticks(range(0, 2200, 200))
 
-    # Save plot
     plt.savefig(file_path + "plots/fit/" + fileNamePNG)
+    plt.close()
+
+    # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    # # Residue
+    # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    plt.figure(figsize=(8, 6))
+
+    residue = []
+    for bin in range(hist.GetNbinsX()): 
+        residue.append(np.abs(f_true.Eval(bin) - hist.GetBinContent(bin+1)))
+
+    plt.plot(x_values, residue, 'x', color='gray', label='residue')
+    plt.axhline(0, color='red', linewidth=2, label='model')
+    plt.xlabel(x_axis_name)
+    plt.ylabel(r"$|model - data|$")
+    plt.legend()
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)  
+    plt.xticks(range(0, 2200, 200))
+
+    plt.savefig(file_path + "plots/fit/residue.png")
+    plt.close()
 
 
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+# Main - 35°
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/35_deg/"
+E_t = 750 
+# [lead peak , 511 peak, Compton peak]
+find_peak_param = [(0.5, 2), (0.4, 4), (0.5, 2)] 
+
+H = create_hist(file_path, "hist_sum.png")
+peakCompton = ll.search_photopeak(H, find_peak_param[2][0], find_peak_param[2][1], file_path + "plots/fit/find_Compton_peak.png")
+fit_peaks(H, peakCompton, 60, 2, "fit_result(2sigma).png", "Energy [channels]", "Counts")
+
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+# Main - 50°
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/"
+E_t = 700
+# [lead peak , 511 peak, Compton peak]
+find_peak_param = [(0.5, 2), (0.2, 4), (0.4, 2)] 
+
+H = create_hist(file_path, "hist_sum.png")
 peakCompton = ll.search_photopeak(H, find_peak_param[2][0], find_peak_param[2][1], file_path + "plots/fit/find_Compton_peak.png")
 fit_peaks(H, peakCompton, 60, 2, "fit_result(2sigma).png", "Energy [channels]", "Counts")

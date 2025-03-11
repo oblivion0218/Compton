@@ -134,6 +134,8 @@ def stampa_graph_fit(point, function, destination_png, graph_name, x_axis_name, 
     else:            
         canvas.Print(destination_png, "png")
 
+    return fit_result
+
 def set_range(point, ax, coordinates):
     """
     Sets the range of the x or y axis of a ROOT graph.
@@ -210,6 +212,9 @@ def stampa_graph_fit_range(point, function, extreme_graph, destination_png, grap
         set_range(point, extreme_graph[0], extreme_graph[1])
                 
         canvas.Print(destination_png, "png")
+
+    return fit_result
+
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Function to plot with matplotlib a ROOT object
