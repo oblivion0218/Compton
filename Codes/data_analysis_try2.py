@@ -46,8 +46,8 @@ def background_smooth_peak(x, par):
     background = compute_background(E, E_t, p2, p3, p4)
 
     # Add Gaussian peaks
-    peak1 = par[5] * np.exp(-((E - par[6]) ** 2) / par[7])
-    peak2 = par[8] * np.exp(-((E - par[9]) ** 2) / par[10])
+    peak1 = par[5] * np.exp(-((E - par[6]) ** 2) / par[7] ** 2)
+    peak2 = par[8] * np.exp(-((E - par[9]) ** 2) / par[10] ** 2)
 
     return background + peak1 + peak2
 
@@ -63,9 +63,9 @@ def final_function(x, par):
     background = compute_background(E, E_t, p2, p3, p4)
 
     # Add Gaussian peaks
-    peak1 = par[5] * np.exp(-((E - par[6]) ** 2) / par[7])
-    peak2 = par[8] * np.exp(-((E - par[9]) ** 2) / par[10])
-    peak3 = par[11] * np.exp(-((E - par[12]) ** 2) / par[13])
+    peak1 = par[5] * np.exp(-((E - par[6]) ** 2) / par[7] ** 2)
+    peak2 = par[8] * np.exp(-((E - par[9]) ** 2) / par[10] ** 2)
+    peak3 = par[11] * np.exp(-((E - par[12]) ** 2) / par[13] ** 2)
 
     return background + peak1 + peak2 + peak3
 
@@ -212,7 +212,8 @@ def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_a
     chi2_ndf = chi2 / ndf
 
     E_mean = (f_true.GetParameter(12), f_true.GetParError(12))
-    FWHM = (2.355 * f_true.GetParameter(13), 2.355 * f_true.GetParError(13))
+    sigma = (f_true.GetParameter(13), f_true.GetParError(13))
+    FWHM = (2.355 * sigma[0], 2.355 * sigma[1])
     ER = (FWHM[0] / E_mean[0], np.sqrt((FWHM[1] / E_mean[0]) ** 2 + (FWHM[0] * E_mean[1] / E_mean[0] ** 2) ** 2))
     min = E_mean[0] - n_sigma_integral * f_true.GetParameter(13)
     max = E_mean[0] + n_sigma_integral * f_true.GetParameter(13)
@@ -272,21 +273,29 @@ def fit_peaks(hist, peak, sigma, n_sigma_integral, fileNamePNG, x_axis_name, y_a
     # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # # Residue
     # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    plt.figure(figsize=(8, 6))
 
-    residue = []
-    for bin in range(hist.GetNbinsX()): 
-        residue.append(np.abs(f_true.Eval(bin) - hist.GetBinContent(bin+1)))
+    residue = [np.abs(f_true.Eval(bin) - hist.GetBinContent(bin+1)) for bin in range(n_bins)]
+    residue_normalized = [np.abs(f_true.Eval(bin) - hist.GetBinContent(bin+1))/sigma[0] for bin in range(n_bins)]
 
-    plt.plot(x_values, residue, 'x', color='gray', label='residue')
-    plt.axhline(0, color='red', linewidth=2, label='model')
-    plt.xlabel(x_axis_name)
-    plt.ylabel(r"$|model - data|$")
-    plt.legend()
-    plt.grid(True, which='both', linestyle='--', linewidth=0.5)  
+    fig, axes = plt.subplots(2, 1, figsize=(10, 14), sharex=True)
+
+    axes[0].plot(x_values, residue, 'x', color='gray', label=r"$|model - data|$")
+    axes[0].axhline(0, color='red', linewidth=2, label='model')
+    axes[0].set_ylabel("Residue")
+    axes[0].legend()
+    axes[0].grid(True, which='both', linestyle='--', linewidth=0.5)
+
+    # Normalized residue
+    axes[1].plot(x_values, residue_normalized, 'o', color='blue', markersize=3, label=r"$\frac{|model - data|}{\sigma_{Compton}}$")
+    axes[1].axhline(0, color='red', linewidth=2, label='model')
+    axes[1].set_xlabel(x_axis_name)
+    axes[1].set_ylabel("Residue")
+    axes[1].legend()
+    axes[1].grid(True, which='both', linestyle='--', linewidth=0.5)
+
     plt.xticks(range(0, 2200, 200))
 
-    plt.savefig(file_path + "plots/fit/residue.png")
+    plt.savefig(file_path + "plots/fit/residue_comparison.png")
     plt.close()
 
 
