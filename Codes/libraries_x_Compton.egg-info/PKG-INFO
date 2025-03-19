@@ -1,0 +1,12 @@
+Metadata-Version: 2.2
+Name: libraries-x-Compton
+Version: 0.1
+Summary: Some lib for Compton data analysis in university laboratory
+Author: Andrea Morandi
+Author-email: morandi.andrea2002@gmail.com
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
+Dynamic: summary

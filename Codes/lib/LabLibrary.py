@@ -313,7 +313,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, min_fit,
     
     # Create a figure with two subplots: one for the main plot and one for the residuals
     fig = plt.figure(figsize=(8, 10))
-    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 2])  # Main plot takes 3/4 of the space, residuals 1/4
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1.5])  
     
     # Main plot
     ax_main = plt.subplot(gs[0])
@@ -345,7 +345,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, min_fit,
     ax_residual.axhline(0, color="red", linewidth=2, label="Zero Line")
 
     ax_residual.set_xlim(min_fit - 200, max_fit + 200)
-    ax_residual.set_ylabel(r"$\frac{data - model}{model}$")
+    ax_residual.set_ylabel(r"$\frac{data - model}{model}$", size=12)
     ax_residual.set_xlabel(x_axis_name)
     ax_residual.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax_residual.legend(loc="upper right")

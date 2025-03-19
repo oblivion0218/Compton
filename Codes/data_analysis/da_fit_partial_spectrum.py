@@ -171,7 +171,8 @@ hist_integral = H.Integral()
 H.Rebin(3)
 H.Scale(1 / 3)
 
-fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
+fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
+                                             file_path + "plots/fit/")
 
 # Final fit
 ll.plot_results(H, hist_integral, fit_result, f_background, f_true, min_fit, max_fit, file_path + "plots/fit/", 
