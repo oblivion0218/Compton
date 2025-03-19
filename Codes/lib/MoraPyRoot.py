@@ -238,6 +238,7 @@ def plot_hist_MPL(hist, fileNamePNG, grid=True):
     plt.ylabel(hist.GetYaxis().GetTitle())
     plt.grid(grid)
     plt.savefig(fileNamePNG)
+    plt.close()
 
 def plot_TGraph_MPL(graph, fileNamePNG, grid=True):
     """
@@ -257,6 +258,7 @@ def plot_TGraph_MPL(graph, fileNamePNG, grid=True):
     plt.ylabel(graph.GetYaxis().GetTitle())
     plt.grid(grid)
     plt.savefig(fileNamePNG)
+    plt.close()
 
 def plot_TGraphErrors_MPL(graph, fileNamePNG, grid=True):
     """
@@ -278,6 +280,7 @@ def plot_TGraphErrors_MPL(graph, fileNamePNG, grid=True):
     plt.ylabel(graph.GetYaxis().GetTitle())
     plt.grid(grid)
     plt.savefig(fileNamePNG)
+    plt.close()
 
 def plot_TF1_MPL(function, x_min, x_max, fileNamePNG, grid=True, n_points=1000):
     """
@@ -299,4 +302,5 @@ def plot_TF1_MPL(function, x_min, x_max, fileNamePNG, grid=True, n_points=1000):
     plt.ylabel("f(x)")
     plt.grid(grid)
     plt.savefig(fileNamePNG)
+    plt.close()
 

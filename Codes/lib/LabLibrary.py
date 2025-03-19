@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import os
 import ROOT
 from . import MoraPyRoot as mpr
@@ -256,6 +258,101 @@ def stampa_graph_fit_ComptonStudy(hist, f_true, scale_factor, min, max, file_pat
     
     else:            
         canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
+
+
+def plot_results(hist, hist_integral, fit_result, f_background, f_true, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name):
+    """
+    Plot the results of the fit."
+
+    :param hist: ROOT histogram object."
+    :param hist_integral: Integral of the histogram before rebinning."
+    :param fit_result: Fit result."
+    :param f_background: Background function."
+    :param f_true: True function."
+    :param min_fit: Minimum value of the fit."
+    :param max_fit: Maximum value of the fit."
+    :param file_path: Path where to save the plot."
+    :param fileNamePNG: Name of the graph."
+    :param x_axis_name: Name of the x-axis."
+    :param y_axis_name: Name of the y-axis."
+    """
+    chi2 = fit_result.Chi2()
+    ndf = fit_result.Ndf()
+    chi2_ndf = chi2 / ndf
+
+    E_mean = (f_true.GetParameter(3), f_true.GetParError(3))
+    sigma = (f_true.GetParameter(4), f_true.GetParError(4))
+    FWHM = (2.355 * sigma[0], 2.355 * sigma[1])
+    ER = (FWHM[0] / E_mean[0], np.sqrt((FWHM[1] / E_mean[0]) ** 2 + (FWHM[0] * E_mean[1] / E_mean[0] ** 2) ** 2))
+
+    integral = f_true.Integral(min_fit, max_fit) - f_background.Integral(min_fit, max_fit)
+    N_hit = (integral, np.sqrt(integral))
+    N_hit_pc = (N_hit[0] / hist_integral, N_hit[1] / hist_integral)
+
+    text = rf"$\chi^{{2}}/\mathrm{{dof}} = {chi2:.3f}/{ndf} = {chi2_ndf:.3f}$"
+    text += "\n"
+    text += f"<E> = {E_mean[0]:.2f} ± {E_mean[1]:.2f}\n"
+    text += f"ER = {ER[0]:.3f} ± {ER[1]:.3f}\n"
+    text += f"N = {N_hit[0]:.2f} ± {N_hit[1]:.2f}\n"
+    text += f"N = ({N_hit_pc[0] * 100:.3f} ± {N_hit_pc[1] * 100:.3f})%"
+
+    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    # PLOT RESULTS - total fit and background
+    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-       
+    n_bins = hist.GetNbinsX()
+    bin_edges = np.array([hist.GetBinLowEdge(i+1) for i in range(n_bins+1)])
+    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    bin_values = np.array([hist.GetBinContent(i+1) for i in range(n_bins)])
+
+    x_values = np.linspace(min_fit, max_fit, 1000)
+    f_true_func = np.vectorize(lambda x: f_true.Eval(x))
+    f_back_func = np.vectorize(lambda x: f_background.Eval(x))
+
+    y_true = f_true_func(x_values)
+    y_back = f_back_func(x_values)
+    
+    # Create a figure with two subplots: one for the main plot and one for the residuals
+    fig = plt.figure(figsize=(8, 10))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 2])  # Main plot takes 3/4 of the space, residuals 1/4
+    
+    # Main plot
+    ax_main = plt.subplot(gs[0])
+    ax_main.hist(bin_centers, bins=bin_edges, weights=bin_values, edgecolor="gray", facecolor="none", histtype='step', label="Histogram")
+    ax_main.plot(x_values, y_true, color="red", linewidth=2, label="Full Model")
+    ax_main.plot(x_values, y_back, color="blue", linestyle="dashed", label="Background")
+    ax_main.text(0.1, 0.75, text, fontsize=12, color="black", ha='left', transform=ax_main.transAxes)
+    
+    ax_main.set_xlabel(x_axis_name)
+    ax_main.set_ylabel(y_axis_name)
+    ax_main.legend(loc="upper right")
+    ax_main.grid(True, which='both', linestyle='--', linewidth=0.5)
+    ax_main.set_xticks(range(0, 2200, 200))
+    
+    # Residual plot
+    ax_residual = plt.subplot(gs[1], sharex=ax_main)
+
+    # Calculate residuals for points inside the integration domain
+    residuals = []
+    residual_centers = []
+    for i, center in enumerate(bin_centers):
+        if min_fit <= center <= max_fit:
+            model_value = f_true.Eval(center)
+            residual = (bin_values[i] - model_value) / model_value
+            residuals.append(residual)
+            residual_centers.append(center)  # Only include centers in the integration domain
+
+    ax_residual.errorbar(residual_centers, residuals, fmt='x', color='black', label="Residuals")
+    ax_residual.axhline(0, color="red", linewidth=2, label="Zero Line")
+
+    ax_residual.set_xlim(min_fit - 200, max_fit + 200)
+    ax_residual.set_ylabel(r"$\frac{data - model}{model}$")
+    ax_residual.set_xlabel(x_axis_name)
+    ax_residual.grid(True, which='both', linestyle='--', linewidth=0.5)
+    ax_residual.legend(loc="upper right")
+
+    plt.tight_layout()
+    plt.savefig(file_path + fileNamePNG)
+    plt.close()
 
 
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
