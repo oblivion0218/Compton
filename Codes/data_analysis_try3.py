@@ -99,7 +99,7 @@ def stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, x_axis
         min_fit = peakCompton - i * step
         max_fit = peakCompton + i * step
         c,_,_= fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, x_axis_name, y_axis_name, 
-                         file_path + "fit_stability/" + str(i))
+                         file_path + "fit_stability/extreme/" + str(i))
         chi2.append(c.Chi2() / c.Ndf())
 
     plt.figure()
@@ -133,7 +133,7 @@ def stability_study_rebin(H, peakCompton, sigmaCompton, rebin_index, min_fit, ma
         h.Rebin(r)
         h.Scale(1 / r)
         c, _, _ = fit_peaks(h, peakCompton, sigmaCompton, min_fit, max_fit, x_axis_name, y_axis_name, 
-                            file_path + "fit_stability/Rebin_" + str(r))
+                            file_path + "fit_stability/rebin/Rebin_" + str(r))
         chi2.append(c.Chi2() / c.Ndf())
 
     plt.figure()
@@ -156,14 +156,14 @@ sigmaCompton = 50
 # Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
 step = 30
 max_step = 20
-# stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
+stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
 min_fit = peakCompton - 5 * step
 max_fit = peakCompton + 5 * step
 
 # Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
 rebin_index = [1, 2, 3, 4, 5, 6, 7, 8, 16, 32]
-# stability_study_rebin(H, peakCompton, sigmaCompton, rebin_index, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
+stability_study_rebin(H, peakCompton, sigmaCompton, rebin_index, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
 # It si necessary to do the three following steps in order to have the same number of hit 
 # under the peak for a rebbined histogram
@@ -171,7 +171,7 @@ hist_integral = H.Integral()
 H.Rebin(3)
 H.Scale(1 / 3)
 
-fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", file_path)
+fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
 # Final fit
 ll.plot_results(H, hist_integral, fit_result, f_background, f_true, min_fit, max_fit, file_path + "plots/fit/", 
