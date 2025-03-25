@@ -79,7 +79,7 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     return fit_result, f_back_e, f_true
 
 
-def stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, x_axis_name, y_axis_name, file_path):
+# def stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, x_axis_name, y_axis_name, file_path):
     """"
     Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
 
@@ -112,38 +112,175 @@ def stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, x_axis
     plt.close()
 
 
-def stability_study_rebin(H, peakCompton, sigmaCompton, rebin_index, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
+def stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, x_axis_name, y_axis_name, file_path):
     """
-    Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
-
+    Study the stability of the fit as a function of the fitting range extremes.
+    In addition to χ²/ndf, also evaluate the fitted Compton peak position, σ, and
+    the energy resolution (ER = σ/peak × 100%).
+    
     :param H: ROOT histogram object.
-    :param peakCompton: Peak position.
-    :param sigmaCompton: Range of the peak.
-    :param rebin_index: List of rebin factors.
+    :param peakCompton: Nominal peak position.
+    :param sigmaCompton: Nominal sigma of the peak.
+    :param step: Step size for changing the fit extremes.
+    :param max_step: Maximum step (number of iterations).
+    :param x_axis_name: Label for x-axis.
+    :param y_axis_name: Label for y-axis.
+    :param file_path: Path (folder) to save the plots.
+    """
+    n_steps = [i for i in range(1, max_step)]
+    chi2_list = []
+    peak_fit_list = []
+    sigma_fit_list = []
+    er_list = []
+    
+    # Loop over fit extremes
+    for i in n_steps:
+        min_fit = peakCompton - i * step
+        max_fit = peakCompton + i * step
+        # Call your fit_peaks routine (which returns a canvas, background fit, and the full fit function)
+        c, _, f_true = fit_peaks(H, peakCompton, sigmaCompton,
+                                 min_fit, max_fit,
+                                 x_axis_name, y_axis_name,
+                                 file_path + "fit_stability/extreme/" + str(i))
+        chi2_val = c.Chi2() / c.Ndf()
+        fitted_peak = f_true.GetParameter(3)  # Compton peak position
+        fitted_sigma = f_true.GetParameter(4)  # Compton sigma
+        er = (fitted_sigma * 2.355 / fitted_peak) * 100  # Energy resolution in %
+        
+        chi2_list.append(chi2_val)
+        peak_fit_list.append(fitted_peak)
+        sigma_fit_list.append(fitted_sigma)
+        er_list.append(er)
+    
+    # Plot all the stability studies in a single figure using subplots.
+    fig, axs = plt.subplots(2, 2, figsize=(18, 10))
+    
+    # Subplot 1: χ²/ndf stability
+    axs[0, 0].plot(n_steps, chi2_list, marker='o', linestyle='--', color='blue')
+    axs[0, 0].set_title(r'$\chi^2/ndf$ Stability')
+    axs[0, 0].set_xlabel("N_step")
+    axs[0, 0].set_ylabel(r"$\chi^2/ndf$")
+    axs[0, 0].grid(True)
+    axs[0, 0].set_xticks(n_steps)
+    
+    # Subplot 2: Fitted Peak Position
+    axs[0, 1].plot(n_steps, peak_fit_list, marker='o', linestyle='--', color='red')
+    axs[0, 1].set_title("Fitted Compton Peak Position")
+    axs[0, 1].set_xlabel("N_step")
+    axs[0, 1].set_ylabel("Peak Position")
+    axs[0, 1].grid(True)
+    axs[0, 1].set_xticks(n_steps)
+    
+    # Subplot 3: Fitted Sigma
+    axs[1, 0].plot(n_steps, sigma_fit_list, marker='o', linestyle='--', color='green')
+    axs[1, 0].set_title("Fitted σ Stability")
+    axs[1, 0].set_xlabel("N_step")
+    axs[1, 0].set_ylabel("σ")
+    axs[1, 0].grid(True)
+    axs[1, 0].set_xticks(n_steps)
+    
+    # Subplot 4: Energy Resolution (ER = σ/peak × 100)
+    axs[1, 1].plot(n_steps, er_list, marker='o', linestyle='--', color='magenta')
+    axs[1, 1].set_title("Energy Resolution Stability")
+    axs[1, 1].set_xlabel("N_step")
+    axs[1, 1].set_ylabel("ER (%)")
+    axs[1, 1].grid(True)
+    axs[1, 1].set_xticks(n_steps)
+    
+    fig.tight_layout()
+    plot_file = file_path + "stability_summary_extreme.png"
+    plt.savefig(plot_file)
+    plt.close()
+    print(f"Stability summary plot saved to {plot_file}")
+
+
+def stability_study_rebin(H, peakCompton, sigmaCompton, rebin_max, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
+    """
+    Study the stability of the fit as a function of the histogram rebinning factor.
+    In addition to χ²/ndf, evaluate the fitted Compton peak position, σ, and the energy 
+    resolution (ER = σ/peak × 100%).
+    
+    :param H: ROOT histogram object.
+    :param peakCompton: Nominal peak position.
+    :param sigmaCompton: Nominal sigma of the peak.
+    :param rebin_max: Maximum rebin factor to loop over (from 1 to rebin_max).
     :param min_fit: Minimum value of the fit.
     :param max_fit: Maximum value of the fit.
-    :param x_axis_name: Name of the x-axis.
-    :param y_axis_name: Name of the y-axis.
-    :param file_path: Path to save the
+    :param x_axis_name: Label for x-axis.
+    :param y_axis_name: Label for y-axis.
+    :param file_path: Path (folder) to save the plots.
     """
-    chi2 = []
 
-    for r in rebin_index: 
-        h = H.Clone()
-        h.Rebin(r)
-        h.Scale(1 / r)
-        c, _, _ = fit_peaks(h, peakCompton, sigmaCompton, min_fit, max_fit, x_axis_name, y_axis_name, 
-                            file_path + "fit_stability/rebin/Rebin_" + str(r))
-        chi2.append(c.Chi2() / c.Ndf())
-
-    plt.figure()
-    plt.plot(rebin_index, chi2, color="blue", marker="o", linestyle="dashed")
-    plt.xlabel(r"$Rebin factor$")
-    plt.ylabel(r"$\chi^2 / ndf$")
-    plt.grid()
-    plt.xticks(rebin_index)
-    plt.savefig(file_path + "chi2_rebin.png")
+    # Create lists to store stability parameters
+    rebin_factors = [i for i in range(1, rebin_max + 1)]
+    chi2_list = []
+    peak_fit_list = []
+    sigma_fit_list = []
+    er_list = []
+    
+    # Loop over rebin factors
+    for i in rebin_factors:
+        # Clone and rebin the histogram to avoid modifying the original
+        H_rebin = H.Clone()
+        H_rebin.Rebin(i)
+        
+        # Perform the fit on the rebinned histogram
+        c, _, f_true = fit_peaks(H_rebin, peakCompton, sigmaCompton,
+                                 min_fit, max_fit,
+                                 x_axis_name, y_axis_name,
+                                 file_path + "fit_stability/rebin/" + str(i))
+        # Extract χ²/ndf
+        chi2_val = c.Chi2() / c.Ndf()
+        # Extract fitted parameters (using indices as in your fit_peaks)
+        fitted_peak = f_true.GetParameter(3)  # Compton peak position
+        fitted_sigma = f_true.GetParameter(4)   # Compton sigma
+        er = (fitted_sigma * 2.355 / fitted_peak) * 100   # Energy resolution in %
+        
+        chi2_list.append(chi2_val)
+        peak_fit_list.append(fitted_peak)
+        sigma_fit_list.append(fitted_sigma)
+        er_list.append(er)
+    
+    # Plot all the stability studies in a single figure using subplots
+    fig, axs = plt.subplots(2, 2, figsize=(18, 10))
+    
+    # Subplot 1: χ²/ndf stability vs. rebin factor
+    axs[0, 0].plot(rebin_factors, chi2_list, marker='o', linestyle='--', color='blue')
+    axs[0, 0].set_title(r'$\chi^2/ndf$ Stability vs Rebin Factor')
+    axs[0, 0].set_xlabel("Rebin Factor")
+    axs[0, 0].set_ylabel(r"$\chi^2/ndf$")
+    axs[0, 0].grid(True)
+    axs[0, 0].set_xticks(rebin_factors)
+    
+    # Subplot 2: Fitted Peak Position vs. rebin factor
+    axs[0, 1].plot(rebin_factors, peak_fit_list, marker='o', linestyle='--', color='red')
+    axs[0, 1].set_title("Fitted Compton Peak Position vs Rebin Factor")
+    axs[0, 1].set_xlabel("Rebin Factor")
+    axs[0, 1].set_ylabel("Peak Position")
+    axs[0, 1].grid(True)
+    axs[0, 1].set_xticks(rebin_factors)
+    
+    # Subplot 3: Fitted σ vs. rebin factor
+    axs[1, 0].plot(rebin_factors, sigma_fit_list, marker='o', linestyle='--', color='green')
+    axs[1, 0].set_title("Fitted σ Stability vs Rebin Factor")
+    axs[1, 0].set_xlabel("Rebin Factor")
+    axs[1, 0].set_ylabel("σ")
+    axs[1, 0].grid(True)
+    axs[1, 0].set_xticks(rebin_factors)
+    
+    # Subplot 4: Energy Resolution vs. rebin factor
+    axs[1, 1].plot(rebin_factors, er_list, marker='o', linestyle='--', color='magenta')
+    axs[1, 1].set_title("Energy Resolution vs Rebin Factor")
+    axs[1, 1].set_xlabel("Rebin Factor")
+    axs[1, 1].set_ylabel("ER (%)")
+    axs[1, 1].grid(True)
+    axs[1, 1].set_xticks(rebin_factors)
+    
+    fig.tight_layout()
+    plot_file = file_path + "stability_summary_rebin.png"
+    plt.savefig(plot_file)
     plt.close()
+    print(f"Rebin stability summary plot saved to {plot_file}")
 
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -156,25 +293,24 @@ sigmaCompton = 50
 # Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
 step = 30
 max_step = 20
-stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
+# stability_study_extreme(H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
-min_fit = peakCompton - 5 * step
-max_fit = peakCompton + 5 * step
+n_steps = 5
+min_fit = peakCompton - n_steps * step
+max_fit = peakCompton + n_steps * step
 
 # Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
-rebin_index = [1, 2, 3, 4, 5, 6, 7, 8, 16, 32]
-stability_study_rebin(H, peakCompton, sigmaCompton, rebin_index, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
+rebin_max = 32
+# stability_study_rebin(H, peakCompton, sigmaCompton, rebin_max, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
-# It si necessary to do the three following steps in order to have the same number of hit 
-# under the peak for a rebbined histogram
 hist_integral = H.Integral()
-H.Rebin(3)
-H.Scale(1 / 3)
+rebin_param = 5
+H.Rebin(rebin_param)
 
 fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
                                              file_path + "plots/fit/")
 
 # Final fit
-ll.plot_results(H, hist_integral, fit_result, f_background, f_true, min_fit, max_fit, file_path + "plots/fit/", 
+ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
                 "fit_results.png", "Energy [channels]", "Counts")
 

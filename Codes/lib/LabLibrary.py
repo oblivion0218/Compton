@@ -260,7 +260,7 @@ def stampa_graph_fit_ComptonStudy(hist, f_true, scale_factor, min, max, file_pat
         canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
 
 
-def plot_results(hist, hist_integral, fit_result, f_background, f_true, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name):
+def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name):
     """
     Plot the results of the fit."
 
@@ -269,6 +269,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, min_fit,
     :param fit_result: Fit result."
     :param f_background: Background function."
     :param f_true: True function."
+    :param rebin_param: Rebinning parameter."
     :param min_fit: Minimum value of the fit."
     :param max_fit: Maximum value of the fit."
     :param file_path: Path where to save the plot."
@@ -285,7 +286,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, min_fit,
     FWHM = (2.355 * sigma[0], 2.355 * sigma[1])
     ER = (FWHM[0] / E_mean[0], np.sqrt((FWHM[1] / E_mean[0]) ** 2 + (FWHM[0] * E_mean[1] / E_mean[0] ** 2) ** 2))
 
-    integral = f_true.Integral(min_fit, max_fit) - f_background.Integral(min_fit, max_fit)
+    integral = (f_true.Integral(min_fit, max_fit) - f_background.Integral(min_fit, max_fit)) / rebin_param
     N_hit = (integral, np.sqrt(integral))
     N_hit_pc = (N_hit[0] / hist_integral, N_hit[1] / hist_integral)
 
