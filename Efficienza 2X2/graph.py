@@ -1,0 +1,242 @@
+import ROOT
+import array
+import numpy as np
+
+# --------------------------------------------------------------------
+# 1) DEFINIZIONE DEI DATI
+# --------------------------------------------------------------------
+# Abbiamo 3 set di dati: (x=Energia MeV, y=Efficienza)
+#  - rivelatore da 2"
+#  - rivelatore da 1.5"
+#  - rivelatore da 3"
+
+# --- Rivelatore 2" (7 punti) ---
+x_2pollici = [
+    0.31849513821826525,
+    0.34839758515200353,
+    0.5063605228428064,
+    0.6578534128290872,
+    0.7639818013788603,
+    0.8357095062407706,
+    1.1700423339274262
+]
+y_2pollici = [
+    0.5530232692950782,
+    0.513935011339386,
+    0.3434113151787839,
+    0.2491928618391422,
+    0.20746631638582969,
+    0.17917490984689505,
+    0.12765545897224145
+]
+
+# --- Rivelatore 3" (7 punti) ---
+x_3pollici = [
+    0.31849513821826525,
+    0.35101270017822783,
+    0.5101613270630634,
+    0.6627913412713632,
+    0.7697163425286677,
+    0.8357095062407706,
+    1.1788248152624714,
+]
+y_3pollici = [
+    0.3402790414078734,
+    0.32207632355222093,
+    0.20937604699537318,
+    0.12765545897224145,
+    0.1033982502308196,
+    0.09608995471851453,
+    0.06599675545070971,
+
+]
+
+# --- Rivelatore 1.5" (7 punti) ---
+x_1_5pollici = [
+    0.31849513821826525,
+    0.3458019532572924,
+    0.5063605228428064,
+    0.6529522729442091,
+    0.7639818013788603,
+    0.8294833027836905,
+    1.1788248152624714
+]
+y_1_5pollici = [
+    0.6229821545978553,
+    0.5789491301073059,
+    0.42010843619294497,
+    0.3191386474306036,
+    0.2885399811814428,
+    0.2706139612445929,
+    0.2036989525676702,
+]
+
+
+# --------------------------------------------------------------------
+# 2) FUNZIONE DI FIT E FUNZIONE DI SUPPORTO PER FIT + GRAFICO
+# --------------------------------------------------------------------
+# Vogliamo f(x) = [0]*x^(-[1]) * exp(-[2]*x).
+# Creiamo una funzione di comodo per:
+# - Costruire il TGraph
+# - Fare il Fit
+# - Restituire (A, B, C) e gli oggetti TGraph, TF1
+
+def fit_dataset(xvals, yvals, color, marker_style, legend_label):
+    """Crea un TGraph, fitta con la funzione A*x^-B*exp(-C*x), restituisce:
+       (graph, fit_func, A, B, C)."""
+    n = len(xvals)
+    ax = array.array("d", xvals)
+    ay = array.array("d", yvals)
+    
+    graph = ROOT.TGraph(n, ax, ay)
+    graph.SetMarkerColor(color)
+    graph.SetLineColor(color)
+    graph.SetMarkerStyle(marker_style)
+    graph.SetMarkerSize(1.2)
+    
+    # Range degli x per la funzione di fit
+    xmin, xmax = min(xvals), max(xvals)
+    fit_func = ROOT.TF1("fit_"+legend_label, "[0]*pow(x, -[1])*exp(-[2]*x)", xmin, xmax)
+    # Parametri iniziali (non troppo grandi)
+    fit_func.SetParameters(1, 1, 1)
+    # Esegui il fit
+    graph.Fit(fit_func, "QRS")  # Q=quiet, R=range, S=store
+    
+    A = fit_func.GetParameter(0)
+    B = fit_func.GetParameter(1)
+    C = fit_func.GetParameter(2)
+    
+    return graph, fit_func, A, B, C
+
+
+# --------------------------------------------------------------------
+# 3) FITTIAMO I 3 SET DI DATI
+# --------------------------------------------------------------------
+# Assegniamo a ciascuno un colore e uno stile differente
+graph_2, fit_2, A2, B2, C2 = fit_dataset(
+    x_2pollici, y_2pollici,
+    color=ROOT.kBlue, 
+    marker_style=20,
+    legend_label="2'' "
+)
+
+graph_1_5, fit_1_5, A1_5, B1_5, C1_5 = fit_dataset(
+    x_1_5pollici, y_1_5pollici,
+    color=ROOT.kRed,
+    marker_style=21,
+    legend_label="1_5''"
+)
+
+graph_3, fit_3, A3, B3, C3 = fit_dataset(
+    x_3pollici, y_3pollici,
+    color=ROOT.kGreen+2,
+    marker_style=22,
+    legend_label="3''"
+)
+
+
+# --------------------------------------------------------------------
+# 4) INTERPOLAZIONE/ESTRAPOLAZIONE DEI PARAMETRI PER 1" 
+# --------------------------------------------------------------------
+# Abbiamo (dim in pollici) -> (A, B, C):
+# Facciamo un fit lineare di A(d), B(d), C(d) in funzione di d (d=1.5,2,3)
+# e valutiamo a d=1 pollice.
+
+def interpolate_parameter(d, Y):
+    
+    #Esegue un fit lineare param(d) = p0 + p1*d su 3 punti
+    #Restituisce param(1).
+    
+    gd = ROOT.TGraph(3)
+    for i in range(3):
+        gd.SetPoint(i, d[i], Y[i])
+    # Fit lineare
+    f_lin = ROOT.TF1("f_lin","[0] + [1]*x", 0, 5)
+    gd.Fit(f_lin, "Q")  # Q=quiet
+    p0 = f_lin.GetParameter(0)
+    p1 = f_lin.GetParameter(1)
+    return p0 + p1*1.0  # valore a d=1 pollice
+
+diams = [1.5, 2.0, 3.0]  # dimensioni in pollici
+
+y_1=[]
+
+
+for i in range(7):
+    y_1.append(interpolate_parameter(diams, [y_1_5pollici[i], y_2pollici[i], y_3pollici[i]]))
+
+graph_1, fit_1, A1, B1, C1 = fit_dataset(
+    x_2pollici, y_1,
+    color=ROOT.kMagenta, 
+    marker_style=24,
+    legend_label="1'' "
+)
+
+# --------------------------------------------------------------------
+# 5) DISEGNO SU UN UNICO CANVAS + LEGENDA
+# --------------------------------------------------------------------
+c = ROOT.TCanvas("c", "Efficienza vs Energia", 1000, 700)
+c.SetGrid()
+
+# Per disegnare più TGraph in un unico asse, usiamo un TMultiGraph
+mg = ROOT.TMultiGraph()
+
+mg.Add(graph_2, "P")       # "P" = draw markers
+mg.Add(graph_1_5, "P")
+mg.Add(graph_3, "P")
+mg.Add(graph_1,"P")
+
+# Disegniamo il MultiGraph
+mg.SetTitle("Confronto rivelatori e fit; Energia gamma (MeV); Efficienza intrinseca")
+mg.Draw("A")
+
+# Ora disegniamo le curve di fit di ciascuno con "same"
+fit_2.SetLineColor(ROOT.kBlue)
+fit_1_5.SetLineColor(ROOT.kRed)
+fit_3.SetLineColor(ROOT.kGreen+2)
+fit_1.SetLineColor(ROOT.kMagenta)
+fit_1.SetLineStyle(2)
+
+fit_2.Draw("same")
+fit_1_5.Draw("same")
+fit_3.Draw("same")
+fit_1.Draw("same")
+
+
+# Creiamo la leggenda
+legend = ROOT.TLegend(0.55, 0.65, 0.88, 0.88)
+legend.SetBorderSize(0)
+legend.SetFillStyle(0)
+
+# Aggiungiamo le entry
+legend.AddEntry(graph_1_5,f"1.5 pollici ", "lp")
+legend.AddEntry(graph_2,  f"2 pollici", "lp")
+legend.AddEntry(graph_3,  f"3 pollici", "lp")
+legend.AddEntry(graph_1, f"Prev. 1 pollici", "lp")
+
+legend.SetTextSize(0.03)
+legend.Draw()
+
+c.Update()
+c.SaveAs("Confronto_rivelatori.png")
+
+
+#------------------------ STAMPA VALORI A SCHERMO --------
+
+print("Previsioni efficienza per 1'' usando il fit:")
+print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} \n")
+
+
+ang_test = [15, 35, 50, 75, 90, 110]  # Angoli in gradi
+ang = [ang * 0.01745 for ang in ang_test]  # Conversione in radianti
+
+en_compton = []
+
+# Calcolare l'energia di Compton per ogni angolo
+for i in range(len(ang)):
+    en_compton.append(511 / (2 - np.cos(ang[i])))
+
+print("Previsioni efficienza per 2'' usando il fit:")
+for i, x in enumerate(en_compton):  
+    y_pred = fit_2.Eval(x/1000)  
+    print(f"Angolo = {ang_test[i]}° ----- x = {x:.3f} KeV → efficienza = {y_pred:.5f}")
