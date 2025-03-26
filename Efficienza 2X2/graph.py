@@ -223,9 +223,14 @@ c.SaveAs("Confronto_rivelatori.png")
 
 #------------------------ STAMPA VALORI A SCHERMO --------
 
-print("Previsioni efficienza per 1'' usando il fit:")
+print("\nPrevisioni efficienza per 1'' usando il fit:")
 print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} \n")
 
+print("Previsioni efficienza per 2'' usando il fit:")
+print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} ")
+print(f"x = 1.274 MeV → efficienza = {fit_1.Eval(1.274):.5f} ")
+print(f"x = 1.173 MeV → efficienza = {fit_1.Eval(1.173):.5f} ")
+print(f"x = 1.332 MeV → efficienza = {fit_1.Eval(1.332):.5f} \n")
 
 ang_test = [15, 35, 50, 75, 90, 110]  # Angoli in gradi
 ang = [ang * 0.01745 for ang in ang_test]  # Conversione in radianti
