@@ -1,0 +1,6 @@
+/control/macroPath ./  # Imposta la cartella corrente come percorso per i macro
+/vis/open OGL 600x600 0 0  # Apre la finestra di visualizzazione
+/vis/scene/add/volume  # Aggiungi il volume alla scena
+/vis/geometry/show/solids  # Mostra la geometria solida
+/run/initialize  # Inizializza la simulazione
+/run/beamOn 1000  # Esegui 1000 eventi
