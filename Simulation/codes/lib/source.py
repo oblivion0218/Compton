@@ -62,9 +62,29 @@ class Source:
             np.cos(theta)
         ]).T
         return directions
+    
+    def cone_random_directions(self, phi_max, theta_max, number_of_photons: int = 1) -> np.ndarray:
+        """
+        Generate a list of photon directions given a range for theta and phi (unit vectors).
+        
+        :param number_of_photons: The number of photons to generate.
+        :param theta_max: Maximum polar angle (in radians).
+        :param phi_max: Maximum azimuthal angle (in radiants)
+        :return: Array of photon directions as unit vectors.
+        """
+        phi = np.random.uniform(0, phi_max, number_of_photons)  # Random azimuthal angle
+        theta = np.random.uniform(0, theta_max, number_of_photons)  # Random polar angle
+
+          # Calculate direction components (unit vectors)
+        directions = np.vstack([
+            np.sin(theta) * np.cos(phi),
+            np.sin(theta) * np.sin(phi),
+            np.cos(theta)
+        ]).T
+        return directions
 
 
-    def photon_emission(self, number_of_photons: int = 1) -> list:
+    def photon_emission(self, number_of_photons: int = 1, theta_max: float = None, phi_max: float = None) -> list:
         """
         Generate a list of Photon objects with random energies and directions.
         
@@ -72,7 +92,11 @@ class Source:
         :return: List of Photon objects.
         """
         energies = self.random_energies(number_of_photons)  # Generate random photon energies
-        directions = self.random_directions(number_of_photons)  # Generate random photon directions
+        if theta_max is not None and phi_max is not None:
+            directions = self.cone_random_directions(phi_max, theta_max, number_of_photons)
+        else:
+            directions = self.random_directions(number_of_photons)
+            
         return [p.Photon(energy, direction) for energy, direction in zip(energies, directions)]  # Create and return Photon objects
 
     
