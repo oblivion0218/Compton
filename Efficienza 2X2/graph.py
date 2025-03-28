@@ -20,6 +20,7 @@ x_2pollici = [
     0.8357095062407706,
     1.1700423339274262
 ]
+
 y_2pollici = [
     0.5530232692950782,
     0.513935011339386,
@@ -40,7 +41,7 @@ x_3pollici = [
     0.8357095062407706,
     1.1788248152624714,
 ]
-y_3pollici = [
+y_1_5pollici = [
     0.3402790414078734,
     0.32207632355222093,
     0.20937604699537318,
@@ -61,7 +62,7 @@ x_1_5pollici = [
     0.8294833027836905,
     1.1788248152624714
 ]
-y_1_5pollici = [
+y_3pollici = [
     0.6229821545978553,
     0.5789491301073059,
     0.42010843619294497,
@@ -96,9 +97,9 @@ def fit_dataset(xvals, yvals, color, marker_style, legend_label):
     
     # Range degli x per la funzione di fit
     xmin, xmax = min(xvals), max(xvals)
-    fit_func = ROOT.TF1("fit_"+legend_label, "[0]*pow(x, -[1])*exp(-[2]*x)", xmin, xmax)
+    fit_func = ROOT.TF1("fit_"+legend_label, "[0]*pow(x, -[1])*exp(-[2]*x)+[3]", xmin, xmax)
     # Parametri iniziali (non troppo grandi)
-    fit_func.SetParameters(1, 1, 1)
+    fit_func.SetParameters(1, 1, 1, 1)
     # Esegui il fit
     graph.Fit(fit_func, "QRS")  # Q=quiet, R=range, S=store
     
@@ -142,28 +143,44 @@ graph_3, fit_3, A3, B3, C3 = fit_dataset(
 # Facciamo un fit lineare di A(d), B(d), C(d) in funzione di d (d=1.5,2,3)
 # e valutiamo a d=1 pollice.
 
-def interpolate_parameter(d, Y):
+def interpolate_parameter(d, Y,i):
+    # Esegue un fit esponenziale param(d) = p3 + p0 * exp(p1 * d - p2)
+    # Restituisce param(1) e salva il plot del fit
     
-    #Esegue un fit lineare param(d) = p0 + p1*d su 3 punti
-    #Restituisce param(1).
-    
-    gd = ROOT.TGraph(3)
+    g = ROOT.TGraph(3)
     for i in range(3):
-        gd.SetPoint(i, d[i], Y[i])
-    # Fit lineare
-    f_lin = ROOT.TF1("f_lin","[0] + [1]*x", 0, 5)
-    gd.Fit(f_lin, "Q")  # Q=quiet
-    p0 = f_lin.GetParameter(0)
-    p1 = f_lin.GetParameter(1)
-    return p0 + p1*1.0  # valore a d=1 pollice
-
+        g.SetPoint(i, d[i], Y[i])
+    
+    # Fit esponenziale
+    f_exp = ROOT.TF1("f_exp", "[3] + [0]*exp([1]*x - [2])", 0, 5)
+    g.Fit(f_exp, "Q")  # Q=quiet
+    
+    # Otteniamo i parametri del fit
+    p0 = f_exp.GetParameter(0)
+    p1 = f_exp.GetParameter(1)
+    p2 = f_exp.GetParameter(2)
+    p3 = f_exp.GetParameter(3)
+    
+    # Creazione del canvas per il plot
+    c_fit = ROOT.TCanvas("c_fit", "Fit Parameter", 800, 600)
+    g.SetTitle("Fit dei parametri in funzione della dimensione; Dimensione (pollici); Valore del parametro")
+    g.SetMarkerStyle(20)
+    g.SetMarkerColor(ROOT.kBlue)
+    g.Draw("AP")  # A = draw axis, P = draw points
+    f_exp.SetLineColor(ROOT.kRed)
+    f_exp.Draw("same")
+    
+    # Salvataggio del grafico
+    c_fit.SaveAs("fit_parameter"+ str(i)+".png")
+    
+    return p3 + p0 * np.exp(p1 * 1 - p2)  # valore a d=1 pollice
 diams = [1.5, 2.0, 3.0]  # dimensioni in pollici
 
 y_1=[]
 
 
 for i in range(7):
-    y_1.append(interpolate_parameter(diams, [y_1_5pollici[i], y_2pollici[i], y_3pollici[i]]))
+    y_1.append(interpolate_parameter(diams, [y_1_5pollici[i], y_2pollici[i], y_3pollici[i]],i))
 
 graph_1, fit_1, A1, B1, C1 = fit_dataset(
     x_2pollici, y_1,
@@ -177,6 +194,8 @@ graph_1, fit_1, A1, B1, C1 = fit_dataset(
 # --------------------------------------------------------------------
 c = ROOT.TCanvas("c", "Efficienza vs Energia", 1000, 700)
 c.SetGrid()
+#c.SetLogx()
+#c.SetLogy()
 
 # Per disegnare più TGraph in un unico asse, usiamo un TMultiGraph
 mg = ROOT.TMultiGraph()
@@ -188,6 +207,7 @@ mg.Add(graph_1,"P")
 
 # Disegniamo il MultiGraph
 mg.SetTitle("Confronto rivelatori e fit; Gamma energy (MeV); Intrinsic peak efficiency")
+#mg.GetXaxis().SetLimits(0, 3)  # Imposta il range dell'asse X
 mg.Draw("A")
 
 # Ora disegniamo le curve di fit di ciascuno con "same"
@@ -212,7 +232,7 @@ legend.SetFillStyle(0)
 legend.AddEntry(graph_1_5,f"1.5 inches ", "lp")
 legend.AddEntry(graph_2,  f"2 inchesi", "lp")
 legend.AddEntry(graph_3,  f"3 inches", "lp")
-legend.AddEntry(graph_1, f"Prev. 1 inches", "lp")
+legend.AddEntry(graph_1, f"Prev. 1 inch", "lp")
 
 legend.SetTextSize(0.03)
 legend.Draw()
@@ -221,16 +241,16 @@ c.Update()
 c.SaveAs("Efficienze.png")
 
 
-#------------------------ STAMPA VALORI A SCHERMO --------
+#-------------- STAMPA VALORI A SCHERMO --------
 
 print("\nPrevisioni efficienza per 1'' usando il fit:")
 print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} \n")
 
 print("Previsioni efficienza per 2'' usando il fit:")
-print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} ")
-print(f"x = 1.274 MeV → efficienza = {fit_1.Eval(1.274):.5f} ")
-print(f"x = 1.173 MeV → efficienza = {fit_1.Eval(1.173):.5f} ")
-print(f"x = 1.332 MeV → efficienza = {fit_1.Eval(1.332):.5f} \n")
+print(f"x = 0.511 MeV → efficienza = {fit_2.Eval(0.511):.5f} ")
+print(f"x = 1.173 MeV → efficienza = {fit_2.Eval(1.173):.5f} ")
+print(f"x = 1.274 MeV → efficienza = {fit_2.Eval(1.274):.5f} ")
+print(f"x = 1.332 MeV → efficienza = {fit_2.Eval(1.332):.5f} \n")
 
 ang_test = [15, 35, 50, 75, 90, 110]  # Angoli in gradi
 ang = [ang * 0.01745 for ang in ang_test]  # Conversione in radianti
