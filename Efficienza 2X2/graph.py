@@ -187,7 +187,7 @@ mg.Add(graph_3, "P")
 mg.Add(graph_1,"P")
 
 # Disegniamo il MultiGraph
-mg.SetTitle("Confronto rivelatori e fit; Energia gamma (MeV); Efficienza intrinseca")
+mg.SetTitle("Confronto rivelatori e fit; Gamma energy (MeV); Intrinsic peak efficiency")
 mg.Draw("A")
 
 # Ora disegniamo le curve di fit di ciascuno con "same"
@@ -204,21 +204,21 @@ fit_1.Draw("same")
 
 
 # Creiamo la leggenda
-legend = ROOT.TLegend(0.55, 0.65, 0.88, 0.88)
+legend = ROOT.TLegend(0.65, 0.65, 0.88, 0.88)
 legend.SetBorderSize(0)
 legend.SetFillStyle(0)
 
 # Aggiungiamo le entry
-legend.AddEntry(graph_1_5,f"1.5 pollici ", "lp")
-legend.AddEntry(graph_2,  f"2 pollici", "lp")
-legend.AddEntry(graph_3,  f"3 pollici", "lp")
-legend.AddEntry(graph_1, f"Prev. 1 pollici", "lp")
+legend.AddEntry(graph_1_5,f"1.5 inches ", "lp")
+legend.AddEntry(graph_2,  f"2 inchesi", "lp")
+legend.AddEntry(graph_3,  f"3 inches", "lp")
+legend.AddEntry(graph_1, f"Prev. 1 inches", "lp")
 
 legend.SetTextSize(0.03)
 legend.Draw()
 
 c.Update()
-c.SaveAs("Confronto_rivelatori.png")
+c.SaveAs("Efficienze.png")
 
 
 #------------------------ STAMPA VALORI A SCHERMO --------
