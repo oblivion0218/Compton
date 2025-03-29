@@ -7,13 +7,13 @@ r_e = 2.817e-15  # Classical electron radius in meters
 m_e = 511  # Rest mass energy of the electron in keV
 alpha = 1 / 137  # Fine-structure constant (dimensionless)
 
-class Photon:
+class Particle:
     def __init__(self, energy: float, direction: list[float], position: list[float] = [0, 0, 0]):
         """
-        Initializes a Photon object with energy and direction.
+        Initializes a Particle object with energy and direction.
         
-        :param energy: Photon energy in keV.
-        :param direction: Direction of the photon as a 3D unit vector.
+        :param energy: Particle energy in keV.
+        :param direction: Direction of the particle as a 3D unit vector.
         """
         self.energy = energy
         self.direction = np.array(direction)
@@ -22,10 +22,43 @@ class Photon:
 
     def __repr__(self):
         """
+        Return a string representation of the Particle object for easy printing.
+        """
+        return f"Particle(energy={self.energy} keV, direction={self.direction}, position={self.position})"
+
+
+    def propagation(self, distance: float):
+        """
+        Calculate the new position of the particle after traveling a given distance.
+        
+        :param distance: The distance traveled by the particle.
+        :return: The new position as a 3D vector.
+        """
+        self.position = self.position + np.array(self.direction) * distance
+
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+# SUBCLASS PHOTON
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+
+class Photon(Particle):
+    def __init__(self, energy: float, direction: list[float], position: list[float] = [0, 0, 0]):
+        """
+        Initializes a Photon object with energy and direction.
+        
+        :param energy: Photon energy in keV.
+        :param direction: Direction of the photon as a 3D unit vector.
+        """
+        super().__init__(energy, direction, position)
+
+
+    def __repr__(self):
+        """
         Return a string representation of the Photon object for easy printing.
         """
         return f"Photon(energy={self.energy} keV, direction={self.direction}, position={self.position})"
-
+    
 
     def info(self):
         """
@@ -33,19 +66,9 @@ class Photon:
         """
         print(f"Energy: {self.energy}")
         print(f"Direction: {self.direction}")
-        print(f"Position: {self.position}")      
+        print(f"Position: {self.position}")
 
-
-    def propagation(self, distance: float):
-        """
-        Calculate the new position of the photon after traveling a given distance.
-        
-        :param distance: The distance traveled by the photon.
-        :return: The new position as a 3D vector.
-        """
-        self.position = self.position + np.array(self.direction) * distance
-
-
+    
     def compton_scattering(self, angle: float) -> float:
         """
         Calculate the energy of the photon after Compton scattering.
@@ -53,8 +76,8 @@ class Photon:
         :param angle: Scattering angle in radians.
         :return: Scattered photon energy.
         """
-        return self.energy / (1 + (self.energy / m_e) * (1 - np.cos(angle)))        
-
+        return self.energy / (1 + (self.energy / m_e) * (1 - np.cos(angle)))
+    
 
     def klein_nishina(self, angle: float) -> float:
         """
@@ -64,9 +87,9 @@ class Photon:
         :return: Differential cross-section value.
         """
         r = self.compton_scattering(angle) / self.energy
-        c = alpha ** 2 / (2 * m_e ** 2)  # Constant for Klein-Nishina formula
+        c = alpha ** 2 / (2 * m_e ** 2)
         return c * r ** 2 * (r + 1 / r - np.sin(angle) ** 2)
-
+    
 
     def compton_angle(self) -> float:
         """
@@ -88,18 +111,21 @@ class Photon:
             # Accept or reject based on the probability density
             if u <= pdf_compton:
                 return theta  # Return the accepted angle
+            
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+# SUBCLASS ELECTRON
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 
 
-class Electron:
+class Electron(Particle):
     def __init__(self, energy: float, direction: list[float], position: list[float] = [0, 0, 0]):
         """
         Initializes a Electron object with energy and direction.
 
         :param energy: Electron energy in keV.
         """
-        self.energy = energy
-        self.direction = np.array(direction)
-        self.position = np.array(position)
+        super().__init__(energy, direction, position)
 
 
     def __repr__(self):
@@ -107,6 +133,7 @@ class Electron:
         Return a string representation of the Electron object for easy printing.
         """
         return f"Electron(energy={self.energy} keV, direction={self.direction}, position={self.position})"
+
 
     def info(self):
         """
@@ -116,17 +143,7 @@ class Electron:
         print(f"Direction: {self.direction}")
         print(f"Position: {self.position}")
 
-
-    def propagation(self, distance: float):
-        """
-        Calculate the new position of the electron after traveling a given distance.
-        
-        :param distance: The distance traveled by the electron.
-        :return: The new position as a 3D vector.
-        """
-        self.position = self.direction * distance
-
-
+   
     def compton_scattering(self, angle: float, photon: Photon) -> float:
         """
         Calculate the energy of the electron after Compton scattering.
@@ -136,5 +153,4 @@ class Electron:
         :return: Scattered photon energy.
         """
         return photon.energy - photon.compton_scattering(angle)
-         
-    
+
