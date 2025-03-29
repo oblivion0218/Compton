@@ -75,12 +75,20 @@ class Source:
         phi = np.random.uniform(0, phi_max, number_of_photons)  # Random azimuthal angle
         theta = np.random.uniform(0, theta_max, number_of_photons)  # Random polar angle
 
-          # Calculate direction components (unit vectors)
+        # Calculate direction components (unit vectors)
         directions = np.vstack([
             np.sin(theta) * np.cos(phi),
             np.sin(theta) * np.sin(phi),
             np.cos(theta)
         ]).T
+
+        F_or_B = np.random.choice([-1, 1], number_of_photons)  # Randomly choose between forward and backward direction
+
+        if F_or_B[0] == -1:
+            directions = -directions
+        else:
+            directions = directions
+            
         return directions
 
 

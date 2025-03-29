@@ -127,7 +127,7 @@ plot_energy_spectrum(energies, file_path + "spectrum/coincidence_spectrum.png", 
 
 # Simulate photon emission from a source
 source = s.Source()  # Create a source object
-photons = source.photon_emission(1000)  # Simulate photon emission
+photons = source.photon_emission(1000, np.pi/4, np.pi/6)  # Simulate photon emission
 [photon.propagation(np.linalg.norm(franco.position)) for photon in photons]  # Propagate the photons
 
 # Visualize the 3D photon hit positions and detectors for coincidence measurement
