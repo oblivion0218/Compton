@@ -57,82 +57,59 @@ def visualization_3D(fileNamePNG, detectors, photons, target=None):
     """
     hit_points = np.array([photon.position for photon in photons])  # Extract photon hit positions
     
-    # 3D Plot of photon hit points
-    fig = plt.figure(figsize=(16, 12))
-    ax = fig.add_subplot(221, projection='3d')
-    ax.scatter(hit_points[:, 0], hit_points[:, 1], hit_points[:, 2], s=10, color='red', marker='x', label='Hit Points')  # Red X
-    [detector.draw_detector_3D(ax) for detector in detectors]  # Draw 3D detectors
-    if target:
-        target.draw_target_3D(ax)  # Draw 3D target if available
-    ax.set_xlabel('X (cm)')
-    ax.set_ylabel('Y (cm)')
-    ax.set_zlabel('Z (cm)')
-    ax.set_title('3D Photon Hit Positions')
-    ax.legend(loc='upper right')
+    # Create figure with a single 3D plot
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
     
-    # 2D Projections on different planes
-    ax_xy = fig.add_subplot(222)
-    ax_xy.scatter(hit_points[:, 0], hit_points[:, 1], s=20, color='red', marker='x', label='Hits in XY')  # Red X
-    [detector.draw_detector_2D(ax_xy, plane='xy') for detector in detectors]
+    # Plot hit points
+    ax.scatter(hit_points[:, 0], hit_points[:, 1], hit_points[:, 2], 
+               s=10, color='red', marker='x', label='Hit Points')
+    
+    # Draw detectors and target
+    [detector.draw_3D(ax) for detector in detectors]
     if target:
-        target.draw_target_2D(ax_xy, plane='xy')
-    ax_xy.set_xlabel('X (cm)')
-    ax_xy.set_ylabel('Y (cm)')
-    ax_xy.set_title('Projection on XY Plane')
-    ax_xy.grid()
-    ax_xy.legend(loc='upper right')
-
-    ax_xz = fig.add_subplot(223)
-    ax_xz.scatter(hit_points[:, 0], hit_points[:, 2], s=20, color='red', marker='x', label='Hits in XZ')  # Red X
-    [detector.draw_detector_2D(ax_xz, plane='xz') for detector in detectors]
-    if target:
-        target.draw_target_2D(ax_xz, plane='xz')
-    ax_xz.set_xlabel('X (cm)')
-    ax_xz.set_ylabel('Z (cm)')
-    ax_xz.set_title('Projection on XZ Plane')
-    ax_xz.grid()
-    ax_xz.legend(loc='upper right')
-
-    ax_yz = fig.add_subplot(224)
-    ax_yz.scatter(hit_points[:, 1], hit_points[:, 2], s=20, color='red', marker='x', label='Hits in YZ')  # Red X
-    [detector.draw_detector_2D(ax_yz, plane='yz') for detector in detectors]
-    if target:
-        target.draw_target_2D(ax_yz, plane='yz')
-    ax_yz.set_xlabel('Y (cm)')
-    ax_yz.set_ylabel('Z (cm)')
-    ax_yz.set_title('Projection on YZ Plane')
-    ax_yz.grid()
-    ax_yz.legend(loc='upper right')
-
-    plt.savefig(fileNamePNG)  # Save the 3D visualization as PNG
+        target.draw_3D(ax)
+    
+    # Add labels and title
+    ax.set_xlabel('X (cm)', fontsize=12)
+    ax.set_ylabel('Y (cm)', fontsize=12)
+    ax.set_zlabel('Z (cm)', fontsize=12)
+    ax.set_title('3D Photon Hit Positions', fontsize=14)
+    
+    # Improve visibility
+    ax.legend(loc='upper right', fontsize=10)
+    ax.grid(True, alpha=0.3)
+    
+    # Set equal aspect ratio for better visualization
+    ax.set_box_aspect([1, 1, 1])
+    
+    # Adjust layout and save
+    plt.tight_layout()
+    plt.savefig(fileNamePNG, dpi=300)
     plt.close()
 
 # Initialize detectors with their respective positions and dimensions
-ugo = d.Detector([0, 15, 0], 1.27, 2.58, 0.0903)  # Detector "Ugo"
-franco = d.Detector([0, -15, 0], 2.54, 5.08, 0.0695)  # Detector "Franco"
+ugo = d.Detector(([0, 15, 0], [0, 17.58, 0]), 1.27, 0.0903)  # Detector "Ugo"
+franco = d.Detector(([0, -15, 0], [0, -20.08, 0]), 2.54, 0.0695)  # Detector "Franco"
 
 number_of_photons = 1000000  # Number of photons to simulate
 
 # Simulate spectroscopy measurements and plot the energy spectrum 
-energies = e.spectroscopy_measurement(number_of_photons, ugo, s.Source(), True)
-plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_ugo.png", 10000)
-energies = e.spectroscopy_measurement(number_of_photons, franco, s.Source(), True)
-plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_franco.png", 10000)
-
-print("End spettroscopy")
-
-# Simulate coincidence measurement and plot the energy spectrum
-energies = e.coincidence_measurement(number_of_photons, ugo, franco, s.Source({511: 1, 1274: 0}), True)
-plot_energy_spectrum(energies, file_path + "spectrum/coincidence_spectrum.png", 10000)
+# energies = e.spectroscopy_measurement(number_of_photons, ugo, s.Source(), True)
+# plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_ugo.png", 10000)
+# energies = e.spectroscopy_measurement(number_of_photons, franco, s.Source(), True)
+# plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_franco.png", 10000)
+# print("Spectroscopy measurements completed.")
 
 # Simulate photon emission from a source
 source = s.Source()  # Create a source object
 photons = source.photon_emission(1000, np.pi/4, np.pi/6)  # Simulate photon emission
 [photon.propagation(np.linalg.norm(franco.position)) for photon in photons]  # Propagate the photons
 
+franco.rotate(np.pi / 4, [0, 0, 0], "z")
 # Visualize the 3D photon hit positions and detectors for coincidence measurement
-visualization_3D(file_path + "3D_plots/coincidence_3D_visualization.png", [ugo, franco], photons)
-print("End coicidence")
+visualization_3D(file_path + "3D_plots/3D_visualization.png", [ugo, franco], photons)
+print("3D visualization completed.")
 
 print("End")
 

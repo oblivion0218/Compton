@@ -1,26 +1,31 @@
 import numpy as np
 import random  
-from lib import target as t  
+from lib import detector as d
 from lib import experiments as e 
 from lib import particles as p  
 from lib import source as s 
 from lib import interactions as i
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/Interaction_probability/"
 
 # Create a source object with specified photon energies (511 keV and 1274 keV)
 source = s.Source(energies={511: 1, 1274: 0})
 
 # Define the number of photons to simulate
-number_of_photons = 10000
+number_of_photons = 100000
 # Generate a list of test photons using the source
 photons = source.testing_photons(number_of_photons)
 
-target_position = [0, 5, 0]
+# Set the position of the target in 3D space
+target_position = ([0, 5, 0], [0, 10.08, 0])  # Example position (arbitrary values)
 
-# Create target objects for different materials (Pb, Al, and Cu) with different properties
-target_Pb = t.Target(position=target_position, radius=2, width=0.27, Z=82, density=11.34, molar_mass=207.2)
-target_Al = t.Target(position=target_position, radius=2, width=3.17, Z=13, density=2.7, molar_mass=26.98)
-target_Cu = t.Target(position=target_position, radius=2, width=0.93, Z=29, density=8.96, molar_mass=63.55)
+# Create target objects for different materials (Pb, Al, and Cu) with specified properties
+target_Pb = d.Target(position=target_position, radius=2.54, Z=82, density=11.34, molar_mass=207.2)
+target_Al = d.Target(position=target_position, radius=2.54, Z=13, density=2.7, molar_mass=26.98)
+target_Cu = d.Target(position=target_position, radius=2.54, Z=29, density=8.96, molar_mass=63.55)
+
 
 # Function to simulate photons interacting with a target
 def photon_in_target(photons, target, number_of_steps=10):
@@ -46,35 +51,6 @@ def photon_in_target(photons, target, number_of_steps=10):
 
     return n_scattering_photons
 
-# Simulate photon scattering in the three different target materials
-
-# Perform scattering simulations for each target
-photons_scattering_Pb = photon_in_target(photons, target_Pb, number_of_steps=100)
-photons_scattering_Al = photon_in_target(photons, target_Al, number_of_steps=100)
-photons_scattering_Cu = photon_in_target(photons, target_Cu, number_of_steps=100)
-
-# Calculate the probability of photon interaction in each target material
-Prob_interaction_Pb = photons_scattering_Pb / len(photons)
-Prob_interaction_Al = photons_scattering_Al / len(photons)
-Prob_interaction_Cu = photons_scattering_Cu / len(photons)
-
-# Calculate the probability of Compton scattering for each target material
-Prob_compton_Pb = i.cross_section_compton(photons[0], target_Pb.Z) / (i.cross_section_compton(photons[0], target_Pb.Z) + i.cross_section_photoelectric(photons[0], target_Pb.Z))
-Prob_compton_Al = i.cross_section_compton(photons[0], target_Al.Z) / (i.cross_section_compton(photons[0], target_Al.Z) + i.cross_section_photoelectric(photons[0], target_Al.Z))
-Prob_compton_Cu = i.cross_section_compton(photons[0], target_Cu.Z) / (i.cross_section_compton(photons[0], target_Cu.Z) + i.cross_section_photoelectric(photons[0], target_Cu.Z))
-
-# Print the results for each target material (Pb, Al, Cu)
-print(f"Pb\tProbability that the photon interact in the target: {Prob_interaction_Pb}")
-print(f"  \tProbability of Compton interaction: {Prob_interaction_Pb * Prob_interaction_Pb}\n")
-
-print(f"Al\tProbability that the photon interact in the target: {Prob_interaction_Al}")
-print(f"  \tProbability of Compton interaction: {Prob_interaction_Al * Prob_interaction_Al}\n")
-
-print(f"Cu\tProbability that the photon interact in the target: {Prob_interaction_Cu}")
-print(f"  \tProbability of Compton interaction: {Prob_interaction_Cu * Prob_compton_Cu}\n")
-
-#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-
 target_widths = np.linspace(0, 2, 50)
 
 # Placeholder lists to store probabilities for each material
@@ -87,7 +63,7 @@ prob_compton_Al = []
 prob_compton_Cu = []
 
 # Loop over different target widths and calculate probabilities
-for width in target_widths:
+for width in tqdm(target_widths, desc="Calculating probabilities", unit="width"):
     target_Pb.width = width
     target_Al.width = width
     target_Cu.width = width
@@ -125,6 +101,7 @@ plt.plot(target_widths, prob_interaction_Cu, label='Cu', color='red')
 plt.xlabel('Target Width (cm)')
 plt.ylabel('Probability of Interaction')
 plt.title('Probability of Interaction vs Target Width')
+plt.grid(True)
 plt.legend()
 
 # Plot Probability of Compton Interaction vs Target Width
@@ -135,6 +112,7 @@ plt.plot(target_widths, prob_compton_Cu, label='Cu', color='red')
 plt.xlabel('Target Width (cm)')
 plt.ylabel('Probability of Compton Interaction')
 plt.title('Probability of Compton Interaction vs Target Width')
+plt.grid(True)
 plt.legend()
 
 plt.tight_layout()

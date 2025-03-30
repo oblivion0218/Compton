@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from . import particles as p
+from . import detector as d
 
 # Physical constants
 r_e = 2.817e-13  # Classical electron radius in cm
@@ -81,7 +82,7 @@ def cross_section_compton(photon: p.Photon, Z: float) -> float:
 # Interaction
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-def attenuation_factor(photon: p.Photon, distance: float, total_cross_section: float, scattering_target) -> float:
+def attenuation_factor(total_cross_section: float, scattering_target: d.Object) -> float:
     """
     Calculate the attenuation factor for a photon traveling through a material.
 
@@ -95,7 +96,7 @@ def attenuation_factor(photon: p.Photon, distance: float, total_cross_section: f
     return total_cross_section * number_of_scattering_centers # cm^-1
 
 
-def interaction_probability(photon: p.Photon, distance: float, scattering_target) -> float:
+def interaction_probability(photon: p.Photon, distance: float, scattering_target: d.Object) -> float:
     """
     Calculate the probability of interaction for a photon traveling a given distance in a material.
 
@@ -107,7 +108,7 @@ def interaction_probability(photon: p.Photon, distance: float, scattering_target
     """
     total_cross_section = cross_section_photoelectric(photon, scattering_target.Z) + cross_section_compton(photon, scattering_target.Z)
 
-    mu = attenuation_factor(photon, distance, total_cross_section, scattering_target)
+    mu = attenuation_factor(total_cross_section, scattering_target)
 
     return 1 - np.exp(-mu * distance)
 

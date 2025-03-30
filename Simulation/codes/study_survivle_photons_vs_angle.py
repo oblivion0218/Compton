@@ -1,11 +1,12 @@
 import numpy as np
 import random  
-from lib import target as t  
+from lib import detector as d 
 from lib import experiments as e 
 from lib import particles as p
 from lib import source as s  
 from lib import interactions as i 
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 # Define the file path where the plot will be saved
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/Interaction_probability/"
@@ -26,15 +27,15 @@ def photon_in_target(photons, theta, number_of_steps=10):
     :parameters theta: Incident angle of the photons in degrees.
     :parameters number_of_steps: Number of steps for photon propagation within the target.
     :returns: Probability of photon survival.
-    """
-    target_position = np.array([0, 3, 0])  
+    """ 
     target_width = 1 / np.abs(np.cos(np.deg2rad(theta))) 
+    target_position = np.array([0, 3, 0], [0, 3 + target_width, 0]) 
     
     # Initialize target with material properties (Copper: Z=29, density=8.96 g/cm³, molar mass=63.55 g/mol)
-    target = t.Target(position=target_position, radius=2, width=target_width, Z=29, density=8.96, molar_mass=63.55)
+    target = d.Target(position=target_position, radius=2, Z=29, density=8.96, molar_mass=63.55)
 
-    distance = np.linalg.norm(target_position - source.position)
-    step = target.width / number_of_steps
+    distance = np.linalg.norm(target.center() - source.position)
+    step = target_width / number_of_steps
 
     n_dead_photons = 0 
 

@@ -5,7 +5,8 @@ from . import detector as d
 from . import source as s
 from . import interactions as i
 import matplotlib.patches as patches
-        
+from tqdm import tqdm
+
 step = 0.1 #cm
 
 def photon_propagation_to_target(photon: p.Photon, distance_source_detector: float) -> p.Photon: # figure: geometry_exp.png
@@ -43,11 +44,9 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
     photon = photon_propagation_to_target(photon, distance_source_detector)
 
     # Initialize a variable for tracking the traveled distance within the detector
-
     electron = p.Electron(0, [0, 0, 0])
     # Propagate the photon within the detector until it exits or interacts
-    while detector.is_in_detector(photon.position):
-
+    while detector.is_inside(photon.position):
         total_cross_section = i.cross_section_photoelectric(photon, detector.Z) + i.cross_section_compton(photon, detector.Z)
 
         # Check if the photon interacts with the detector material
@@ -74,68 +73,16 @@ def spectroscopy_measurement(number_of_photons, detector: d.Detector, source: s.
     :param step: Step size for photon propagation (in cm).
     :return: List of detected photon energies (in keV).
     """
-    direction = [0, np.sign(detector.position[1]), 0]
+    center_detector = detector.center()
+    len_principal_axis = np.linalg.norm(detector.principal_axis())
+    direction = [0, np.sign(center_detector[1]), 0]
     # Generate photons either for testing or normal emission
     photons = source.testing_photons(number_of_photons, direction) if testing else source.photon_emission(number_of_photons)
-
-    distance = np.linalg.norm(detector.position - source.position)
+    distance = np.linalg.norm(center_detector - source.position) - len_principal_axis/2
     detected_energies = []
 
-    for photon in photons: 
+    for photon in tqdm(photons, desc="Simulating photons", unit="photon"): 
         energy = gamma_detection(photon, detector, distance, step)
         detected_energies.append(energy)
     
-    return detected_energies
-
-
-def coincidence_photons(number_of_photons: int, gate_detector: d.Detector, spettroscopy_detector: d.Detector, source: s.Source, testing: bool = False, step: float = step)-> list[p.Photon]:
-    """
-    Simulates the interaction of multiple gamma photons with two detectors to calculate detected energies.
-    
-    :param number_of_photons: Number of photons to simulate.
-    :param gate_detector: Detector object for the gate detector.
-    :param spettroscopy_detector: Detector object for the spectroscopy detector.
-    :param testing: Flag to enable testing mode, which uses predefined photons.
-    :param step: Step size for photon propagation (in cm).
-    :return: List of detected photon energies (in keV).
-    """
-
-    direction = [0, np.sign(gate_detector.position[1]), 0]
-    # Generate photons either for testing or normal emission
-    photons = source.testing_photons(number_of_photons, direction) if testing else source.photon_emission(number_of_photons)
-
-    distance_gate = np.linalg.norm(gate_detector.position - source.position)
-    distance_spettroscopy = np.linalg.norm(spettroscopy_detector.position - source.position)
-    coincidence_photons = []
-
-    for photon in photons:
-        photon_energy = photon.energy
-        energy_gate = gamma_detection(photon, gate_detector, distance_gate, step)
-
-        if energy_gate > 0:
-            spettroscopy_photon = p.Photon(photon_energy, (-1) * photon.direction)
-            coincidence_photons.append(spettroscopy_photon)
-    
-    return coincidence_photons
-
-
-def coincidence_measurement(number_of_photons: int, gate_detector: d.Detector, spettroscopy_detector: d.Detector, source: s.Source, testing: bool = False, step: float = step) -> list[float]:
-    """
-    Simulates the detection of coincident gamma photons in two detectors.
-    
-    :param number_of_photons: Number of photons to simulate.
-    :param gate_detector: Detector object for the gate detector.
-    :param spettroscopy_detector: Detector object for the spectroscopy detector.
-    :param testing: Flag to enable testing mode, which uses predefined photons.
-    :param step: Step size for photon propagation (in cm).
-    :return: List of detected photon energies (in keV).
-    """
-    photons = coincidence_photons(number_of_photons, gate_detector, spettroscopy_detector, source, testing, step)
-    detected_energies = []
-    distance_spettroscopy = np.linalg.norm(spettroscopy_detector.position) # source in [0, 0, 0]
-
-    for photon in photons:
-        energy_spettroscopy = gamma_detection(photon, spettroscopy_detector, distance_spettroscopy, step)
-        detected_energies.append(energy_spettroscopy)
-
     return detected_energies

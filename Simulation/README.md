@@ -3,7 +3,7 @@
 This repository provides a comprehensive simulation framework for modeling and analyzing gamma-ray interactions, particularly focusing on Compton scattering experiments. The project is structured with modular classes and functions to facilitate various experimental setups and visualizations.
 
 ## Dimension of the physical variables
-- Lenght in **cm**.
+- Length in **cm**.
 - Energy in **keV**.
 
 ## Table of Contents
@@ -42,7 +42,7 @@ In this simulation, the interactions considered are **Compton scattering** and *
 The **Thomson scattering cross-section** is given by:
 
 $$
-\sigma_{\text{Thompson}} = \frac{8}{3} \pi r_e^2
+\sigma_{\text{Thomson}} = \frac{8}{3} \pi r_e^2
 $$
 
 Where $r_e = 2.817 \cdot 10^{-15}$ m is the **classical electron radius**.
@@ -134,146 +134,160 @@ $$
 
 ## Implemented Classes
 
-The core components of the simulation are encapsulated in several classes:
+The simulation framework is built upon two base classes—`Object` and `Particle`—from which specialized classes inherit. This modular design facilitates consistent geometry, visualization, and particle handling across the simulation.
 
-- **Photon**: Represents a gamma-ray photon, tracking its energy, position, and direction.
-- **Electron**: Models an electron that interacts with photons during scattering events.
-- **Detector**: Simulates a detector that records the energy and direction of incoming photons.
-- **Source**: Represents a gamma-ray source, such as Na-22, used in various experiments.
-- **Target**: Models the material medium where Compton scattering occurs.
-- **Interaction**: Implements the physics governing Compton scattering and other photon interactions.
+- **Particle (Base Class)**: Provides common functionality for all particles.
+  - **Photon**: A subclass of `Particle` that represents a gamma-ray photon with energy, position, and direction.
+  - **Electron**: A subclass of `Particle` that models the electron produced during scattering events.
+  
+- **Object (Base Class)**: Provides basic methods for defining and visualizing cylindrical geometries.
+  - **Detector**: A subclass of `Object` that simulates a cylindrical gamma-ray detector. It includes refined geometric routines for 3D visualization and methods to check if a photon (or interaction point) lies within its volume.
+  - **Target**: A subclass of `Object` that represents the material medium where Compton scattering or other photon interactions occur. It provides methods to verify if a point is inside the target and to visualize it in 2D/3D.
+
+Additional key classes include:
+
+- **Source**: Represents a gamma-ray source (e.g., Na-22) emitting photons.  
+  - **Methods** include random energy and direction generation, as well as routines to emit lists of `Photon` objects (both with randomized and fixed directions for testing).
+  
+- **Interaction**: Models the interaction processes (photoelectric effect and Compton scattering) between photons and matter.
+  - Exploits dynamic material properties and supports updated cross-section calculations.
+  - **Methods** include `cross_section(photon)` for the interaction probability and `interaction(photon)` that simulates the reaction, returning either an electron or a photon-electron pair.
 
 ---
-
-### 1. `Photon`
+### 1) `Particle`
 ```python
-photon = Photon(energy: float, direction: list[float], position: list[float] = [0, 0, 0])
+particle = Particle(energy: float, direction: list[float], position: list[float] = [0,0,0])
 ```
-Represents a photon with energy, direction, and position.
+Represents a particle with energy, direction, and position.
 - **Attributes**: `energy`, `direction`, `position`.
 - **Methods**:
     - `info()`: Prints detailed information about the photon.
-    
-  - `propagation(distance)`: Compute photon position after traveling a distance.
-    
-  - `compton_scattering(angle)`: Calculate scattered photon energy.
-    
-  - `klein_nishina(angle)`: Compute the differential cross-section for Compton scattering.
-    
-  - `compton_angle()`: Generate random scattering angles using rejection sampling, using the Klein-Nishina probability density function.
-    <div align="center">
-      <img src="plots/compton_angles_distributions/angle_distributions_Klein_Nishina.png" alt="Klein-Nishina probability density function" width="850">
-    </div>
+    - `propagation(distance)`: Computes the photon position after traveling a specified distance.
 
-### 2. `Electron`
+
+### 1.a) `Photon`
 ```python
-electron = Electron(energy: float, direction: list[float], position: list[float] = [0, 0, 0])
+photon = Photon(energy: float, direction: list[float], position: list[float] = [0,0,0])
+```
+Represents a photon with energy, direction, and position.
+- **Other methods**:
+    - `compton_scattering(angle)`: Calculates the scattered photon energy.
+    - `klein_nishina(angle)`: Computes the differential cross-section for Compton scattering.
+    - `compton_angle()`: Generates random scattering angles through rejection sampling based on the Klein-Nishina probability density function.
+    
+<div align="center">
+  <img src="plots/compton_angles_distributions/angle_distributions_Klein_Nishina.png" alt="Klein-Nishina probability density function" width="850">
+</div>
+
+### 1.b) `Electron`
+```python
+electron = Electron(energy: float, direction: list[float], position: list[float] = [0,0,0])
 ```
 Represents an electron with energy, direction, and position.
 - **Attributes**: `energy`, `direction`, `position`.
-- **Methods**:
-    - `info()`: Prints detailed information about the electron.
-    
-  - `propagation(distance)`: Compute electron position after traveling a distance.
-    
-  - `compton_scattering(angle, photon)`: Calculate the energy of the electron after Compton scattering.
- 
-### 3. `Radioactive source`
+- **Other methods**:
+    - `compton_scattering(angle, photon)`: Calculates the post-interaction energy of the electron after a Compton scattering event.
+
+### 2) `Radioactive Source`
 ```python
-source = Source(energies: dict = {511: 0.903, 1274: 0.097}, position: list[float] = [0, 0, 0], activity: int = 127000)
+source = Source(energies: dict = {511: 0.903, 1274: 0.097}, position: list[float] = [0,0,0], activity: int = 127000)
 ```
-Simulates a radioactive source emitting gamma photons. It allows customization of photon energy distributions, spatial positions, and activity levels.
-
-- **Attributes**:`energies`, `position`, `activity`.
+Simulates a radioactive source emitting gamma photons. Customizations include energy distributions, spatial positions, and activity levels.
+- **Attributes**: `energies`, `position`, `activity`.
 - **Methods**:
-    - `info()`: Prints detailed information about the radioactive source.
+    - `info()`: Prints detailed information about the source.
+    - `random_energies(number_of_photons: int = 1) -> np.ndarray`: Generates random photon energies based on the source’s energy probabilities.
+    - `random_directions(number_of_photons: int = 1) -> np.ndarray`: Generates random unit vectors to represent photon directions.
+    - `photon_emission(number_of_photons: int = 1) -> list`: Returns a list of `Photon` objects with randomized properties.
+    - `testing_photons(number_of_photons: int = 1, direction: list = [0, 1, 0]) -> list`: Returns a list of `Photon` objects with fixed directions and randomized energies for testing purposes.
 
-    - `random_energies(number_of_photons: int = 1) -> np.ndarray`: Generates random photon energies based on the source's energy probabilities.
-      
-    - `random_directions(number_of_photons: int = 1) -> np.ndarray`: Generates random photon directions as unit vectors.
-      
-    - `photon_emission(number_of_photons: int = 1) -> list`: Generates a list of `Photon` objects with random energies and directions.
-
-    - `testing_photons(self, number_of_photons: int = 1, direction: list = [0, 1, 0]) -> list`: Generates `Photon` objects with fixed directions and random energies.
-
-### 4. `Detector`
+### 3) `Object`
 ```python
-detector = Detector(position: list[float], radius: float, width: float, energetic_resolution: float, Z: float = 49.7, density: float = 3.67, molar_mass: float = 149.89)
+object = Object(position: tuple[list[float], list[float]], radius: float, Z: float, density: float, molar_mass: float)
 ```
+Represents a cylindrical object that serves as the foundation for physical geometries in the simulation. This base class provides methods for defining, analyzing, and visualizing objects such as detectors and targets.
 
-Represents a cylindrical gamma-ray detector with customizable position, size, energy resolution, atomic number, density and molar mass.
+- **Attributes**:  
+  - `position`(a tuple contain the position of the centers of the two basis of the cylindrical object), `radius`, `Z`, `density`, `molar_mass`.
+- **Methods**:  
+  - `info()`: Prints detailed information about the object's properties.   
+  - `principal_axis() -> np.ndarray`: Computes and returns the principal axis vector of the cylinder by taking the difference between the two defining point of the position tuple.  
+  - `center() -> np.ndarray`: Calculates the geometric center (midpoint) of the object based on its defining positions.  
+  - `is_inside(point: np.ndarray) -> bool`: Verifies whether a given point (for example, a photon hit) lies within the object's cylindrical volume. 
+    To handle also rotated objects, we first transform the coordinate system so that the object's principal axis aligns with the global y-axis. In other words, before checking whether a given point lies within the object, the space coordinates are rotated accordingly. Let 
 
-- **Attributes**: `position`, `radius`, `width`, `energetic_resolution`,`Z`(defaulting to 49.7 for NaI), `density`(defaulting to 3.67 g/cm^3 for NaI), `molar_mass`(defaulting to 149.89 for NaI).
+    $$
+    \hat{v}_{Obj} = \frac{\vec{v}_{Obj}}{|\vec{v}_{Obj}|}
+    $$
 
-- **Methods**:
-    - `info()`: Prints detailed information about the detector.
-      
-    - `will_be_in_detector(point: np.ndarray, direction: np.ndarray) -> bool`: Determines if a particle starting at a given point with a specified direction will hit the detector.
-      
-    - `is_in_detector(point: np.ndarray) -> bool`: Checks if a given point is inside the detector's volume.
-      
-    - `resolution(energy: float) -> float`: Simulates detector energy resolution by adding Gaussian noise to the true energy.
-      
-    - `detection(electron: Electron) -> float`: Simulates the energy detected from an electron interacting with the detector.
-      
-    - `draw_detector_3D(ax, axis='y', color='blue', alpha=0.5, label=None)`:Draws a 3D representation of the detector.
-      
-    - `draw_detector_2D(ax, plane='xy', color='blue', label=None)`:Draws a 2D projection of the detector on a specified plane.
+    be the unit vector along the object's principal axis. The angle, $\alpha$, between this axis and the global y-axis is determined by
 
-### 5. `Target`
+    $$
+    \sin(\alpha) = \left|\hat{y}\times\hat{v}_{Obj}\right|
+    $$
+
+    Then, the coordinate transformation is achieved using the rotation matrix
+
+    $$
+    \vec{x}' = \begin{bmatrix}
+    \cos(\alpha) & 0 & \sin(\alpha) \\
+    0 & 1 & 0 \\
+    -\sin(\alpha) & 0 & \cos(\alpha)
+    \end{bmatrix} \cdot \vec{x}
+    $$
+
+    After translating the point by subtracting the object's center, the above rotation aligns the object’s axis with the y-axis. In that rotated frame, the inclusion test is simplified: the radial distance (computed from the x- and z-components) is compared with the object's radius, and the y-coordinate is checked against half the length of the object.
+
+  - `rotate(theta: float, axis: str)`: Rotates the object about its center along a specified axis (either "x", "y", or "z").  
+  - `detection(electron: Electron) -> float`: Simulates the energy detected from an electron interacting with the object.  
+  - `draw_3D(ax, axis='y', color='blue', alpha=0.5, label=None)`: Renders a detailed 3D visualization of the cylindrical object using matplotlib, including routines for proper scaling and orientation.
+
+### 3.a) `Detector`
 ```python
-target = Target(position: list[float], radius: float, width: float,  Z: float, density: float, molar_mass: float)
+detector = Detector(position: list[float], radius: float, width: float, energetic_resolution: float,
+                    Z: float = 49.7, density: float = 3.67, molar_mass: float = 149.89)
 ```
+Represents a cylindrical gamma-ray detector. We consider the detector by default as a NaI scintillator, with the appropriate values for the material constants.
+- **Other attributes**: `energetic_resolution`.
+- **Other methods**:
+    - `resolution(energy: float) -> float`: Simulates detector resolution by adding Gaussian noise to the true energy.
+    - `detection(electron: Electron) -> float`: Simulates the energy detected from an interacting electron.
 
-Represents a cylindrical target material with defined position, dimensions, atomic number, density and molar mass.
+### 3.b) `Target`
+```python
+target = Target(position: list[float], radius: float, Z: float = 29, density: float = 8.96, molar_mass: float = 63.55)
+```
+Represents a cylindrical target. We consider the target material by default of Copper.
 
-- **Attributes**: `position`, `radius`, `width`, `Z`, `density`, `molar_mass`.
-
-- **Methods**:
-    - `info()`: Prints detailed information about the target.
-      
-    - `is_in_target(point: np.ndarray) -> bool`:Checks if a given point is inside the target.
-      
-    - `draw_target_3D(ax, axis='y', color='grey', alpha=0.5, label=None)`: Draws a 3D representation of the cylindrical target along a specified axis.
-      
-    - `draw_target_2D(ax, plane='xy', color='grey', label=None)`: Draws a 2D projection of the target on a specified plane.
-
-### 6. `Interaction`
+### 4) `Interaction`
 ```python
 interaction = Interaction(type: str)
 ```
-This class allows for the modeling photoelectric effect and Compton scattering, including the calculation of cross-sections and the simulation of the resulting electron or photon-electron pair after the interaction.
-
-- **Attributes**:`type`.
+Models the photon interaction processes (photoelectric effect and Compton scattering) using updated cross-section formulas and dynamic material properties.
+- **Attributes**: `type`("photoelectric" or "compton").
 - **Methods**:
-    - `info()`: Prints the interaction type.
-      
-    - `cross_section(photon: Photon, Z)`: Calculates the cross-section for the specified interaction type (photoelectric or Compton).
-      
-    - `interaction(photon: p.Photon)`: Simulates the interaction (photoelectric or Compton), returning the resulting product (an electron).
+    - `info()`: Displays the interaction type and detailed material properties.
+    - `cross_section(photon: Photon, Z: float)`: Calculates the cross-section for the specified interaction based on updated dynamic material properties.
+    - `interaction(photon: Photon)`: Simulates the interaction (photoelectric or Compton), returning a resulting product (an electron or a photon-electron pair).
 
 ---
 
-## Simulation Experiments
+## Spectroscopy of Na-22 Spectrum
 
-1. **Spectroscopy of Na-22 Spectrum**: Simulates the energy spectrum emitted by a Na-22 gamma-ray source, modeling the detection of characteristic energy peaks.
+Simulates the energy spectrum emitted by a Na-22 gamma-ray source, modeling the detection of characteristic energy peaks. The updated libraries now support customizable detector materials and dynamic scaling.
 <p align="center">
-  <img src="plots/spectrum/spettroscopy_franco.png" alt="Example of spettroscopy of Na-22 Spectrum" width="600">
-</p>
-
-2. **Coincidence Measurement**: Simulates experiments where two detectors simultaneously measure correlated photon events, such as those from pair production. One detector is the gate and the other is the spettroscopy.
-<p align="center">
-  <img src="plots/spectrum/coincidence_spectrum.png" alt="Example of coincidence measurment (spectrum)" width="600">
+  <img src="plots/spectrum/spettroscopy_franco.png" alt="Example of spectroscopy of Na-22 Spectrum" width="600">
 </p>
 
 ## Visualization
 
-The project includes 3D visualization capabilities that allow users to:
+The simulation includes advanced 3D visualization capabilities that allow users to:
 
 - Display the gamma-ray source and photon trajectories.
-- Visualize the spatial arrangement of detectors and targets.
-- Understand the spatial distribution and dynamics of interactions within the simulated environment.
+- Visualize the spatial arrangements of detectors and targets.
+- Explore the spatial distribution of photon interactions.
 
+The latest updates feature dynamic scaling of visualizations based on the actual dimensions of detectors and targets.
 <p align="center">
-  <img src="plots/3D_plots/coincidence_3D_visualization.png" alt="Example coincidence measurment (3D)" width="900">
+  <img src="plots/3D_plots/3D_visualization.png" alt="Example coincidence measurement (3D)" width="900">
 </p>
