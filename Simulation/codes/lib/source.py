@@ -63,45 +63,61 @@ class Source:
         ]).T
         return directions
     
-    def cone_random_directions(self, phi_max, theta_max, number_of_photons: int = 1) -> np.ndarray:
+    def cone_random_directions(self, phi_max: float, theta_max: float, axis: str, number_of_photons: int = 1, forward_backward: bool = True) -> np.ndarray:
         """
         Generate a list of photon directions given a range for theta and phi (unit vectors).
         
+        :param phi_max: Maximum azimuthal angle in radians.
+        :param theta_max: Maximum polar angle in radians.
+        :param axis: Axis of photon generation ('x', 'y', or 'z').
         :param number_of_photons: The number of photons to generate.
-        :param theta_max: Maximum polar angle (in radians).
-        :param phi_max: Maximum azimuthal angle (in radiants)
-        :return: Array of photon directions as unit vectors.
+        :param forward_backward: If True, generate photons in both forward and backward directions.
         """
         phi = np.random.uniform(0, phi_max, number_of_photons)  # Random azimuthal angle
         theta = np.random.uniform(0, theta_max, number_of_photons)  # Random polar angle
 
         # Calculate direction components (unit vectors)
-        directions = np.vstack([
-            np.sin(theta) * np.cos(phi),
-            np.sin(theta) * np.sin(phi),
-            np.cos(theta)
-        ]).T
-
-        F_or_B = np.random.choice([-1, 1], number_of_photons)  # Randomly choose between forward and backward direction
-
-        if F_or_B[0] == -1:
-            directions = -directions
-        else:
-            directions = directions
+        if axis == 'x':
+            directions = np.vstack([
+                np.cos(theta),
+                np.sin(theta) * np.cos(phi),
+                np.sin(theta) * np.sin(phi)
+            ]).T
+        elif axis == 'y':
+            directions = np.vstack([
+                np.sin(theta) * np.cos(phi),
+                np.cos(theta),
+                np.sin(theta) * np.sin(phi)
+            ]).T
+        elif axis == 'z':
+            directions = np.vstack([
+                np.sin(theta) * np.cos(phi),
+                np.sin(theta) * np.sin(phi),
+                np.cos(theta)
+            ]).T
             
+        if forward_backward:
+            # Generate one random choice per direction
+            F_or_B = np.random.choice([-1, 1], number_of_photons)
+            # Apply the random choice to each direction vector
+            directions = directions * F_or_B[:, np.newaxis]
+           
         return directions
 
 
-    def photon_emission(self, number_of_photons: int = 1, theta_max: float = None, phi_max: float = None) -> list:
+    def photon_emission(self, number_of_photons: int = 1, theta_max: float = None, phi_max: float = None, axis: str="y", forward_backward: bool = True) -> list:
         """
         Generate a list of Photon objects with random energies and directions.
         
-        :param number_of_photons: Number of photons to generate.
-        :return: List of Photon objects.
+        :param number_of_photons: The number of photons to generate.
+        :param theta_max: Maximum polar angle in radians.
+        :param phi_max: Maximum azimuthal angle in radians.
+        :param axis: Axis of photon generation ('x', 'y', or 'z').
+        :param forward_backward: If True, generate photons in both forward and backward directions.
         """
         energies = self.random_energies(number_of_photons)  # Generate random photon energies
         if theta_max is not None and phi_max is not None:
-            directions = self.cone_random_directions(phi_max, theta_max, number_of_photons)
+            directions = self.cone_random_directions(phi_max, theta_max, axis, number_of_photons, forward_backward)
         else:
             directions = self.random_directions(number_of_photons)
             
@@ -112,7 +128,7 @@ class Source:
         """
         Generate a list of Photon objects with fixed directions and random energies.
         
-        :param number_of_photons: Number of photons to generate.
+        :param number_of_photons: The number of photons to generate.
         :param direction: Fixed direction for all photons.
         :return: List of Photon objects.
         """

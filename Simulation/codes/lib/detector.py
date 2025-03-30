@@ -225,6 +225,121 @@ class Object:
                             color=color, alpha=alpha, edgecolor='none')       
 
 
+    def draw_plotly_3D(self, color='blue', alpha=0.7, name=None):
+        """
+        Creates a Plotly mesh3d representation of the cylindrical object.
+        
+        Args:
+            color: Color of the cylinder
+            alpha: Transparency of the cylinder (0-1)
+            name: Name for the trace in the legend
+            
+        Returns:
+            Plotly mesh3d trace object
+        """
+        import plotly.graph_objects as go
+        
+        # Get the principal axis and normalize it
+        principal_axis = self.principal_axis()
+        height = np.linalg.norm(principal_axis)
+        if height == 0:
+            return None  # Can't create a cylinder with zero height
+            
+        direction = principal_axis / height
+        
+        # Get center point of the cylinder
+        center = self.center()
+        
+        # Create orthogonal vectors to the principal axis
+        # First, find a vector perpendicular to the direction
+        if np.abs(direction[0]) < np.abs(direction[1]) and np.abs(direction[0]) < np.abs(direction[2]):
+            ortho = np.array([1, 0, 0])
+        elif np.abs(direction[1]) < np.abs(direction[0]) and np.abs(direction[1]) < np.abs(direction[2]):
+            ortho = np.array([0, 1, 0])
+        else:
+            ortho = np.array([0, 0, 1])
+        
+        # Create the basis vectors for the cylinder
+        v1 = np.cross(direction, ortho)
+        v1 = v1 / np.linalg.norm(v1)
+        v2 = np.cross(direction, v1)
+        
+        # Number of points around the cylinder circumference
+        n_theta = 36
+        
+        # Create points for the vertices of the mesh
+        theta = np.linspace(0, 2*np.pi, n_theta)
+        vertices = []
+        # Create vertices for top and bottom circles
+        for t in theta:
+            circle_pt = self.radius * (v1 * np.cos(t) + v2 * np.sin(t))
+            # Bottom circle point
+            vertices.append(list(center - direction * height/2 + circle_pt))
+            # Top circle point
+            vertices.append(list(center + direction * height/2 + circle_pt))
+        
+        # Create indices for triangular faces
+        i_vals = []
+        j_vals = []
+        k_vals = []
+        
+        # Connect vertices to form triangles
+        for i in range(n_theta):
+            i0 = 2 * i
+            i1 = 2 * i + 1
+            i2 = 2 * ((i + 1) % n_theta)
+            i3 = 2 * ((i + 1) % n_theta) + 1
+            
+            # Triangle 1 (connecting points on adjacent sides)
+            i_vals.append(i0)
+            j_vals.append(i2)
+            k_vals.append(i1)
+            
+            # Triangle 2 (for the other half of the quad)
+            i_vals.append(i1)
+            j_vals.append(i2)
+            k_vals.append(i3)
+        
+        # Add triangles for the bottom cap
+        # First add center of bottom cap as a vertex
+        bottom_center_idx = len(vertices)
+        vertices.append(list(center - direction * height/2))
+        
+        for i in range(n_theta):
+            i0 = 2 * i
+            i2 = 2 * ((i + 1) % n_theta)
+            
+            i_vals.append(bottom_center_idx)
+            j_vals.append(i0)
+            k_vals.append(i2)
+        
+        # Add triangles for the top cap
+        # Add center of top cap as a vertex
+        top_center_idx = len(vertices)
+        vertices.append(list(center + direction * height/2))
+        
+        for i in range(n_theta):
+            i1 = 2 * i + 1
+            i3 = 2 * ((i + 1) % n_theta) + 1
+            
+            i_vals.append(top_center_idx)
+            j_vals.append(i3)
+            k_vals.append(i1)
+        
+        # Create the mesh3d trace
+        return go.Mesh3d(
+            x=[v[0] for v in vertices],
+            y=[v[1] for v in vertices],
+            z=[v[2] for v in vertices],
+            i=i_vals,
+            j=j_vals,
+            k=k_vals,
+            color=color,
+            opacity=alpha,
+            name=name or "Cylinder"
+        )
+
+
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 # SUBCLASS DETECTOR
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
