@@ -1,4 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 from . import particles as p
 
 # Define energies and source properties
@@ -137,3 +140,50 @@ class Source:
         
         energies = self.random_energies(number_of_photons)  # Generate random photon energies
         return [p.Photon(energy, direction) for energy, direction in zip(energies, directions)]  # Return list of Photon objects
+
+
+    def draw_3D(self, ax):
+        """
+        Draw the source position in 3D space.
+        
+        :param ax: Matplotlib 3D axis object.
+        """
+        ax.scatter(self.position[0], self.position[1], self.position[2], 
+                   color='black', marker='o', label='Source Position')
+        ax.text(self.position[0], self.position[1], self.position[2], 
+                'Source', color='black', fontsize=12)
+        
+    def draw_plotly_3D(self, fig):
+        """
+        Draw the source position in 3D space using Plotly.
+        
+        :param fig: Plotly figure object.
+        """
+        fig.add_trace(go.Scatter3d(
+            x=[self.position[0]],
+            y=[self.position[1]],
+            z=[self.position[2]],
+            mode='markers',
+            marker=dict(size=5, color='black')
+        ))
+
+    def draw_plotly_3D(self, color='black', alpha=1.0, name=None):
+        """
+        Creates a Plotly representation of the source.
+        
+        Args:
+            color: Color of the source point
+            alpha: Opacity of the source marker (0-1)
+            name: Name for the trace
+            
+        Returns:
+            Plotly scatter3d trace object
+        """        
+        return go.Scatter3d(
+            x=[self.position[0]],
+            y=[self.position[1]],
+            z=[self.position[2]],
+            mode='markers',
+            marker=dict(size=10, color=color, symbol='circle', opacity=alpha),
+            name=name or "Source"
+        )

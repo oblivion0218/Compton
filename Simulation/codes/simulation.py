@@ -51,7 +51,7 @@ def plot_energy_spectrum(energies, fileNamePNG, bins=100, title="Energy Spectrum
     plt.close()  # Close the plot to free up resources
 
 
-def visualization_3D(fileNamePNG, detectors, photons, target=None):
+def visualization_3D(fileNamePNG, detectors, photons, source, target=None):
     """
     Creates a 3D visualization of the photon hit points and detector positions.
     
@@ -74,6 +74,9 @@ def visualization_3D(fileNamePNG, detectors, photons, target=None):
     [detector.draw_3D(ax) for detector in detectors]
     if target:
         target.draw_3D(ax)
+
+    # Draw source
+    source.draw_3D(ax)
     
     # Add labels and title
     ax.set_xlabel('X (cm)', fontsize=12)
@@ -94,13 +97,14 @@ def visualization_3D(fileNamePNG, detectors, photons, target=None):
     plt.close()
 
 
-def visualization_3D_plotly(fileNameHTML, detectors, photons, target=None):
+def visualization_3D_plotly(fileNameHTML, detectors, photons, source=None, target=None):
     """
     Creates an interactive 3D visualization of the photon hit points and detector positions using Plotly.
     
     :param fileNameHTML: Path to save the output 3D visualization as HTML.
     :param detectors: List of detector objects.
     :param photons: List of photon objects, each with a position attribute.
+    :param source: Optional source object to visualize.
     :param target: Optional target object to visualize.
     :return: The Plotly figure object (can be displayed in notebooks)
     """
@@ -132,12 +136,21 @@ def visualization_3D_plotly(fileNameHTML, detectors, photons, target=None):
         
         # Get mesh trace from detector and add to figure
         cylinder_trace = detector.draw_plotly_3D(color=color, name=name)
-        fig.add_trace(cylinder_trace)
+        if cylinder_trace is not None:  # Check if the trace is valid
+            fig.add_trace(cylinder_trace)
     
+    # Add source if provided
+    if source:
+        # Get source trace and add to figure
+        source_trace = source.draw_plotly_3D(color='black', name='Source')
+        if source_trace is not None:  # Check if the trace is valid
+            fig.add_trace(source_trace)
+        
     # Add target if provided
     if target:
         target_trace = target.draw_plotly_3D(color='gray', name='Target')
-        fig.add_trace(target_trace)
+        if target_trace is not None:  # Check if the trace is valid
+            fig.add_trace(target_trace)
     
     # Update layout
     fig.update_layout(
@@ -156,8 +169,14 @@ def visualization_3D_plotly(fileNameHTML, detectors, photons, target=None):
         )
     )
     
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(fileNameHTML), exist_ok=True)
+    
     # Save as HTML for interactive viewing
-    pio.write_html(fig, file=fileNameHTML)    
+    pio.write_html(fig, file=fileNameHTML)
+    print(f"Interactive 3D visualization saved to {fileNameHTML}")
+    
+    return fig
 
 
 # Initialize detectors with their respective positions and dimensions
@@ -166,28 +185,28 @@ franco = d.Detector(([0, -15, 0], [0, -20.08, 0]), 2.54, 0.0695)  # Detector "Fr
 
 number_of_photons = 1000000  # Number of photons to simulate
 
-# Simulate spectroscopy measurements and plot the energy spectrum 
-energies = e.spectroscopy_measurement(number_of_photons, ugo, s.Source(), True)
-plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_ugo.png", 10000)
-energies = e.spectroscopy_measurement(number_of_photons, franco, s.Source(), True)
-plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_franco.png", 10000)
-print("Spectroscopy measurements completed.")
+# # Simulate spectroscopy measurements and plot the energy spectrum 
+# energies = e.spectroscopy_measurement(number_of_photons, ugo, s.Source(), True)
+# plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_ugo.png", 10000)
+# energies = e.spectroscopy_measurement(number_of_photons, franco, s.Source(), True)
+# plot_energy_spectrum(energies, file_path + "spectrum/spettroscopy_franco.png", 10000)
+# print("Spectroscopy measurements completed.")
 
 # Simulate photon emission from a source
 source = s.Source()  # Create a source object
 photons = source.photon_emission(1000)  # Simulate photon emission
 [photon.propagation(15) for photon in photons]  # Propagate the photons
 
-franco.rotate(np.pi / 4, [0, 0, 0], "z")
+franco.rotate(np.pi / 6, [0, 0, 0], "z")
 
 # Visualize the 3D photon hit positions and detectors for coincidence measurement
-visualization_3D(file_path + "3D_plots/3D_visualization.png", [ugo, franco], photons)
+visualization_3D(file_path + "3D_plots/3D_visualization.png", [ugo, franco], photons, source)
 print("3D visualization completed.")
 
-# Generate interactive 3D visualization with Plotly
-interactive_html_path = file_path + "3D_plots/interactive_3D_visualization.html"
-visualization_3D_plotly(interactive_html_path, [ugo, franco], photons)
-print("Interactive 3D visualization completed.")
+# # Generate interactive 3D visualization with Plotly
+# interactive_html_path = file_path + "3D_plots/interactive_3D_visualization.html"
+# visualization_3D_plotly(interactive_html_path, [ugo, franco], photons, source)
+# print("Interactive 3D visualization completed.")
 
 print("End")
 
