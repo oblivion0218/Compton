@@ -59,6 +59,11 @@ for i in range(20) :
     fit_func.SetParameters(150, 1450, 60, 50, 1490+i, 20)
     hist.Fit(fit_func, "R0")  # no draw
 
+    centro.append(fit_func.GetParameter(1))
+    #err_centro.append(fit_func.GetParError(1))
+
+    '''     PER LS STAMPA DEI PLOT
+
     #Creazione del canvas e fit
     canvas = TCanvas("c1", f"Fit Istogramma {1490 + i}" , 800, 600)
     hist.Draw()
@@ -94,3 +99,30 @@ for i in range(20) :
 
     canvas.Update()
     canvas.SaveAs(f"Fit Istogramma {1490 + i}.png")
+
+    '''
+
+
+xmin = min(centro) - 1  # Margine per migliore visualizzazione
+xmax = max(centro) + 1
+
+nbins = int(xmax-xmin)+4
+
+# Creazione del nuovo istogramma
+hist2 = TH1F("histogram", "Distribuzione dei Centroidi", nbins, xmin, xmax)
+
+# Riempimento
+for value in centro:
+    hist2.Fill(value)
+
+# Migliore visualizzazione
+canvas2 = TCanvas("c2", "Centroidi picchi gaussiana", 800, 600)
+hist2.SetFillColor(ROOT.kBlue)  # Colore di riempimento più morbido
+hist2.SetLineWidth(2)
+
+hist2.GetXaxis().SetTitle("Centroide")
+hist2.GetYaxis().SetTitle("Frequenza")
+
+hist2.Draw("HIST")  # "HIST" per una visualizzazione più chiara
+canvas2.SetGrid()  # Aggiunge griglia per leggibilità
+canvas2.SaveAs("Centroidi.png")
