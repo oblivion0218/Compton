@@ -7,27 +7,56 @@ from . import interactions as i
 import matplotlib.patches as patches
 from tqdm import tqdm
 
+# Simulation pricipal axis is the y-axis
+
 step = 0.1 #cm
 
-def photon_propagation_to_target(photon: p.Photon, distance_source_detector: float) -> p.Photon: # figure: geometry_exp.png
+def photon_propagation_to_target(photon: p.Photon, distance: float, direction=None) -> p.Photon:
     """
-    Propagates a photon from the source to the detector.
+    Propagates a photon from the source to a target located at a specified distance and direction.
 
     :param photon: Photon object representing the gamma photon.
-    :param distance_source_detector: Distance between the source and the detector (in cm).
-    :return: Photon object after propagation to the detector.
+    :param distance: Distance between the source and the target (in cm).
+    :param direction: Direction vector (x,y,z) pointing to the target. If None, y-axis [0,1,0] is used.
+    :return: Photon object after propagation to the target.
     """
-    photon.propagation(distance_source_detector)
-    # Calculate the angle (α) between the photon's trajectory and the detector surface
-    alpha_angle = np.arctan(photon.position[0] / photon.position[2]) if (photon.position[0] != 0 and photon.position[2] != 0) else 0
+    # Set default direction to y-axis if None is provided
+    if direction is None:
+        direction = np.array([0, 1, 0])
+    else:
+        # Ensure direction is a numpy array and normalize it
+        direction = np.array(direction)
+        direction = direction / np.linalg.norm(direction)
     
-    # Calculate the vertical offset (H) and the diagonal length (L) to the detector
-    H = distance_source_detector - np.sign(photon.position[1]) * photon.position[1]
-    L = H / np.cos(alpha_angle)
-
-    # Adjust the propagation distance based on the offset
-    photon.propagation(L)
-
+    # Get the target position (a point on the target plane)
+    target_position = photon.position + distance * direction
+    
+    # The normal vector of the target plane is the same as the direction to the target
+    target_normal = -direction  # Negative because we want it facing toward the source
+    
+    # Calculate the vector from photon position to the target point
+    vector_to_target = target_position - photon.position
+    
+    # Calculate the cosine of the angle between photon direction and target normal
+    cos_angle = np.dot(photon.direction, target_normal)
+    
+    # Check if photon is moving toward the target
+    if abs(cos_angle) < 1e-10:  # Nearly perpendicular, will never hit
+        # Just propagate the original distance
+        photon.propagation(distance)
+        return photon
+    
+    # Calculate the distance to the intersection with the target plane
+    # Using the plane equation: dot(target_normal, point - target_position) = 0
+    propagation_distance = np.dot(target_normal, vector_to_target) / cos_angle
+    
+    # Propagate the photon to the intersection point
+    if propagation_distance > 0:
+        photon.propagation(propagation_distance)
+    else:
+        # If the intersection is behind the photon, just propagate the original distance
+        photon.propagation(distance)
+    
     return photon
 
 
@@ -47,8 +76,6 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
     electron = p.Electron(0, [0, 0, 0])
     # Propagate the photon within the detector until it exits or interacts
     while detector.is_inside(photon.position):
-        total_cross_section = i.cross_section_photoelectric(photon, detector.Z) + i.cross_section_compton(photon, detector.Z)
-
         # Check if the photon interacts with the detector material
         if random.uniform(0, 1) < i.interaction_probability(photon, step, detector):
 

@@ -152,20 +152,7 @@ class Source:
                    color='black', marker='o', label='Source Position')
         ax.text(self.position[0], self.position[1], self.position[2], 
                 'Source', color='black', fontsize=12)
-        
-    def draw_plotly_3D(self, fig):
-        """
-        Draw the source position in 3D space using Plotly.
-        
-        :param fig: Plotly figure object.
-        """
-        fig.add_trace(go.Scatter3d(
-            x=[self.position[0]],
-            y=[self.position[1]],
-            z=[self.position[2]],
-            mode='markers',
-            marker=dict(size=5, color='black')
-        ))
+
 
     def draw_plotly_3D(self, color='black', alpha=1.0, name=None):
         """
