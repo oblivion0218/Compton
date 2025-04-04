@@ -62,6 +62,24 @@ plt.grid(True)
 # Save and show the figure
 plt.savefig(file_path + 'angle_distributions_Klein_Nishina.png')
 
+
+plt.figure(figsize=(10, 8))
+ax = plt.subplot(1, 1, 1, polar=True)
+
+# Fill between 0 and the normalized PDF values to get a radial "area" plot
+ax.plot(angle_range, normalized_pdf_values, label='Klein-Nishina PDF', color='red')
+
+# Optional: prettify
+ax.set_theta_zero_location("N")  # 0 rad at the top
+ax.set_theta_direction(-1)       # clockwise
+ax.set_title('Klein-Nishina Distribution (Radial Plot)', va='bottom')
+ax.legend(loc='upper right')
+ax.grid(True)
+
+# Save the figure
+plt.savefig(file_path + 'angle_distributions_Klein_Nishina_radial.png')
+
+
 """
 Uniform distribution
 """
