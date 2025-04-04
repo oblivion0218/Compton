@@ -92,7 +92,7 @@ def attenuation_factor(total_cross_section: float, scattering_target: d.Object) 
     :param scattering_target: Material properties (e.g., density, molar mass).
     :return: Attenuation factor (inverse mean free path).
     """
-    number_of_scattering_centers = (scattering_target.density * N_a) / scattering_target.molar_mass
+    number_of_scattering_centers = (scattering_target.density * scattering_target.Z * N_a) / scattering_target.molar_mass
     return total_cross_section * number_of_scattering_centers # cm^-1
 
 

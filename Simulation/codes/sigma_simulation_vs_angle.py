@@ -19,18 +19,18 @@ number_of_photons = 1000000  # Number of photons to simulate
 
 # Simulate photon emission from a source
 source = s.Source({511: 1, 1274: 0})  # Create a source object
-photons = source.photon_emission(number_of_photons, np.arctan(1.27/16), 2 * np.pi, axis="y", forward_backward=False)  # Simulate photon emission
-[photon.propagation(5) for photon in photons]  # Propagate the photons
 
 detector.rotate((5/18) * np.pi, [0, 5.5, 0], "z")
 
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
 
-# v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
-
 step = 0.1
 
-for j in tqdm(range(50), desc="N_cycles", unit="iteration"): 
+for j in tqdm(range(100), desc="N_cycles", unit="iteration"): 
+    photons = source.photon_emission(number_of_photons, np.arctan(1.27/16), 2 * np.pi, axis="y", forward_backward=False)  # Simulate photon emission
+    [photon.propagation(5) for photon in photons]  # Propagate the photons
+    # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
+
     photons_out_of_target = []
     n_interacting_photons = 0
     n_compton_interactions = [0, 0, 0]  # [first compton, second compton]
@@ -104,7 +104,7 @@ for j in tqdm(range(50), desc="N_cycles", unit="iteration"):
                     n_photoelectric_interactions += 1
                     photon.energy = 0
                     break    
-                    
+                break    
             photon.position += step * photon.direction
 
         if photon.energy > 0:
@@ -138,12 +138,22 @@ for j in tqdm(range(50), desc="N_cycles", unit="iteration"):
 
     detected_energies = []
     for photon in photons_to_detector:
-        detected_energies.append(e.gamma_detection(photon, detector, distance_source_detector=0, step=step))
+        energy = e.gamma_detection(photon, detector, distance_source_detector=0, step=step)
+        if energy > 0:
+            detected_energies.append(energy)
 
     # v.plot_energy_spectrum(detected_energies, "Energies.png")
     print(f"Number of photons observed by the detector: {len(detected_energies)}")
 
     with open(f"{j}_detected_energies.txt", "w") as f:
+        f.write(f"Number of photons that left the target: {len(photons_out_of_target)}\n")
+        f.write(f"Number of photons that interacted with the target: {n_interacting_photons}\n")
+        f.write(f"Number of photoelectric interactions: {n_photoelectric_interactions}\n")
+        f.write(f"Number of Compton interactions: {n_compton_interactions[0]}\n")
+        f.write(f"Number of Compton interactions (2nd): {n_compton_interactions[1]}\n")
+        f.write(f"Number of Compton interactions (3rd): {n_compton_interactions[2]}\n")
+        f.write(f"Number of photons that reached the detector: {len(photons_to_detector)}\n")
+        f.write(f"Number of photons observed by the detector: {len(detected_energies)}\n")
         f.write("Detected Energies:\n")
         for energy in detected_energies:
             f.write(f"{energy}\n")
