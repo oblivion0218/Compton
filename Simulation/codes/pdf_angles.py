@@ -66,40 +66,40 @@ plt.savefig(file_path + 'angle_distributions_Klein_Nishina.png')
 Uniform distribution
 """
 
-# Generate 10,000 random Compton scattering angles (uniform distribution)
-random_angles = [random.uniform(0, np.pi) for _ in range(number_of_photons)]
+# # Generate 10,000 random Compton scattering angles (uniform distribution)
+# random_angles = [random.uniform(0, np.pi) for _ in range(number_of_photons)]
 
-# Define the uniform PDF over a range of angles
-angle_range = np.linspace(0, np.pi, 500)
-uniform_pdf_values = [1 / np.pi for _ in angle_range]  # Uniform distribution over [0, pi]
+# # Define the uniform PDF over a range of angles
+# angle_range = np.linspace(0, np.pi, 500)
+# uniform_pdf_values = [1 / np.pi for _ in angle_range]  # Uniform distribution over [0, pi]
 
-# Generate 10,000 random electron energies
-random_electron_energies = [photon.energy - photon.compton_scattering(angle) for angle in random_angles]
+# # Generate 10,000 random electron energies
+# random_electron_energies = [photon.energy - photon.compton_scattering(angle) for angle in random_angles]
 
-# Plot histogram of random angles, uniform PDF, and electron energy distribution in the same figure
-plt.figure(figsize=(20, 8))
+# # Plot histogram of random angles, uniform PDF, and electron energy distribution in the same figure
+# plt.figure(figsize=(20, 8))
 
-plt.subplot(1, 2, 1)
-# Histogram of random angles
-plt.hist(random_angles, bins=500, density=True, alpha=0.7, label='Random Angles')
-# Uniform PDF
-plt.plot(angle_range, uniform_pdf_values, color='red', label='Uniform PDF')
+# plt.subplot(1, 2, 1)
+# # Histogram of random angles
+# plt.hist(random_angles, bins=500, density=True, alpha=0.7, label='Random Angles')
+# # Uniform PDF
+# plt.plot(angle_range, uniform_pdf_values, color='red', label='Uniform PDF')
 
-plt.xlabel('Scattering Angle (radians)')
-plt.ylabel('Probability Density')
-plt.title('Compton Scattering: Angle Distributions (Uniform PDF)')
-plt.legend()
-plt.grid(True)
+# plt.xlabel('Scattering Angle (radians)')
+# plt.ylabel('Probability Density')
+# plt.title('Compton Scattering: Angle Distributions (Uniform PDF)')
+# plt.legend()
+# plt.grid(True)
 
-plt.subplot(1, 2, 2)
-# Histogram of random electron energies
-plt.hist(random_electron_energies, bins=1000, alpha=0.7, label='Random Electron Energies', color='green')
+# plt.subplot(1, 2, 2)
+# # Histogram of random electron energies
+# plt.hist(random_electron_energies, bins=1000, alpha=0.7, label='Random Electron Energies', color='green')
 
-plt.xlabel('Electron Energy (keV)')
-plt.ylabel('Counts')
-plt.title('Compton Scattering: Electron Energy Distributions (511 keV Photons)')
-plt.legend()
-plt.grid(True)
+# plt.xlabel('Electron Energy (keV)')
+# plt.ylabel('Counts')
+# plt.title('Compton Scattering: Electron Energy Distributions (511 keV Photons)')
+# plt.legend()
+# plt.grid(True)
 
-# Save and show the figure
-plt.savefig(file_path + 'angle_distributions_uniform.png')
+# # Save and show the figure
+# plt.savefig(file_path + 'angle_distributions_uniform.png')
