@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from scipy.optimize import curve_fit
@@ -13,7 +12,7 @@ from iminuit.cost import LeastSquares
 N_tot = 1000000  # Total number of photons in each simulation
 
 # Set the directory containing the simulation result files
-data_dir = "/mnt/c/Users/User/Desktop/info/simulated_events"
+data_dir = "../simulated_events/data"
 
 # Initialize data structures to store metrics across simulation runs
 sim_runs = []
@@ -70,75 +69,48 @@ photons_reached_detector = np.array(photons_reached_detector)
 photons_observed = np.array(photons_observed)
 all_energies = np.array(all_energies)
 
-# Create a figure with multiple subplots for metrics vs simulation run
-plt.figure(figsize=(16, 20))
 
-# Photons that left the target
-plt.subplot(4, 2, 1)
-plt.plot(sim_runs, photons_left_target/N_tot, 'o', color='blue')
-plt.title('Probability of Photons Leaving Target')
-plt.xlabel('Simulation Run')
-plt.ylabel('Probability')
-plt.grid(True)
-
-# Interacting photons
-plt.subplot(4, 2, 2)
-plt.plot(sim_runs, interacting_photons/N_tot, 'o', color='red')
-plt.title('Probability of Photon Interactions')
-plt.xlabel('Simulation Run')
-plt.ylabel('Probability')
-plt.grid(True)
-
-# Photoelectric interactions
-plt.subplot(4, 2, 3)
-plt.plot(sim_runs, photoelectric_interactions/N_tot, 'o', color='green')
-plt.title('Probability of Photoelectric Interactions')
-plt.xlabel('Simulation Run')
-plt.ylabel('Probability')
-plt.grid(True)
-
-# Compton interactions (first, second, and third)
-plt.subplot(4, 2, 4)
-plt.plot(sim_runs, compton_1st/N_tot, 'o', label='1st', color='purple')
-plt.plot(sim_runs, compton_2nd/N_tot, 'o', label='2nd', color='orange')
-plt.plot(sim_runs, compton_3rd/N_tot, 'o', label='3rd', color='brown')
-plt.title('Probability of Compton Interactions')
-plt.xlabel('Simulation Run')
-plt.ylabel('Probability')
-plt.legend()
-plt.grid(True)
-
-# Photons reached detector - update to show probability
-plt.subplot(4, 2, 5)
-plt.plot(sim_runs, photons_reached_detector/N_tot, 'o', color='cyan')
-plt.title('Probability of Photons Reaching Detector')
-plt.xlabel('Simulation Run')
-plt.ylabel('Probability')  # Changed from 'Count'
-plt.grid(True)
-
-# Photons observed - update to show probability
-plt.subplot(4, 2, 6)
-plt.plot(sim_runs, photons_observed/N_tot, 'o', color='magenta')
-plt.title('Probability of Photons Being Observed')
-plt.xlabel('Simulation Run')
-plt.ylabel('Probability')  # Changed from 'Count'
-plt.grid(True)
-
-# Efficiency metrics
-plt.subplot(4, 2, 7)
-detection_efficiency = 100 * photons_observed / photons_reached_detector
-plt.plot(sim_runs, detection_efficiency, 'o', color='black')
-plt.title('Detection Efficiency (%)')
-plt.xlabel('Simulation Run')
-plt.ylabel('Percentage')
-plt.grid(True)
-
-# Create histogram of all detected energies as probability density
 plt.figure(figsize=(12, 8))
-plt.hist(all_energies, bins=100, alpha=0.7, color='blue', edgecolor='black', density=True)  # Added density=True
+
+# Plotting all metrics on the same plot
+plt.plot(sim_runs, interacting_photons/N_tot, '-o', color='red', label='Photon Interactions')
+plt.plot(sim_runs, photoelectric_interactions/N_tot, '-o', color='green', label='Photoelectric Interactions')
+plt.plot(sim_runs, compton_1st/N_tot, '-o', color='purple', label='Compton 1st')
+plt.plot(sim_runs, compton_2nd/N_tot, '-o', color='orange', label='Compton 2nd')
+plt.plot(sim_runs, compton_3rd/N_tot, '-o', color='brown', label='Compton 3rd')
+
+plt.title('Photon Interaction probability across simulation runs')
+plt.xlabel('Simulation Run')
+plt.ylabel('Probability / Scaled Efficiency')
+plt.legend(fontsize=12)
+plt.grid(True)
+plt.savefig("interaction_probabilities.png")
+
+plt.figure(figsize=(12, 8))
+plt.plot(sim_runs, photons_reached_detector/N_tot, '-o', color='cyan', label='Photons Reaching Detector')
+plt.plot(sim_runs, photons_observed/N_tot, '-o', color='magenta', label='Photons Observed')
+
+detection_efficiency = 100 * photons_observed / photons_reached_detector
+
+sorted_indices = np.argsort(sim_runs)
+sim_runs_sorted = sim_runs[sorted_indices]
+detection_efficiency_sorted = detection_efficiency[sorted_indices]
+
+plt.plot(sim_runs, detection_efficiency / 100, '-o', color='black', label='Detection Efficiency (scaled)')
+
+plt.title('Photon interaction across first simulation runs')
+plt.xlabel('Simulation run')
+plt.ylabel('Probability / Scaled Efficiency')
+plt.legend(fontsize=12)
+plt.grid(True)
+plt.savefig("detector_parameter.png")
+
+# Histogram of detected photon energies
+plt.figure(figsize=(12, 8))
+plt.hist(all_energies, bins=100, alpha=0.7, color='blue', edgecolor='black', density=True)
 plt.title('Probability Density of Detected Photon Energies')
 plt.xlabel('Energy (keV)')
-plt.ylabel('Probability Density')  # Changed from 'Count'
+plt.ylabel('Probability Density')
 plt.grid(True)
 
 # Calculate statistics for the energy distribution
@@ -189,6 +161,9 @@ try:
     
     # Calculate energy resolution
     energy_resolution = fwhm / mean_energy_fit
+
+    #calculating the rate
+    rate = 0
     
     # Count photons in the photopeak (within ±2 sigma)
     photopeak_mask = (all_energies > mean_energy_fit - 2*sigma) & (all_energies < mean_energy_fit + 2*sigma)
@@ -208,7 +183,8 @@ try:
                   f'FWHM: {fwhm:.2f} keV\n'
                   f'Resolution: {energy_resolution*100:.2f}%\n'
                   f'Photons in peak: {n_photopeak}\n'
-                  f'Peak fraction: {percentage_in_photopeak:.2f}%')
+                  f'Peak fraction: {percentage_in_photopeak:.2f}%'
+                  f'Peak Rate: {rate:.2f}%')
     
     # Highlight the FWHM on the plot
     half_max = amplitude / 2.0
@@ -247,7 +223,7 @@ plt.grid(True)
 
 # Save the updated histogram with Gaussian fit
 plt.tight_layout()
-plt.savefig(os.path.join(data_dir, 'energy_histogram_with_fit.png'))
+plt.savefig(os.path.join(data_dir, 'new_energy_histogram_with_fit.png'))
 
 # Create histogram of all detected energies
 plt.figure(figsize=(12, 8))
