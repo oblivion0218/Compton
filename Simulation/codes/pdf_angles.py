@@ -65,14 +65,22 @@ plt.grid(True)
 plt.savefig(file_path + 'angle_distributions_Klein_Nishina.png')
 
 
-# Disegniamo la linea chiusa segmentando e colorando ogni tratto in base all'energia
-for i in range(len(random_angles) - 1):
-    theta_seg = random_angles[i:i+2]
-    r_seg = normalized_pdf_values[i:i+2]
-    # Il colore è scelto in base al valore dell'energia al punto di partenza del segmento
-    color = cmap(norm(random_electron_energies[i]))
-    ax.plot(theta_seg, r_seg, color=color, linewidth=2)
 
+plt.figure(figsize=(10, 8))
+ax = plt.subplot(1, 1, 1, polar=True)
+
+# Fill between 0 and the normalized PDF values to get a radial "area" plot
+ax.plot(angle_range, normalized_pdf_values, label='Klein-Nishina PDF', color='red')
+
+# Optional: prettify
+ax.set_theta_zero_location("N")  # 0 rad at the top
+ax.set_theta_direction(-1)       # clockwise
+ax.set_title('Klein-Nishina Distribution (Radial Plot)', va='bottom')
+ax.legend(loc='upper right')
+ax.grid(True)
+
+# Save the figure
+plt.savefig(file_path + 'angle_distributions_Klein_Nishina_radial.png')
 
 
 
@@ -80,40 +88,42 @@ for i in range(len(random_angles) - 1):
 Uniform distribution
 """
 
-## Generate 10,000 random Compton scattering angles (uniform distribution)
-#random_angles = [random.uniform(0, np.pi) for _ in range(number_of_photons)]
-#
-## Define the uniform PDF over a range of angles
-#angle_range = np.linspace(0, np.pi, 500)
-#uniform_pdf_values = [1 / np.pi for _ in angle_range]  # Uniform distribution over [0, pi]
-#
-## Generate 10,000 random electron energies
-#random_electron_energies = [photon.energy - photon.compton_scattering(angle) for angle in random_angles]
-#
-## Plot histogram of random angles, uniform PDF, and electron energy distribution in the same figure
-#plt.figure(figsize=(20, 8))
-#
-#plt.subplot(1, 2, 1)
-## Histogram of random angles
-#plt.hist(random_angles, bins=500, density=True, alpha=0.7, label='Random Angles')
-## Uniform PDF
-#plt.plot(angle_range, uniform_pdf_values, color='red', label='Uniform PDF')
-#
-#plt.xlabel('Scattering Angle (radians)')
-#plt.ylabel('Probability Density')
-#plt.title('Compton Scattering: Angle Distributions (Uniform PDF)')
-#plt.legend()
-#plt.grid(True)
-#
-#plt.subplot(1, 2, 2)
-## Histogram of random electron energies
-#plt.hist(random_electron_energies, bins=1000, alpha=0.7, label='Random Electron Energies', color='green')
-#
-#plt.xlabel('Electron Energy (keV)')
-#plt.ylabel('Counts')
-#plt.title('Compton Scattering: Electron Energy Distributions (511 keV Photons)')
-#plt.legend()
-#plt.grid(True)
-#
-## Save and show the figure
-#plt.savefig(file_path + 'angle_distributions_uniform.png')
+
+# # Generate 10,000 random Compton scattering angles (uniform distribution)
+# random_angles = [random.uniform(0, np.pi) for _ in range(number_of_photons)]
+
+# # Define the uniform PDF over a range of angles
+# angle_range = np.linspace(0, np.pi, 500)
+# uniform_pdf_values = [1 / np.pi for _ in angle_range]  # Uniform distribution over [0, pi]
+
+# # Generate 10,000 random electron energies
+# random_electron_energies = [photon.energy - photon.compton_scattering(angle) for angle in random_angles]
+
+# # Plot histogram of random angles, uniform PDF, and electron energy distribution in the same figure
+# plt.figure(figsize=(20, 8))
+
+# plt.subplot(1, 2, 1)
+# # Histogram of random angles
+# plt.hist(random_angles, bins=500, density=True, alpha=0.7, label='Random Angles')
+# # Uniform PDF
+# plt.plot(angle_range, uniform_pdf_values, color='red', label='Uniform PDF')
+
+# plt.xlabel('Scattering Angle (radians)')
+# plt.ylabel('Probability Density')
+# plt.title('Compton Scattering: Angle Distributions (Uniform PDF)')
+# plt.legend()
+# plt.grid(True)
+
+# plt.subplot(1, 2, 2)
+# # Histogram of random electron energies
+# plt.hist(random_electron_energies, bins=1000, alpha=0.7, label='Random Electron Energies', color='green')
+
+# plt.xlabel('Electron Energy (keV)')
+# plt.ylabel('Counts')
+# plt.title('Compton Scattering: Electron Energy Distributions (511 keV Photons)')
+# plt.legend()
+# plt.grid(True)
+
+# # Save and show the figure
+# plt.savefig(file_path + 'angle_distributions_uniform.png')
+

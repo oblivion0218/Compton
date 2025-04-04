@@ -260,7 +260,7 @@ def stampa_graph_fit_ComptonStudy(hist, f_true, scale_factor, min, max, file_pat
         canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
 
 
-def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name):
+def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name, time):
     """
     Plot the results of the fit."
 
@@ -276,6 +276,8 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_pa
     :param fileNamePNG: Name of the graph."
     :param x_axis_name: Name of the x-axis."
     :param y_axis_name: Name of the y-axis."
+
+    :param time: time of total measurment
     """
     chi2 = fit_result.Chi2()
     ndf = fit_result.Ndf()
@@ -289,6 +291,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_pa
     integral = (f_true.Integral(min_fit, max_fit) - f_background.Integral(min_fit, max_fit)) / rebin_param
     N_hit = (integral, np.sqrt(integral))
     N_hit_pc = (N_hit[0] / hist_integral, N_hit[1] / hist_integral)
+    rate  = (N_hit/time , N_hit[1]/time)
 
     text = rf"$\chi^{{2}}/\mathrm{{dof}} = {chi2:.3f}/{ndf} = {chi2_ndf:.3f}$"
     text += "\n"
@@ -296,6 +299,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_pa
     text += f"ER = {ER[0]:.3f} ± {ER[1]:.3f}\n"
     text += f"N = {N_hit[0]:.2f} ± {N_hit[1]:.2f}\n"
     text += f"N = ({N_hit_pc[0] * 100:.3f} ± {N_hit_pc[1] * 100:.3f})%"
+    text += f"Rate = {rate[0]:.2f} ± {rate[1]:.2f}"
 
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PLOT RESULTS - total fit and background
