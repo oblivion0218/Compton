@@ -291,15 +291,15 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_pa
     integral = (f_true.Integral(min_fit, max_fit) - f_background.Integral(min_fit, max_fit)) / rebin_param
     N_hit = (integral, np.sqrt(integral))
     N_hit_pc = (N_hit[0] / hist_integral, N_hit[1] / hist_integral)
-    rate  = (N_hit/time , N_hit[1]/time)
+    rate  = (N_hit[0]/time , N_hit[1]/time)
 
     text = rf"$\chi^{{2}}/\mathrm{{dof}} = {chi2:.3f}/{ndf} = {chi2_ndf:.3f}$"
     text += "\n"
     text += f"<E> = {E_mean[0]:.2f} ± {E_mean[1]:.2f}\n"
     text += f"ER = {ER[0]:.3f} ± {ER[1]:.3f}\n"
     text += f"N = {N_hit[0]:.2f} ± {N_hit[1]:.2f}\n"
-    text += f"N = ({N_hit_pc[0] * 100:.3f} ± {N_hit_pc[1] * 100:.3f})%"
-    text += f"Rate = {rate[0]:.2f} ± {rate[1]:.2f}"
+    text += f"N = ({N_hit_pc[0] * 100:.3f} ± {N_hit_pc[1] * 100:.3f})% \n"
+    text += f"Rate = {rate[0]:.2f} ± {rate[1]:.2f} Hz"
 
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PLOT RESULTS - total fit and background
@@ -358,6 +358,8 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_pa
     plt.tight_layout()
     plt.savefig(file_path + fileNamePNG)
     plt.close()
+
+    return N_hit , rate , 
 
 
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
