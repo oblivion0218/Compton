@@ -60,7 +60,7 @@ def photon_propagation_to_target(photon: p.Photon, distance: float, direction=No
     return photon
 
 
-def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_detector: float, step: float) -> float:
+def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_detector: float, step: float, true_energy = False) -> float:
     """
     Simulates the propagation and interaction of a gamma photon with a detector.
     
@@ -68,6 +68,7 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
     :param detector: Detector object representing the detector.
     :param distance_source_detector: Distance between the source and the detector (in cm).
     :param step: Step size for photon propagation (in cm).
+    :param true_energy: Flag to return the true energy of the electron or its detected energy.
     :return: Energy of the detected interaction in keV or 0 if no interaction occurs.
     """
     photon = photon_propagation_to_target(photon, distance_source_detector)
@@ -87,7 +88,11 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
 
         photon.propagation(step)
 
-    return detector.detection(electron)
+    if true_energy == True: #If true_energy is True, returns the (real) electron's energy
+        return electron.energy
+    
+    else: #If true_energy is False, returns the electron's energy after detection
+        return detector.detection(electron)
 
 
 def spectroscopy_measurement(number_of_photons, detector: d.Detector, source: s.Source, testing: bool = False, step: float = step) -> list[float]:
