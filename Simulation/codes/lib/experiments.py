@@ -73,6 +73,9 @@ def gamma_detection(photon: p.Photon, detector: d.Detector, distance_source_dete
     """
     photon = photon_propagation_to_target(photon, distance_source_detector)
 
+    if photon.energy <= 0:
+        return 0
+
     # Initialize a variable for tracking the traveled distance within the detector
     electron = p.Electron(0, [0, 0, 0])
     # Propagate the photon within the detector until it exits or interacts

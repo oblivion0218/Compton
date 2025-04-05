@@ -10,10 +10,10 @@ from lib import source as s
 from lib import visualization as v
 
 # File path to save the output spectrum plot
-file_path = "../../simulated-events/data/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"
 
 # Initialize detectors with their respective positions and dimensions
-detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
+detector = d.Detector(([0, 50.5, 0], [0, 55.58, 0]), 2.54, 0.0695)  # Detector "Franco"
 
 number_of_photons = 1000000  # Number of photons to simulate
 
@@ -26,9 +26,9 @@ target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
 
 step = 0.1
 
-for j in tqdm(range(100), desc="N_cycles", unit="iteration"): 
+for j in tqdm(range(20), desc="N_cycles", unit="iteration"): 
     photons = source.photon_emission(number_of_photons, np.arctan(1.27/16), 2 * np.pi, axis="y", forward_backward=False)  # Simulate photon emission
-    [photon.propagation(5) for photon in photons]  # Propagate the photons
+    [e.photon_propagation_to_target(photon, 5, target.principal_axis()) for photon in photons]  # Propagate the photons
     # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
 
     photons_out_of_target = []
@@ -129,12 +129,10 @@ for j in tqdm(range(100), desc="N_cycles", unit="iteration"):
 
             e.photon_propagation_to_target(photon, distance, detector_axis)
             photons_to_detector.append(photon)
-        # else:
-        #     photon.position = photon.position + distance * photon.direction
 
-    # v.visualization_3D_plotly("survival_photons.html", [detector], photons_out_of_target, source, target)
+    # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    # v.visualization_3D_plotly("photons_to_detector.html", [detector], photons_to_detector, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     detected_energies = [] #array for eletron's energy as detected by the detector
     true_detected_energies = [] #array for electron's real energy 
@@ -143,6 +141,7 @@ for j in tqdm(range(100), desc="N_cycles", unit="iteration"):
         true_energy = e.gamma_detection(photon, detector, distance_source_detector=0, step=step, true_energy=True)
         if energy > 0:
             detected_energies.append(energy)
+        if true_energy > 0:
             true_detected_energies.append(true_energy)
 
     # v.plot_energy_spectrum(detected_energies, "Energies.png")
