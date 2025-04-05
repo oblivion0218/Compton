@@ -94,7 +94,11 @@ H.Rebin(rebin_param)
 fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
                                              file_path + "plots/fit/")
 
+<<<<<<< HEAD
 time = 7 * 43000 + 41727
+=======
+time = 43000 * 7 + 41727
+>>>>>>> d81f447 (time correction to data analysis)
 
 # Final fit
 counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
