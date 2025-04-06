@@ -10,12 +10,13 @@ from lib import source as s
 from lib import visualization as v
 
 # File path to save the output spectrum plot
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"
+#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"      #ANDRE
+file_path =  "/mnt/c/Users/ASUS/Desktop/WSL_shared/"      #RICKY
 
 # Initialize detectors with their respective positions and dimensions
 detector = d.Detector(([0, 50.5, 0], [0, 55.58, 0]), 2.54, 0.0695)  # Detector "Franco"
 
-number_of_photons = 1000000  # Number of photons to simulate
+number_of_photons = 100  # Number of photons to simulate
 
 # Simulate photon emission from a source
 source = s.Source({511: 1, 1274: 0})  # Create a source object
@@ -26,7 +27,7 @@ target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
 
 step = 0.1
 
-for j in tqdm(range(20), desc="N_cycles", unit="iteration"): 
+for j in tqdm(range(40), desc="N_cycles", unit="iteration"): 
     photons = source.photon_emission(number_of_photons, np.arctan(1.27/16), 2 * np.pi, axis="y", forward_backward=False)  # Simulate photon emission
     [e.photon_propagation_to_target(photon, 5, target.principal_axis()) for photon in photons]  # Propagate the photons
     # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
@@ -132,7 +133,7 @@ for j in tqdm(range(20), desc="N_cycles", unit="iteration"):
 
     # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
+    #v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     detected_energies = [] #array for eletron's energy as detected by the detector
     true_detected_energies = [] #array for electron's real energy 
