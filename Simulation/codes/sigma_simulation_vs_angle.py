@@ -132,7 +132,7 @@ for j in tqdm(range(20), desc="N_cycles", unit="iteration"):
 
     # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
+    # v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     detected_energies = [] #array for eletron's energy as detected by the detector
     true_detected_energies = [] #array for electron's real energy 
