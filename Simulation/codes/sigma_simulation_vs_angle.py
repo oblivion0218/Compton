@@ -12,6 +12,7 @@ from lib import visualization as v
 # File path to save the output spectrum plot
 #file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"      #ANDRE
 file_path =  "/mnt/c/Users/ASUS/Desktop/WSL_shared/"      #RICKY
+file_path = "/home/leonardo/Compton_data/"  #LEO
 
 # Initialize detectors with their respective positions and dimensions
 detector = d.Detector(([0, 50.5, 0], [0, 55.58, 0]), 2.54, 0.0695)  # Detector "Franco"

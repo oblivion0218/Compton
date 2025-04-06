@@ -60,7 +60,7 @@ def cross_section_compton(photon: p.Photon, Z: float) -> float:
     epsilon = photon.energy / m_e  # Ratio of photon energy to electron rest mass energy
     c = (3 / 4) * cross_section_thomson()  # Coefficient based on Thomson cross-section
 
-    return c * Z * (
+    return c * (
         ((1 + epsilon) / epsilon ** 2) *
         ((2 * (1 + epsilon) / (1 + 2 * epsilon)) - (np.log(1 + 2 * epsilon) / epsilon)) +
         (np.log(1 + 2 * epsilon) / (2 * epsilon)) -
