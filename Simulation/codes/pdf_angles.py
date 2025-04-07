@@ -7,7 +7,8 @@ from scipy.integrate import quad
 import random
 
 # File path to save the output spectrum plot
-file_path = "/home/leonardo/Compton/Simulation/plots/compton_angles_distributions/"
+# file_path = "/home/leonardo/Compton/Simulation/plots/compton_angles_distributions/" # LEO
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/compton_angles_distributions/"  # ANDRE
 
 # Instantiate a Photon object with arbitrary energy and direction
 
@@ -85,13 +86,12 @@ for i in range(len(angle_range) - 1):
 sm = cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([])
 cbar = plt.colorbar(sm, ax=ax, pad=0.1)
-cbar.set_label('Energy of the scattered photons (keV)')
+cbar.set_label('Energy of the scattered electron (keV)')
 
 # Optional: prettify
 ax.set_theta_zero_location("N")  # 0 rad at the top
 ax.set_theta_direction(-1)       # clockwise
 ax.set_title('Klein-Nishina Distribution (Radial Plot)', va='bottom')
-ax.legend(loc='upper right')
 ax.grid(True)
 
 # Save the figure
