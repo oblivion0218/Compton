@@ -28,7 +28,7 @@ target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
 
 step = 0.1
 
-for j in tqdm(range(30), desc="N_cycles", unit="iteration"): 
+for j in tqdm(range(40), desc="N_cycles", unit="iteration"): 
     photons = source.photon_emission(number_of_photons, np.arctan(1.27/16), 2 * np.pi, axis="y", forward_backward=False)  # Simulate photon emission
     [e.photon_propagation_to_target(photon, 5, target.principal_axis()) for photon in photons]  # Propagate the photons
     # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
