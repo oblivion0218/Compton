@@ -88,8 +88,8 @@ class Photon(Particle):
         """
         r = self.compton_scattering(angle) / self.energy
         c = alpha ** 2 / (2 * m_e ** 2)
-        return c * r ** 2 * (r + 1 / r - np.sin(angle) ** 2)
-    
+        return c * r ** 2 * (r + 1 / r - np.sin(angle) ** 2) 
+       
 
     def compton_angle(self) -> float:
         """

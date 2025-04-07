@@ -5,7 +5,8 @@ from . import detector as d
 
 # Physical constants
 r_e = 2.817e-13  # Classical electron radius in cm
-m_e = 511  # Electron rest mass energy in keV
+#m_e = 511  # Electron rest mass energy in keV  CORREZIONE RICKY
+m_e = 0.511 #credo vada in Mev
 alpha = 1 / 137  # Fine-structure constant (dimensionless)
 N_a = 6.022e23 # mol^(-1)
  
@@ -32,7 +33,7 @@ def cross_section_photoelectric(photon: p.Photon, Z: float) -> float:
     :param Z: Atomic number of the material.
     :return: Photoelectric cross-section in square meters.
     """
-    bond_energy = 0.007  # Example binding energy in MeV
+    bond_energy = 7  # Example binding energy in KeV
     gamma = (photon.energy + m_e - bond_energy) / m_e  # Lorentz factor
     c = (3 / 2) * (alpha ** 4) * cross_section_thomson()  # Coefficient based on fine-structure constant
 
@@ -92,7 +93,7 @@ def attenuation_factor(total_cross_section: float, scattering_target: d.Object) 
     :param scattering_target: Material properties (e.g., density, molar mass).
     :return: Attenuation factor (inverse mean free path).
     """
-    number_of_scattering_centers = (scattering_target.density * N_a) / scattering_target.molar_mass # * Z
+    number_of_scattering_centers = 2*(scattering_target.density * N_a) / scattering_target.molar_mass # * Z
     return total_cross_section * number_of_scattering_centers # cm^-1
 
 
