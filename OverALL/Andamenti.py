@@ -12,7 +12,6 @@ err_centr = []
 
 file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Codes/data_analysis/"
 
-
 # Lettura dati dal file (saltando la prima riga)
 with open(file_path + "parameters.txt", "r") as file:
     next(file)  # salta intestazione
@@ -26,6 +25,13 @@ with open(file_path + "parameters.txt", "r") as file:
             err_N.append(float(values[4]))
             centr.append(float(values[5]))
             err_centr.append(float(values[6]))
+
+# --- Ordinamento in base all'angolo ---
+combined = list(zip(angle, rate, err_rate, N, err_N, centr, err_centr))
+combined.sort(key=lambda x: x[0])  # ordina per angolo (prima colonna)
+
+# Riassegna i valori ordinati
+angle, rate, err_rate, N, err_N, centr, err_centr = zip(*combined)
 
 # Funzione per creare e salvare i plot
 def crea_plot(x, y, yerr, ylabel, filename):
