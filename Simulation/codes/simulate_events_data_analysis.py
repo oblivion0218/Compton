@@ -9,7 +9,7 @@ from iminuit.cost import LeastSquares
 N_tot = 1000000  # Total number of photons in each simulation
 
 # file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"
-file_path = "/mnt/c/Users/User/Desktop/info/NoZ/"
+file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/"
 
 sim_runs = []
 photons_left_target = []
@@ -20,9 +20,9 @@ compton_2nd = []
 compton_3rd = []
 photons_reached_detector = []
 photons_observed = []
-all_energies = []
+energies = []
+true_energies = []
 
- 
 file_names = []
 
 if os.path.isdir(file_path + "data/"):
@@ -35,7 +35,7 @@ if os.path.isdir(file_path + "data/"):
             file_names.append(file_path + "data/" + file_name)
 
 # Process each file
-for file_name in tqdm(file_names, desc="Processing files"):
+for file_name in file_names:
     # Extract run number from filename
     run_number = int(os.path.basename(file_name).split("_")[0])
     sim_runs.append(run_number)
@@ -54,15 +54,16 @@ for file_name in tqdm(file_names, desc="Processing files"):
         photons_reached_detector.append(int(lines[6].split(": ")[1]))
         photons_observed.append(int(lines[7].split(": ")[1]))
         
-        # Extract energy values, starting from line 9
-        energies = []
+        capture_true_energies = False
         for i in range(9, len(lines)):
             line = lines[i].strip()
             if line == "True Detected Energies:":
-                break
-            if line:  # Check if line is not empty
+                capture_true_energies = True
+                continue
+            if line and not capture_true_energies:  # Detected energies
                 energies.append(float(line))
-        all_energies.extend(energies)
+            elif line and capture_true_energies:  # True energies
+                true_energies.append(float(line))
 
 # Convert lists to numpy arrays for easier manipulation
 sim_runs = np.array(sim_runs)
@@ -74,8 +75,8 @@ compton_2nd = np.array(compton_2nd)
 compton_3rd = np.array(compton_3rd)
 photons_reached_detector = np.array(photons_reached_detector)
 photons_observed = np.array(photons_observed)
-all_energies = np.array(all_energies)
-
+energies = np.array(energies)
+true_energies = np.array(true_energies)
 
 plt.figure(figsize=(12, 8))
 
@@ -116,11 +117,20 @@ plt.ylabel('Detection Efficiency (scaled)')
 plt.grid(True)
 plt.savefig(file_path + "plots/detection_efficiency.png")
 
-# Histogram of detected photon energies
+# Create a new combined histogram with Freedman-Diaconis binning
 plt.figure(figsize=(12, 8))
-plt.hist(all_energies, bins=100, alpha=0.7, color='blue', edgecolor='black', density=True)
-plt.title('Probability Density of Detected Photon Energies')
+
+# Create histograms
+plt.hist(energies, bins=100, alpha=0.4, color='blue', 
+         edgecolor='black', label='Detected Energies')
+plt.hist(true_energies, bins=100, color='red', 
+              histtype="step", label='True Energies')
+
+plt.title('Probability Density of Photon Energies')
 plt.xlabel('Energy (keV)')
-plt.ylabel('Probability Density')
+plt.ylabel('Counts')
+plt.legend(fontsize=12)
 plt.grid(True)
-plt.savefig(file_path + "plots/detected_photon_energies.png")
+plt.savefig(file_path + "plots/photon_energies.png")
+
+

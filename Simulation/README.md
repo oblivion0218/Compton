@@ -175,9 +175,10 @@ Represents a photon with energy, direction, and position.
     - `klein_nishina(angle)`: Computes the differential cross-section for Compton scattering.
     - `compton_angle()`: Generates random scattering angles through rejection sampling based on the Klein-Nishina probability density function.
     
-<div align="center">
-  <img src="plots/compton_angles_distributions/angle_distributions_Klein_Nishina.png" alt="Klein-Nishina probability density function" width="850">
-</div>
+<p align="center">
+  <img src="plots/compton_angles_distributions/angle_distributions_Klein_Nishina.png" alt="Klein-Nishina probability density function" width="59%">
+  <img src="plots/compton_angles_distributions/angle_distributions_Klein_Nishina_radial.png" alt="Klein-Nishina probability density function"  width="29.5%">
+</p>
 
 ### 1.b) `Electron`
 ```python

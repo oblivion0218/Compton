@@ -401,7 +401,7 @@ class Detector(Object):
         :param energy: The true energy of the photon (float).
         :return: The energy after applying the detector's resolution (float).
         """
-        return np.random.normal(energy, energy * self.energetic_resolution)
+        return np.random.normal(energy, energy * (self.energetic_resolution / 2.355))
 
 
     def detection(self, electron: p.Electron) -> float:

@@ -10,37 +10,44 @@ from lib import source as s
 from lib import visualization as v
 
 # File path to save the output spectrum plot
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"      #ANDRE
-file_path =  "/mnt/c/Users/ASUS/Desktop/WSL_shared/"      #RICKY
-#file_path = "/home/leonardo/Compton_data/"  #LEO
+file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/"      #ANDRE
 
 # Initialize detectors with their respective positions and dimensions
-detector = d.Detector(([0, 50.5, 0], [0, 55.58, 0]), 2.54, 0.0695)  # Detector "Franco"
+detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
 
 number_of_photons = 1000000  # Number of photons to simulate
 
 # Simulate photon emission from a source
 source = s.Source({511: 1, 1274: 0})  # Create a source object
 
-detector.rotate((5/18) * np.pi, [0, 5.5, 0], "z")
+detector.rotate((1/2) * np.pi, [0, 5.5, 0], "z")
 
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
+target.rotate((-1/4) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
 
 step = 0.1
 
-for j in tqdm(range(40), desc="N_cycles", unit="iteration"): 
+for j in tqdm(range(1), desc="N_cycles", unit="iteration"): 
     photons = source.photon_emission(number_of_photons, np.arctan(1.27/16), 2 * np.pi, axis="y", forward_backward=False)  # Simulate photon emission
-    [e.photon_propagation_to_target(photon, 5, target.principal_axis()) for photon in photons]  # Propagate the photons
-    # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
+    [e.photon_propagation_to_target(photon, target) for photon in photons]  # Propagate the photons
+    v.visualization_3D_plotly(file_path + "3D_visualization/photons.html", [detector], photons, source, target)
 
     photons_out_of_target = []
     n_interacting_photons = 0
     n_compton_interactions = [0, 0, 0]  # [first compton, second compton]
     n_photoelectric_interactions = 0
 
+    def new_direction(photon):
+        theta = photon.compton_angle()
+        phi = np.random.uniform(0, 2 * np.pi)
+        x = np.sin(theta) * np.cos(phi)
+        y = np.cos(theta)
+        z = np.sin(theta) * np.sin(phi)
+        return np.array([x, y, z]), theta
+
     # Photon propagation inside the target
     for photon in tqdm(photons, desc="Simulating photons", unit="photon"):
-        photon.position += step * photon.direction
+        photon.propagation(step)
 
         while target.is_inside(photon.position):
             if i.interaction_probability(photon, step, target) > random.uniform(0, 1):
@@ -48,16 +55,10 @@ for j in tqdm(range(40), desc="N_cycles", unit="iteration"):
                 if i.which_interaction(photon, target.Z) == "compton":
                     n_compton_interactions[0] += 1
 
-                    theta = photon.compton_angle()
-                    phi = np.random.uniform(0, 2 * np.pi)
-                    x = np.sin(theta) * np.cos(phi)
-                    y = np.cos(theta)
-                    z = np.sin(theta) * np.sin(phi)
+                    photon.direction, theta1 = new_direction(photon)
+                    photon.energy = photon.compton_scattering(theta1)
 
-                    photon.direction = np.array([x, y, z])
-                    photon.energy = photon.compton_scattering(theta)
-
-                    photon.position += step * photon.direction
+                    photon.propagation(step)
 
                     # Second compton scattering
                     while target.is_inside(photon.position):
@@ -65,16 +66,10 @@ for j in tqdm(range(40), desc="N_cycles", unit="iteration"):
                             if i.which_interaction(photon, target.Z) == "compton":
                                 n_compton_interactions[1] += 1
 
-                                theta = photon.compton_angle()
-                                phi = np.random.uniform(0, 2 * np.pi)
-                                x = np.sin(theta) * np.cos(phi)
-                                y = np.cos(theta)
-                                z = np.sin(theta) * np.sin(phi)
+                                photon.direction, theta2 = new_direction(photon)
+                                photon.energy = photon.compton_scattering(theta2)
 
-                                photon.direction = np.array([x, y, z])
-                                photon.energy = photon.compton_scattering(theta)
-
-                                photon.position += step * photon.direction
+                                photon.propagation(step)
 
                                 # Third compton scattering
                                 while target.is_inside(photon.position):   
@@ -82,14 +77,8 @@ for j in tqdm(range(40), desc="N_cycles", unit="iteration"):
                                         if i.which_interaction(photon, target.Z) == "compton":
                                             n_compton_interactions[2] += 1
 
-                                            theta = photon.compton_angle()
-                                            phi = np.random.uniform(0, 2 * np.pi)
-                                            x = np.sin(theta) * np.cos(phi)
-                                            y = np.cos(theta)
-                                            z = np.sin(theta) * np.sin(phi)
-
-                                            photon.direction = np.array([x, y, z])
-                                            photon.energy = photon.compton_scattering(theta)
+                                            photon.direction, theta3 = new_direction(photon)
+                                            photon.energy = photon.compton_scattering(theta3)
                                             break
                                         else:
                                             photon.energy = 0
@@ -106,9 +95,6 @@ for j in tqdm(range(40), desc="N_cycles", unit="iteration"):
                     n_photoelectric_interactions += 1
                     photon.energy = 0
                     break    
-                break    
-            photon.position += step * photon.direction
-
         if photon.energy > 0:
             photons_out_of_target.append(photon)
 
@@ -125,26 +111,25 @@ for j in tqdm(range(40), desc="N_cycles", unit="iteration"):
     photons_to_detector = []
 
     for photon in photons_out_of_target:
-        # Non tutti i fotoni arrivano correttamente al rivelatore
+        distance = np.linalg.norm(photon.position - detector.position[0]) # distance to the detector
+        # Check if the photon is within the detector's acceptance angle
         if np.arccos(np.dot(photon.direction, detector_axis)) < theta_detector:
-            distance = np.linalg.norm(photon.position - detector.position[0]) # Empiricamente funziona piuttosto bene
-
-            e.photon_propagation_to_target(photon, distance, detector_axis)
+            e.photon_propagation_to_target(photon, detector)
             photons_to_detector.append(photon)
+        else:
+            photon.propagation(distance)
 
-    # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    # v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     detected_energies = [] #array for eletron's energy as detected by the detector
     true_detected_energies = [] #array for electron's real energy 
     for photon in photons_to_detector:
-        energy = e.gamma_detection(photon, detector, distance_source_detector=0, step=step)
-        true_energy = e.gamma_detection(photon, detector, distance_source_detector=0, step=step, true_energy=True)
+        energy = e.gamma_detection(photon, detector, step=step, true_energy=True)
         if energy > 0:
-            detected_energies.append(energy)
-        if true_energy > 0:
-            true_detected_energies.append(true_energy)
+            detected_energies.append(detector.resolution(energy))
+            true_detected_energies.append(energy)
 
     # v.plot_energy_spectrum(detected_energies, "Energies.png")
     print(f"Number of photons observed by the detector: {len(detected_energies)}")
