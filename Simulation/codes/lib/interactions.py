@@ -32,8 +32,8 @@ def cross_section_photoelectric(photon: p.Photon, Z: float) -> float:
     :param Z: Atomic number of the material.
     :return: Photoelectric cross-section in square meters.
     """
-    bond_energy = 0.007  # Example binding energy in MeV
-    gamma = (photon.energy + m_e - bond_energy) / m_e  # Lorentz factor
+    bond_energy = 0.0047  # Example binding energy in keV
+    gamma = (photon.energy + m_e - bond_energy) / m_e 
     c = (3 / 2) * (alpha ** 4) * cross_section_thomson()  # Coefficient based on fine-structure constant
 
     return c * (
@@ -58,14 +58,20 @@ def cross_section_compton(photon: p.Photon, Z: float) -> float:
     :return: Compton cross-section in square meters.
     """
     epsilon = photon.energy / m_e  # Ratio of photon energy to electron rest mass energy
-    c = (3 / 4) * cross_section_thomson()  # Coefficient based on Thomson cross-section
-
-    return c * Z * (
-        ((1 + epsilon) / epsilon ** 2) *
-        ((2 * (1 + epsilon) / (1 + 2 * epsilon)) - (np.log(1 + 2 * epsilon) / epsilon)) +
-        (np.log(1 + 2 * epsilon) / (2 * epsilon)) -
-        ((1 + 3 * epsilon) / (1 + 2 * epsilon) ** 2)
-    )
+    if photon.energy > 100:
+        c = 2 * np.pi * r_e ** 2  # Coefficient based on Thomson cross-section
+        return c * Z * (
+            ((1 + epsilon) / epsilon ** 2) *
+            ((2 * (1 + epsilon) / (1 + 2 * epsilon)) - (np.log(1 + 2 * epsilon) / epsilon)) +
+            (np.log(1 + 2 * epsilon) / (2 * epsilon)) -
+            ((1 + 3 * epsilon) / (1 + 2 * epsilon) ** 2)
+        )
+    else:
+        c = cross_section_thomson() 
+        return c * Z * (1 / (1 + 2 * epsilon) ** 2) * (
+            1 + 2 * epsilon + (6/5) * epsilon ** 2 - (1/2) * epsilon ** 3 +
+            (2/7) * epsilon ** 4 - (6/35) * epsilon ** 5 + (8/105) * epsilon ** 6 + (4/105) * epsilon ** 7
+        )
 
 # For Z = 49.7
 
@@ -82,7 +88,7 @@ def cross_section_compton(photon: p.Photon, Z: float) -> float:
 # Interaction
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-def attenuation_factor(photon: p.Photon, distance: float, total_cross_section: float, scattering_target) -> float:
+def attenuation_factor(total_cross_section: float, scattering_target: d.Object) -> float:
     """
     Calculate the attenuation factor for a photon traveling through a material.
 
@@ -92,11 +98,11 @@ def attenuation_factor(photon: p.Photon, distance: float, total_cross_section: f
     :param scattering_target: Material properties (e.g., density, molar mass).
     :return: Attenuation factor (inverse mean free path).
     """
-    number_of_scattering_centers = (scattering_target.density * N_a) / scattering_target.molar_mass
-    return total_cross_section * number_of_scattering_centers # cm^-1
+    density_of_scattering_centers = (scattering_target.density * N_a) / scattering_target.molar_mass
+    return total_cross_section * density_of_scattering_centers # cm^-1
 
 
-def interaction_probability(photon: p.Photon, distance: float, scattering_target) -> float:
+def interaction_probability(photon: p.Photon, distance: float, scattering_target: d.Object) -> float:
     """
     Calculate the probability of interaction for a photon traveling a given distance in a material.
 
@@ -108,7 +114,7 @@ def interaction_probability(photon: p.Photon, distance: float, scattering_target
     """
     total_cross_section = cross_section_photoelectric(photon, scattering_target.Z) + cross_section_compton(photon, scattering_target.Z)
 
-    mu = attenuation_factor(photon, distance, total_cross_section, scattering_target)
+    mu = attenuation_factor(total_cross_section, scattering_target)
 
     return 1 - np.exp(-mu * distance)
 

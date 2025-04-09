@@ -61,8 +61,8 @@ class Source:
         # Calculate direction components (unit vectors)
         directions = np.vstack([
             np.sin(theta) * np.cos(phi),
-            np.sin(theta) * np.sin(phi),
-            np.cos(theta)
+            np.cos(theta),
+            np.sin(theta) * np.sin(phi)
         ]).T
         return directions
     
@@ -158,13 +158,10 @@ class Source:
         """
         Creates a Plotly representation of the source.
         
-        Args:
-            color: Color of the source point
-            alpha: Opacity of the source marker (0-1)
-            name: Name for the trace
-            
-        Returns:
-            Plotly scatter3d trace object
+        :param color: Color of the source marker.
+        :param alpha: Opacity of the marker.
+        :param name: Name of the source in the legend.
+        :return: Plotly Scatter3d object representing the source.
         """        
         return go.Scatter3d(
             x=[self.position[0]],

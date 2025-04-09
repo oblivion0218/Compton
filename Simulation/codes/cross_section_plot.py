@@ -6,7 +6,7 @@ from lib import detector as d
 from tqdm import tqdm
 
 # File path to save the output plots
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/plots/Interaction_probability/"
+file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/plots/Interaction_probability/"
 
 # Define the energy range for plotting (in keV)
 energies = np.linspace(10, 1500, 1000)  # Generates 1000 points between 10 keV and 1500 keV
@@ -14,7 +14,7 @@ energies = np.linspace(10, 1500, 1000)  # Generates 1000 points between 10 keV a
 # Define material properties for NaI, 1x1 inch target
 target = d.Target(
     position=([0, 0, 0], [0, 2.54, 0]),    # Position of the target (arbitrary here)
-    radius=1.27,              # Radius of the target (arbitrary value)
+    radius=1,              # Radius of the target (arbitrary value)
     Z=49.7,                # Effective atomic number for NaI
     density=3.67,          # Density of NaI in g/cm^3
     molar_mass=149.89      # Molar mass of NaI in g/mol
@@ -45,7 +45,7 @@ for E in tqdm(energies, desc="Energies", unit="keV"):
     attenuation_factor = i.attenuation_factor(sigma_tot, target)
 
     # Calculate interaction probability and attenuation factor
-    interaction_prob.append(i.interaction_probability(photon, 1, target))
+    interaction_prob.append(i.interaction_probability(photon, 0.1, target))  
     attenuation_factors.append(attenuation_factor)
 
 # Convert lists to numpy arrays for plotting
@@ -61,7 +61,7 @@ import matplotlib.pyplot as plt
 fig, axs = plt.subplots(3, 1, figsize=(18, 18), sharex=True)
 
 # Upper title
-fig.suptitle("Cross Sections and Interaction Probability vs Photon Energy for 1x1 inch NaI target\n", fontsize=12)
+fig.suptitle("Cross Sections and Interaction Probability vs Photon Energy for NaI detector with width of 0.1 cm\n", fontsize=12)
 # Plot cross-sections
 axs[0].plot(energies, cross_section_pe, label="Photoelectric Cross Section", color='blue')
 axs[0].plot(energies, cross_section_com, label="Compton Cross Section", color='red')
@@ -84,7 +84,7 @@ axs[2].plot(energies, interaction_prob, color='purple')
 axs[2].set_yscale('log')  # Logarithmic scale for interaction probability
 axs[2].set_xlabel("Photon Energy (keV)")
 axs[2].set_ylabel("Interaction Probability")
-axs[2].set_title("Interaction Probability vs Photon Energy for distance = 1 cm")
+axs[2].set_title("Interaction Probability vs Photon Energy for distance = 0.1 cm")
 axs[2].grid(True, which="both", linestyle="--", linewidth=0.5)
 
 # Adjust layout and save the combined figure

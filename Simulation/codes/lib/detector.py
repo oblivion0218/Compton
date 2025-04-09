@@ -60,55 +60,87 @@ class Object:
         return np.mean(self.position, axis=0) # axis=0 means that we take the mean of the two points in the position tuple
     
 
+    # def is_inside(self, point: np.ndarray) -> bool:
+    #     """
+    #     Checks if a given point (position of a photon) is inside the object.
+
+    #     :param point: The position of the particle (numpy array).
+    #     :return: True if the point is within the object, False otherwise.
+    #     """
+    #     # Ensure point is a numpy array
+    #     point = np.array(point)
+        
+    #     # Define the principal axis of the object
+    #     principal_axis = self.principal_axis()
+    #     axis_length = np.linalg.norm(principal_axis)
+        
+    #     # Get center and normalize axis
+    #     center = self.center()
+    #     if axis_length == 0:
+    #         return False  # Degenerate cylinder
+        
+    #     axis_unit = principal_axis / axis_length
+        
+    #     # Calculate the rotation matrix to align the principal axis with the y-axis
+    #     # Note: The code was using y_axis but trying to align with different axes
+        
+    #     # Calculate angle between principal axis and y-axis
+    #     cos_alpha = np.linalg.norm(np.dot(axis_unit, np.array([0, 1, 0])))
+    #     alpha = np.arcsin(cos_alpha)
+        
+    #     # Calculate rotation matrix
+    #     rotation_matrix = np.array([
+    #         [np.cos(alpha), np.sin(alpha), 0],
+    #         [-np.sin(alpha), np.cos(alpha), 0], 
+    #         [0, 0, 1]
+    #     ])
+        
+    #     # Rotate the point to align with the rotated coordinate system
+    #     rotated_point = np.dot(rotation_matrix, point - center)
+        
+    #     # Check radial distance (in x-z plane of rotated coordinates)
+    #     r = np.linalg.norm(rotated_point[[0, 2]]) <= self.radius
+        
+    #     # Check if point is within cylinder height
+    #     # Half-length of cylinder along principal axis
+    #     half_length = axis_length / 2
+        
+    #     # Check if y-coordinate in rotated system is within half-length
+    #     h = abs(rotated_point[1]) <= half_length
+        
+    #     return r and h  # Both conditions must be true
+
+
     def is_inside(self, point: np.ndarray) -> bool:
         """
-        Checks if a given point (position of a photon) is inside the object.
+        Checks if a given point is inside the cylindrical object defined by two endpoints and a radius.
 
-        :param point: The position of the particle (numpy array).
-        :return: True if the point is within the object, False otherwise.
+        :param point: The position to check (numpy array).
+        :return: True if the point is inside the cylinder, False otherwise.
         """
-        # Ensure point is a numpy array
-        point = np.array(point)
-        
-        # Define the principal axis of the object
-        principal_axis = self.principal_axis()
-        axis_length = np.linalg.norm(principal_axis)
-        
-        # Get center and normalize axis
-        center = self.center()
+        # Estremi del cilindro
+        P0 = np.array(self.position[0])  # base
+        P1 = np.array(self.position[1])  # top
+        # Asse e lunghezza
+        axis = P1 - P0
+        axis_length = np.linalg.norm(axis)
         if axis_length == 0:
-            return False  # Degenerate cylinder
-        
-        axis_unit = principal_axis / axis_length
-        
-        # Calculate the rotation matrix to align the principal axis with the y-axis
-        # Note: The code was using y_axis but trying to align with different axes
-        
-        # Calculate angle between principal axis and y-axis
-        sin_alpha = np.linalg.norm(np.cross(axis_unit, np.array([0, 1, 0])))
-        alpha = np.arcsin(sin_alpha)
-        
-        # Calculate rotation matrix
-        rotation_matrix = np.array([
-            [np.cos(alpha), 0, np.sin(alpha)],
-            [0, 1, 0],
-            [-np.sin(alpha), 0, np.cos(alpha)]
-        ])
-        
-        # Rotate the point to align with the rotated coordinate system
-        rotated_point = np.dot(rotation_matrix, point - center)
-        
-        # Check radial distance (in x-z plane of rotated coordinates)
-        r = np.linalg.norm(rotated_point[[0, 2]]) <= self.radius
-        
-        # Check if point is within cylinder height
-        # Half-length of cylinder along principal axis
-        half_length = axis_length / 2
-        
-        # Check if y-coordinate in rotated system is within half-length
-        h = abs(rotated_point[1]) <= half_length
-        
-        return r and h  # Both conditions must be true
+            return False  # cilindro degenere
+        axis_unit = axis / axis_length
+        # Vettore dal punto base al punto da testare
+        v = point - P0
+        # Proiezione del punto sull’asse del cilindro
+        h = np.dot(v, axis_unit)
+        # Verifica che la proiezione stia lungo il cilindro
+        if h < 0 or h > axis_length:
+            return False  # fuori in altezza
+        # Punto proiettato sull’asse
+        closest_point_on_axis = P0 + h * axis_unit
+        # Distanza radiale dal punto all’asse
+        radial_vector = point - closest_point_on_axis
+        radial_distance = np.linalg.norm(radial_vector)
+    # Verifica che stia dentro il raggio
+        return radial_distance<=self.radius
     
 
     def rotate(self, theta: float, rotation_center: list[float], axis: str):
@@ -425,8 +457,8 @@ class Target(Object):
             position: tuple[list[float], list[float]], 
             radius: float, # cm
             Z: float = 29, # Z of Cu
-            density: float = 8.96, # g/cm^3 (Density of Cu)
-            molar_mass: float = 63.55 # g/mol (Molar mass of Cu)
+            density: float = 8.935, # g/cm^3 (Density of Cu)
+            molar_mass: float = 63.546 # g/mol (Molar mass of Cu)
         ):
         """
         Initialize the target with its position, dimensions, density, and atomic number.

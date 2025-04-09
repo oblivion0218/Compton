@@ -5,6 +5,7 @@ This repository provides a comprehensive simulation framework for modeling and a
 ## Dimension of the physical variables
 - Length in **cm**.
 - Energy in **keV**.
+- Masses in **g**.
 
 ## Table of Contents
 
@@ -215,29 +216,30 @@ Represents a cylindrical object that serves as the foundation for physical geome
   - `principal_axis() -> np.ndarray`: Computes and returns the principal axis vector of the cylinder by taking the difference between the two defining point of the position tuple.  
   - `center() -> np.ndarray`: Calculates the geometric center (midpoint) of the object based on its defining positions.  
   - `is_inside(point: np.ndarray) -> bool`: Verifies whether a given point (for example, a photon hit) lies within the object's cylindrical volume. 
-    To handle also rotated objects, we first transform the coordinate system so that the object's principal axis aligns with the global y-axis. In other words, before checking whether a given point lies within the object, the space coordinates are rotated accordingly. Let 
+    To handle also rotated objects, we first transform the coordinate system so that the object's principal axis aligns with the global y-axis. In other words, before checking whether a given point lies within       the object, the space coordinates are rotated accordingly.
+    Let
+     
+$$
+\hat{v}_{Obj} = \frac{\vec{v}_{Obj}}{|\vec{v}_{Obj}|}
+$$
 
-    $$
-    \hat{v}_{Obj} = \frac{\vec{v}_{Obj}}{|\vec{v}_{Obj}|}
-    $$
+   be the unit vector along the object's principal axis. The angle, $\alpha$, between this axis and the global y-axis is determined by
 
-    be the unit vector along the object's principal axis. The angle, $\alpha$, between this axis and the global y-axis is determined by
+$$
+\sin(\alpha) = \left|\hat{y}\times\hat{v}_{Obj}\right|
+$$
 
-    $$
-    \sin(\alpha) = \left|\hat{y}\times\hat{v}_{Obj}\right|
-    $$
+   Then, the coordinate transformation is achieved using the rotation matrix
 
-    Then, the coordinate transformation is achieved using the rotation matrix
+$$
+\vec{x}' = \begin{bmatrix}
+\cos(\alpha) & 0 & \sin(\alpha) \\
+0 & 1 & 0 \\
+-\sin(\alpha) & 0 & \cos(\alpha)
+\end{bmatrix} \cdot \vec{x}
+$$
 
-    $$
-    \vec{x}' = \begin{bmatrix}
-    \cos(\alpha) & 0 & \sin(\alpha) \\
-    0 & 1 & 0 \\
-    -\sin(\alpha) & 0 & \cos(\alpha)
-    \end{bmatrix} \cdot \vec{x}
-    $$
-
-    After translating the point by subtracting the object's center, the above rotation aligns the object’s axis with the y-axis. In that rotated frame, the inclusion test is simplified: the radial distance (computed from the x- and z-components) is compared with the object's radius, and the y-coordinate is checked against half the length of the object.
+   After translating the point by subtracting the object's center, the above rotation aligns the object’s axis with the y-axis. In that rotated frame, the inclusion test is simplified: the radial distance         (computed from the x- and z-components) is compared with the object's radius, and the y-coordinate is checked against half the length of the object.
 
   - `rotate(theta: float, axis: str)`: Rotates the object about its center along a specified axis (either "x", "y", or "z").  
   - `detection(electron: Electron) -> float`: Simulates the energy detected from an electron interacting with the object.  
