@@ -186,7 +186,7 @@ plt.hist(energies, bins=100, alpha=0.4, color='blue',
          edgecolor='black', label='Detected Energies')
 plt.plot(bin_centers, gaussian(bin_centers, a_fit, x0_fit, sigma_fit),
             color='red', label='Fitted Gaussian')
-plt.axvline(x0_fit, color='green', linestyle='--', label='Fitted Peak Position')
+plt.axvline(x0_init, color='green', linestyle='--', label='Compton Energy')
 
 # Calculate additional statistics
 FWHM = 2.355 * sigma_fit  # Full Width at Half Maximum
