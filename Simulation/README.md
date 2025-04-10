@@ -87,6 +87,8 @@ The cross-section for Compton scattering is computed based on the Thomson scatte
 
 The **Compton cross-section** is computed using:
 
+if $E>100$ keV:
+
 $$
 \sigma_{\text{Compton}} = c Z \left[ \frac{(1 + \epsilon)}{\epsilon^2} \left( \frac{2(1 + \epsilon)}{1 + 2\epsilon} - \frac{\ln(1 + 2\epsilon)}{\epsilon} \right) + \frac{\ln(1 + 2\epsilon)}{2\epsilon} - \frac{1 + 3\epsilon}{(1 + 2\epsilon)^2} \right]
 $$
@@ -96,6 +98,15 @@ where:
 - $\epsilon = \frac{E_{\gamma}}{m_e}$.
 - $E_{\gamma}$ is the **photon energy**.
 - $m_e$ = 511 keV is the **electron rest mass energy**.
+
+if $E<100$ keV: 
+
+$$
+\sigma_{\text{Compton}} = c Z \left[ \frac{1}{(1 + 2\epsilon)^2} \left(1 + 2\epsilon + \frac{6}{5}\epsilon^2 - \frac{1}{2}\epsilon^3 + \frac{2}{7}\epsilon^4 - \frac{6}{35}\epsilon^5 + \frac{8}{105}\epsilon^6 + \frac{4}{105}\epsilon^7\right)\right]
+$$
+
+where:
+- $c = \sigma_{\text{Thomson}}$.
 
 ---
 
@@ -215,32 +226,7 @@ Represents a cylindrical object that serves as the foundation for physical geome
   - `info()`: Prints detailed information about the object's properties.   
   - `principal_axis() -> np.ndarray`: Computes and returns the principal axis vector of the cylinder by taking the difference between the two defining point of the position tuple.  
   - `center() -> np.ndarray`: Calculates the geometric center (midpoint) of the object based on its defining positions.  
-  - `is_inside(point: np.ndarray) -> bool`: Verifies whether a given point (for example, a photon hit) lies within the object's cylindrical volume. 
-    To handle also rotated objects, we first transform the coordinate system so that the object's principal axis aligns with the global y-axis. In other words, before checking whether a given point lies within       the object, the space coordinates are rotated accordingly.
-    Let
-     
-$$
-\hat{v}_{Obj} = \frac{\vec{v}_{Obj}}{|\vec{v}_{Obj}|}
-$$
-
-   be the unit vector along the object's principal axis. The angle, $\alpha$, between this axis and the global y-axis is determined by
-
-$$
-\sin(\alpha) = \left|\hat{y}\times\hat{v}_{Obj}\right|
-$$
-
-   Then, the coordinate transformation is achieved using the rotation matrix
-
-$$
-\vec{x}' = \begin{bmatrix}
-\cos(\alpha) & 0 & \sin(\alpha) \\
-0 & 1 & 0 \\
--\sin(\alpha) & 0 & \cos(\alpha)
-\end{bmatrix} \cdot \vec{x}
-$$
-
-   After translating the point by subtracting the object's center, the above rotation aligns the object’s axis with the y-axis. In that rotated frame, the inclusion test is simplified: the radial distance         (computed from the x- and z-components) is compared with the object's radius, and the y-coordinate is checked against half the length of the object.
-
+  - `is_inside(point: np.ndarray) -> bool`: Verifies whether a given point (for example, a photon hit) lies within the object's cylindrical volume.
   - `rotate(theta: float, axis: str)`: Rotates the object about its center along a specified axis (either "x", "y", or "z").  
   - `detection(electron: Electron) -> float`: Simulates the energy detected from an electron interacting with the object.  
   - `draw_3D(ax, axis='y', color='blue', alpha=0.5, label=None)`: Renders a detailed 3D visualization of the cylindrical object using matplotlib, including routines for proper scaling and orientation.

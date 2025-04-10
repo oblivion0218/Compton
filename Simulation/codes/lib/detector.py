@@ -118,29 +118,25 @@ class Object:
         :param point: The position to check (numpy array).
         :return: True if the point is inside the cylinder, False otherwise.
         """
-        # Estremi del cilindro
-        P0 = np.array(self.position[0])  # base
-        P1 = np.array(self.position[1])  # top
-        # Asse e lunghezza
-        axis = P1 - P0
+        axis = self.principal_axis()
         axis_length = np.linalg.norm(axis)
         if axis_length == 0:
-            return False  # cilindro degenere
-        axis_unit = axis / axis_length
-        # Vettore dal punto base al punto da testare
-        v = point - P0
-        # Proiezione del punto sull’asse del cilindro
-        h = np.dot(v, axis_unit)
-        # Verifica che la proiezione stia lungo il cilindro
+            return False  # degenerate cylinder
+        axis_unit = axis / axis_length # Normalized direction of the cylinder axis
+         
+        v = point - self.position[0]  # Vector from one end of the cylinder to the point
+        
+        h = np.dot(v, axis_unit) # Projection of v onto the axis
+        # Check if the projection is within the cylinder length
         if h < 0 or h > axis_length:
-            return False  # fuori in altezza
-        # Punto proiettato sull’asse
-        closest_point_on_axis = P0 + h * axis_unit
-        # Distanza radiale dal punto all’asse
-        radial_vector = point - closest_point_on_axis
-        radial_distance = np.linalg.norm(radial_vector)
-    # Verifica che stia dentro il raggio
-        return radial_distance<=self.radius
+            return False  
+
+        closest_point_on_axis = self.position[0] + h * axis_unit # Closest point on the axis to the point
+
+        radial_vector = point - closest_point_on_axis # Vector from the closest point on the axis to the point
+        radial_distance = np.linalg.norm(radial_vector) # Radial distance from the axis to the point
+
+        return radial_distance <= self.radius
     
 
     def rotate(self, theta: float, rotation_center: list[float], axis: str):
