@@ -295,7 +295,7 @@ def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_pa
     text += f"<E> = {E_mean[0]:.2f} ± {E_mean[1]:.2f}\n"
     text += f"ER = {ER[0]:.3f} ± {ER[1]:.3f}\n"
     text += f"N = {N_hit[0]:.2f} ± {N_hit[1]:.2f}\n"
-    text += f"Rate = {rate[0]:.2f} ± {rate[1]:.2f} Hz\n"
+    text += f"Rate = {rate[0]:.4f} ± {rate[1]:.4f} Hz\n"
 
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PLOT RESULTS - total fit and background
