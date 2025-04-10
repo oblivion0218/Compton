@@ -16,11 +16,12 @@ file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/" 
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 source = s.Source({511: 1, 1274: 0})  # Create a source object
 
+# 110°
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
-target.rotate((-1/4) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
+target.rotate((-7/36) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
 
 detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
-detector.rotate((1/2) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector
+detector.rotate((11/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector 
 
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
