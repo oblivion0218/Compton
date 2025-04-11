@@ -9,7 +9,9 @@ from iminuit.cost import LeastSquares
 N_tot = 1000000  # Total number of photons in each simulation
 
 # file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"
-file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/"
+file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/110_deg/"
+angle = 110  # Angle in degrees
+angle_rad = angle * np.pi / 180  # Convert to radians
 
 sim_runs = []
 photons_left_target = []
@@ -150,8 +152,8 @@ bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
 
 # Initial guess for parameters
 a_init = max(counts)
-x0_init = compton_energy(np.pi/2)  
-sigma_init = 0.0695 * compton_energy(np.pi/2) / 2.355
+x0_init = compton_energy(angle_rad)  
+sigma_init = 0.0695 * compton_energy(angle_rad) / 2.355
 
 # Create a LeastSquares object
 cost = LeastSquares(bin_centers, counts, np.sqrt(counts), gaussian)
@@ -207,12 +209,13 @@ N_hit_err = np.sqrt((errors[0]*sigma_fit*np.sqrt(2*np.pi))**2 +
 
 # I = S * t * epsilon * solid_angle/4pi
 # t = I / (S * epsilon * solid_angle/4pi)
-S = 175000 # Bq
-epsilon = 0.4796 # Gate efficiency
+S = 175000 * 903/1000 # Bq (Only for 511 KeV)
+epsilon_gate = 0.4796 # Gate efficiency
 solid_angle = 0.0197 # rad
 n_run = len(file_names)  # Number of runs
 I = N_tot * n_run  # beam intensity
-time = I / (S * epsilon * solid_angle / (4 * np.pi))  # s
+time = 2 * I / (S * epsilon_gate * solid_angle / (4 * np.pi))  # s
+# The factor 2 is because 511 keV is back to back
 
 # Add statistics text box to the plot
 stats_text = rf"$\chi^2/\mathrm{{ndf}} = {chi2:.1f}/{ndf} = {chi2_ndf:.2f}$" + "\n"
@@ -228,7 +231,7 @@ plt.text(0.3, 0.7, stats_text, transform=plt.gca().transAxes, fontsize=14, color
 plt.title('Fitting Gaussian to Detected Energies')
 plt.xlabel('Energy (keV)')
 plt.ylabel('Counts')
-plt.legend(fontsize=12)
+plt.legend(fontsize=12, loc='upper left')
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
 plt.savefig(file_path + "plots/fitted_gaussian.png")
 

@@ -10,7 +10,7 @@ from lib import source as s
 from lib import visualization as v
 
 # File path to save the output spectrum plot
-file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/"      #ANDRE
+file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/40_deg/"      #ANDRE
 
 # Object initialization
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -18,10 +18,10 @@ source = s.Source({511: 1, 1274: 0})  # Create a source object
 
 # 110°
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
-target.rotate((-7/36) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
+target.rotate((-7/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
 
 detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
-detector.rotate((11/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector 
+detector.rotate((2/9) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector 
 
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -53,7 +53,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
     photons = source.photon_emission(number_of_photons, theta_gate, 2 * np.pi, axis="y", forward_backward=False) 
 
     [e.photon_propagation_to_target(photon, target) for photon in photons] 
-    # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/photons.html", [detector], photons, source, target)
     [photon.propagation(step) for photon in photons]  # Propagate the photons
 
     photons_out_of_target = []
@@ -188,7 +188,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
         else:
             photon.propagation(distance)
 
-    # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
     # v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
@@ -237,23 +237,23 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
 
 # Simulation parameters for 511 keV
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-p1 = p.Photon(511, [0, 0, 0])
-sigma_photoelectric = i.cross_section_photoelectric(p1, target.Z)
-sigma_compton = i.cross_section_compton(p1, target.Z)
-sigma = sigma_photoelectric + sigma_compton
-mu = i.attenuation_factor(sigma, target)
-prob = i.interaction_probability(p1, 0.1, target)
-lamda = 1 / mu
-print("SIMULATION PARAMETERS")
-print(f"Total cross section: {sigma}")
-print(f"Photoelectric cross section: {sigma_photoelectric}")
-print(f"Compton cross section: {sigma_compton}")
-print(f"Attenuation factor: {mu}")
-print(f"Mean free path: {lamda}")
-print(f"Interaction probability: {prob}")
+# p1 = p.Photon(511, [0, 0, 0])
+# sigma_photoelectric = i.cross_section_photoelectric(p1, target.Z)
+# sigma_compton = i.cross_section_compton(p1, target.Z)
+# sigma = sigma_photoelectric + sigma_compton
+# mu = i.attenuation_factor(sigma, target)
+# prob = i.interaction_probability(p1, 0.1, target)
+# lamda = 1 / mu
+# print("SIMULATION PARAMETERS")
+# print(f"Total cross section: {sigma}")
+# print(f"Photoelectric cross section: {sigma_photoelectric}")
+# print(f"Compton cross section: {sigma_compton}")
+# print(f"Attenuation factor: {mu}")
+# print(f"Mean free path: {lamda}")
+# print(f"Interaction probability: {prob}")
 
 
-# Results for 1,000,000 photons
+# Results for 1,000,000 photons for 90°
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 """
 Number of photons that left the target: 825220
@@ -284,4 +284,7 @@ Compton cross section: 8.304112840661037e-24 cm^2
 Attenuation factor: 0.7371980163078985 cm^-1
 Mean free path: 1.3564876435890185 cm
 Interaction probability: 0.07106805740563149
+
+
+True attenuation factor(NIST): 0.723 cm^-1
 """
