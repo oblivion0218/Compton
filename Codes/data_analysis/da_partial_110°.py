@@ -5,8 +5,8 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_reflection/110_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/110_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/110_deg/"
+# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/110_deg/"
 
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
@@ -95,11 +95,7 @@ H.Rebin(rebin_param)
 fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
                                              file_path + "plots/fit/")
 
-<<<<<<< HEAD
 time = 43000 * 14 + 29739
-=======
-time = 43000 * 13 + 29739
->>>>>>> d81f447 (time correction to data analysis)
 
 # Final fit
 counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
