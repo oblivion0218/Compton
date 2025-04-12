@@ -252,7 +252,7 @@ print(f"x = 1.173 MeV → efficienza = {fit_2.Eval(1.173):.5f} ")
 print(f"x = 1.274 MeV → efficienza = {fit_2.Eval(1.274):.5f} ")
 print(f"x = 1.332 MeV → efficienza = {fit_2.Eval(1.332):.5f} \n")
 
-ang_test = [15, 35, 40, 50, 60, 75, 90, 110]  # Angoli in gradi
+ang_test = [15, 35, 40, 50, 60, 70, 90, 110]  # Angoli in gradi
 ang = [ang * 0.01745 for ang in ang_test]  # Conversione in radianti
 
 en_compton = []

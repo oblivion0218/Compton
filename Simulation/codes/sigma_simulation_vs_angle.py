@@ -11,32 +11,31 @@ from lib import visualization as v
 
 # File path to save the output spectrum plot
 
-file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/"      #ANDRE
-file_path = "/mnt/c/Users/ASUS/Desktop/" 
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/simulation/simulated_events_NoEff/"      #ANDRE
+# file_path = "/mnt/c/Users/ASUS/Desktop/" 
 
 
 # Object initialization
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 source = s.Source({511: 1, 1274: 0})  # Create a source object
 
-## 110°
-#target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
-#target.rotate((-7/36) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
+angle = 110
 
-#detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
-#detector.rotate((11/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector
+angle_rad = angle * np.pi / 180  
+target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
+file_path += f"{angle}_deg/"
 
 # 70°
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
-target.rotate((-7/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
+target.rotate(target_angle_rad, [0, 5.5, 0], "z")  # Rotate the target
 
 detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
-detector.rotate((2/9) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector 
+detector.rotate(angle_rad, [0, 5.5, 0], "z")  # Rotate the detector 
 
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 step = 0.1
-N_cycles = 40
+N_cycles = 20
 number_of_photons = 1000000
 
 r_gate = 1.27
@@ -63,7 +62,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
     photons = source.photon_emission(number_of_photons, theta_gate, 2 * np.pi, axis="y", forward_backward=False) 
 
     [e.photon_propagation_to_target(photon, target) for photon in photons] 
-    # v.visualization_3D_plotly(file_path + "3D_visualization/photons.html", [detector], photons, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/photons.html", [detector], photons, source, target)
     [photon.propagation(step) for photon in photons]  # Propagate the photons
 
     photons_out_of_target = []
@@ -185,7 +184,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
     # Photons that reached the detector
     # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     detector_axis = detector.principal_axis()/np.linalg.norm(detector.principal_axis())
-    theta_detector = np.arctan(detector.radius / np.linalg.norm([0, 5.5, 0] - detector.position[0]))
+    theta_detector = np.arctan(detector.radius / (np.linalg.norm(target.position[1] - detector.position[0]))) 
 
     photons_to_detector = []
 
@@ -198,21 +197,19 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
         else:
             photon.propagation(distance)
 
-    v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
+    # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
+    # v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     # Photons observed by the detector
     # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     detected_energies = [] #array for eletron's energy as detected by the detector
-    true_detected_energies = [] #array for electron's real energy 
+    true_detected_energies = [] #array for eletron's energy as detected by the detector
     for photon in photons_to_detector:
-        energy = e.gamma_detection(photon, detector, step=step, true_energy=True)
-        if energy > 0:
-            detected_energies.append(detector.resolution(energy))
-            true_detected_energies.append(energy)
-
-    print(f"Number of photons observed by the detector: {len(detected_energies)}\n")
+        photon.propagation(step)
+        if detector.is_inside(photon.position):
+            detected_energies.append(detector.detection(photon))
+            true_detected_energies.append(photon.energy)
 
     # Print the results in a txt file
     # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -235,7 +232,6 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
         f.write(f"Number of Compton interactions (4th): {n_compton_interactions[3]}\n")
 
         f.write(f"Number of photons that reached the detector: {len(photons_to_detector)}\n")
-        f.write(f"Number of photons observed by the detector: {len(detected_energies)}\n")
 
         f.write("Detected Energies:\n")
         for energy in detected_energies:
@@ -243,7 +239,6 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
         f.write("True Detected Energies:\n")
         for energy in true_detected_energies:
             f.write(f"{energy}\n")
-
 
 # Simulation parameters for 511 keV
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
