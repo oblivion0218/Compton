@@ -9,8 +9,8 @@ from iminuit.cost import LeastSquares
 N_tot = 1000000  # Total number of photons in each simulation
 
 # file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/"
-file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/110_deg/"
-angle = 110  # Angle in degrees
+file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/40_deg/"
+angle = 40  # Angle in degrees
 angle_rad = angle * np.pi / 180  # Convert to radians
 
 sim_runs = []

@@ -6,8 +6,8 @@ from lib import LabLibrary as ll
 
 
 
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/60_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/60_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/60_deg/"
+# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/60_deg/"
 #file_path = "/../../Measurments_riflection/60_deg/"
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
@@ -36,7 +36,7 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     f_back_e.SetParameter(1, 1)
 
     mpr.stampa_graph_fit(hist, f_back_e, file_path + "background_exp_.png", "Compton peak", 
-                         x_axis_name, y_axis_name, "", 550, 1400, 2, coo0, ["f1", "f2"])
+                         x_axis_name, y_axis_name, "", 550, 2000, 2, coo0, ["f1", "f2"])
     
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PARTIAL FIT - Compton peak
@@ -73,7 +73,7 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
 # # Main 
 # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 H = ll.create_hist(file_path, "hist_sum.png")
-peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
+peakCompton = ll.search_photopeak(H, 0.6, 2, file_path + "plots/fit/find_Compton_peak.png")
 sigmaCompton = 50
 
 # Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
@@ -81,8 +81,8 @@ step = 30
 max_step = 20
 # ll.stability_study_extreme(fit_peaks, H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
-n_steps = 4
-min_fit = peakCompton - (n_steps + 3) * step
+n_steps = 8
+min_fit = peakCompton - n_steps * step
 max_fit = peakCompton + n_steps * step
 
 # Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
@@ -90,7 +90,7 @@ rebin_max = 28
 # ll.stability_study_rebin(fit_peaks, H, peakCompton, sigmaCompton, rebin_max, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
 hist_integral = H.Integral()
-rebin_param = 3
+rebin_param = 5
 H.Rebin(rebin_param)
 
 fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 

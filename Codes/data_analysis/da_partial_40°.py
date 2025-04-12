@@ -6,8 +6,8 @@ from lib import LabLibrary as ll
 
 
 
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/60_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/40_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/40_deg/"
+# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/40_deg/"
 #file_path = "/../../Measurments_riflection/60_deg/"
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
@@ -36,7 +36,16 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     f_back_e.SetParameter(1, 1)
 
     mpr.stampa_graph_fit(hist, f_back_e, file_path + "background_exp_.png", "Compton peak", 
-                         x_axis_name, y_axis_name, "", 550, 1400, 2, coo0, ["f1", "f2"])
+                         x_axis_name, y_axis_name, "", 500, 2000, 2, coo0, ["f1", "f2"])
+    
+    f_511 = ROOT.TF1("f_511", "gaus(0)", 0, 2000)
+    f_511.SetParameter(0, 100)
+    f_511.SetParameter(1, 1500)
+    f_511.SetParameter(2, 50)
+
+    mpr.stampa_graph_fit(hist, f_511, file_path + "511_peak_.png", "511 peak",
+                         x_axis_name, y_axis_name, "", 1350, 1650, 3, coo0, str0)
+
     
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PARTIAL FIT - Compton peak
@@ -53,27 +62,36 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     # FIT - Complete model
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     
-    f_true = ROOT.TF1("model", "expo(0) + gaus(2)", 0, 2000) 
+    f_true = ROOT.TF1("model", "expo(0) + gaus(2) + gaus(5)", 0, 2000) 
     f_true.SetParameter(0, f_back_e.GetParameter(0))
     f_true.SetParameter(1, f_back_e.GetParameter(1))
-    f_true.SetParameter(2, f_Compton.GetParameter(0))
-    f_true.SetParameter(3, f_Compton.GetParameter(1))
-    f_true.SetParameter(4, f_Compton.GetParameter(2))
+    f_true.SetParameter(2, f_511.GetParameter(0))
+    f_true.SetParameter(3, f_511.GetParameter(1))
+    f_true.SetParameter(4, f_511.GetParameter(2))
+    f_true.SetParameter(5, f_Compton.GetParameter(0))
+    f_true.SetParameter(6, f_Compton.GetParameter(1))   
+    f_true.SetParameter(7, f_Compton.GetParameter(2))
 
     fit_result = mpr.stampa_graph_fit(hist, f_true, file_path + "final_fit_.png", "Spectrum", 
-                                      x_axis_name, y_axis_name, "", min_fit, max_fit, 5, coo2, ["f1", "f2", "Amp", "<x>", "#sigma"])
+                                      x_axis_name, y_axis_name, "", min_fit, max_fit)
 
-    f_back_e.SetParameter(0, f_true.GetParameter(0))
-    f_back_e.SetParameter(1, f_true.GetParameter(1))
+    f_background = ROOT.TF1("background", "expo(0) + gaus(2)", 0, 2000)
+    f_background.SetParameter(0, f_true.GetParameter(0))
+    f_background.SetParameter(1, f_true.GetParameter(1))
+    f_background.SetParameter(2, f_true.GetParameter(2))
+    f_background.SetParameter(3, f_true.GetParameter(3))
+    f_background.SetParameter(4, f_true.GetParameter(4))
 
-    return fit_result, f_back_e, f_true
+    mpr.plot_TF1_MPL(f_background, 0, 2000, file_path + "back_TF1.png")
+
+    return fit_result, f_background, f_true
 
 
 # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 # # Main 
 # #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 H = ll.create_hist(file_path, "hist_sum.png")
-peakCompton = ll.search_photopeak(H, 0.6, 2, file_path + "plots/fit/find_Compton_peak.png")
+peakCompton = ll.search_photopeak(H, 0.7, 2, file_path + "plots/fit/find_Compton_peak.png")
 sigmaCompton = 50
 
 # Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
@@ -81,8 +99,8 @@ step = 30
 max_step = 20
 # ll.stability_study_extreme(fit_peaks, H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
-n_steps = 4
-min_fit = peakCompton - (n_steps + 3) * step
+n_steps = 6
+min_fit = peakCompton - n_steps * step
 max_fit = peakCompton + n_steps * step
 
 # Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
