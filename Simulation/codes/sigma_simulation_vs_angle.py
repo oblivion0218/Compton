@@ -11,22 +11,31 @@ from lib import visualization as v
 
 # File path to save the output spectrum plot
 file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/"      #ANDRE
+file_path = "/mnt/c/Users/ASUS/Desktop/" 
 
 # Object initialization
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 source = s.Source({511: 1, 1274: 0})  # Create a source object
 
-# 110°
+## 110°
+#target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
+#target.rotate((-7/36) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
+
+#detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
+#detector.rotate((11/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector
+
+# 70°
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
-target.rotate((-7/36) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
+target.rotate((-1/3) * np.pi, [0, 5.5, 0], "z")  # Rotate the target
 
 detector = d.Detector(([0, 30.5, 0], [0, 35.58, 0]), 2.54, 0.0695)  # Detector "Franco"
-detector.rotate((11/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector 
+detector.rotate((7/18) * np.pi, [0, 5.5, 0], "z")  # Rotate the detector
+
 
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 step = 0.1
-N_cycles = 20
+N_cycles = 40
 number_of_photons = 1000000
 
 r_gate = 1.27
@@ -188,9 +197,9 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
         else:
             photon.propagation(distance)
 
-    # v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    # v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
+    v.visualization_3D_plotly(file_path + "3D_visualization/photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     # Photons observed by the detector
     # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
