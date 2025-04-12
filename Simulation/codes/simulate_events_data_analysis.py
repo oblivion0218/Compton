@@ -8,7 +8,7 @@ from iminuit.cost import LeastSquares
 
 N_tot = 1000000  # Total number of photons in each simulation
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events/110_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/110_deg/"
 # file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/70_deg/"
 angle = 110  # Angle in degrees
 angle_rad = angle * np.pi / 180  # Convert to radians
@@ -56,10 +56,10 @@ for file_name in file_names:
         compton_3rd.append(int(lines[11].split(": ")[1]))
         compton_4th.append(int(lines[12].split(": ")[1]))
         photons_reached_detector.append(int(lines[13].split(": ")[1]))
-        photons_observed.append(int(lines[14].split(": ")[1]))
+        # photons_observed.append(int(lines[14].split(": ")[1]))
         
         capture_true_energies = False
-        for i in range(16, len(lines)):
+        for i in range(15, len(lines)):
             line = lines[i].strip()
             if line == "True Detected Energies:":
                 capture_true_energies = True
@@ -79,7 +79,7 @@ compton_2nd = np.array(compton_2nd)
 compton_3rd = np.array(compton_3rd)
 compton_4th = np.array(compton_4th)
 photons_reached_detector = np.array(photons_reached_detector)
-photons_observed = np.array(photons_observed)
+# photons_observed = np.array(photons_observed)
 energies = np.array(energies)
 true_energies = np.array(true_energies)
 
@@ -102,7 +102,7 @@ plt.savefig(file_path + "plots/interaction_probabilities.png")
 
 plt.figure(figsize=(12, 8))
 plt.plot(sim_runs, photons_reached_detector/N_tot, 'o', color='red', label='Photons Reaching Detector')
-plt.plot(sim_runs, photons_observed/N_tot, 'o', color='blue', label='Photons Observed')
+# plt.plot(sim_runs, photons_observed/N_tot, 'o', color='blue', label='Photons Observed')
 plt.title('Photon interaction across first simulation runs')
 plt.xlabel('Simulation run')
 plt.ylabel('Probability / Scaled Efficiency')
@@ -110,18 +110,18 @@ plt.legend(fontsize=12)
 plt.grid(True)
 plt.savefig(file_path + "plots/detector_parameter.png")
 
-detection_efficiency = photons_observed / photons_reached_detector
-sorted_indices = np.argsort(sim_runs)
-sim_runs_sorted = sim_runs[sorted_indices]
-detection_efficiency_sorted = detection_efficiency[sorted_indices]
+# detection_efficiency = photons_observed / photons_reached_detector
+# sorted_indices = np.argsort(sim_runs)
+# sim_runs_sorted = sim_runs[sorted_indices]
+# detection_efficiency_sorted = detection_efficiency[sorted_indices]
 
-plt.figure(figsize=(12, 8))
-plt.plot(sim_runs, detection_efficiency, 'o', color='black', label='Detection Efficiency (scaled)')
-plt.title('Detection Efficiency across simulation runs')
-plt.xlabel('Simulation Run')
-plt.ylabel('Detection Efficiency (scaled)')
-plt.grid(True)
-plt.savefig(file_path + "plots/detection_efficiency.png")
+# plt.figure(figsize=(12, 8))
+# plt.plot(sim_runs, detection_efficiency, 'o', color='black', label='Detection Efficiency (scaled)')
+# plt.title('Detection Efficiency across simulation runs')
+# plt.xlabel('Simulation Run')
+# plt.ylabel('Detection Efficiency (scaled)')
+# plt.grid(True)
+# plt.savefig(file_path + "plots/detection_efficiency.png")
 
 # Create a new combined histogram with Freedman-Diaconis binning
 plt.figure(figsize=(12, 8))
