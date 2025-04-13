@@ -13,7 +13,7 @@ from lib import visualization as v
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 source = s.Source({511: 1, 1274: 0})  # Create a source object
 
-angle = 110
+angle = 90
 
 angle_rad = angle * np.pi / 180  
 target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
@@ -27,7 +27,7 @@ detector.rotate(angle_rad, [0, 5.5, 0], "z")  # Rotate the detector
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 step = 0.1
-N_cycles = 20
+N_cycles = 35
 number_of_photons = 1000000
 
 r_gate = 1.27
@@ -189,9 +189,9 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
         else:
             photon.propagation(distance)
 
-    # v.visualization_3D_plotly("survival_photons.html", [detector], photons_out_of_target, source, target)
+    #v.visualization_3D_plotly("survival_photons.html", [detector], photons_out_of_target, source, target)
     print(f"Number of photons that reached the detector: {len(photons_to_detector)}")
-    # v.visualization_3D_plotly("photons_to_detector.html", [detector], photons_to_detector, source, target)
+    #v.visualization_3D_plotly("photons_to_detector.html", [detector], photons_to_detector, source, target)
 
     # Photons observed by the detector
     # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
