@@ -14,8 +14,6 @@ from lib import visualization as v
 source = s.Source({511: 1, 1274: 0})  # Create a source object
 angle = 70
 
-angle = 110
-
 angle_rad = angle * np.pi / 180  
 target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
 
@@ -55,11 +53,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
     photons = source.photon_emission(number_of_photons, theta_gate, 2 * np.pi, axis="y", forward_backward=False) 
 
     [e.photon_propagation_to_target(photon, target) for photon in photons] 
-<<<<<<< HEAD
     #v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
-=======
-    v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
->>>>>>> 61958e0 (last 110_deg simulated)
     [photon.propagation(step) for photon in photons]  # Propagate the photons
 
     photons_out_of_target = []
