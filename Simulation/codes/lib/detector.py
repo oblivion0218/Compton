@@ -60,57 +60,6 @@ class Object:
         return np.mean(self.position, axis=0) # axis=0 means that we take the mean of the two points in the position tuple
     
 
-    # def is_inside(self, point: np.ndarray) -> bool:
-    #     """
-    #     Checks if a given point (position of a photon) is inside the object.
-
-    #     :param point: The position of the particle (numpy array).
-    #     :return: True if the point is within the object, False otherwise.
-    #     """
-    #     # Ensure point is a numpy array
-    #     point = np.array(point)
-        
-    #     # Define the principal axis of the object
-    #     principal_axis = self.principal_axis()
-    #     axis_length = np.linalg.norm(principal_axis)
-        
-    #     # Get center and normalize axis
-    #     center = self.center()
-    #     if axis_length == 0:
-    #         return False  # Degenerate cylinder
-        
-    #     axis_unit = principal_axis / axis_length
-        
-    #     # Calculate the rotation matrix to align the principal axis with the y-axis
-    #     # Note: The code was using y_axis but trying to align with different axes
-        
-    #     # Calculate angle between principal axis and y-axis
-    #     cos_alpha = np.linalg.norm(np.dot(axis_unit, np.array([0, 1, 0])))
-    #     alpha = np.arcsin(cos_alpha)
-        
-    #     # Calculate rotation matrix
-    #     rotation_matrix = np.array([
-    #         [np.cos(alpha), np.sin(alpha), 0],
-    #         [-np.sin(alpha), np.cos(alpha), 0], 
-    #         [0, 0, 1]
-    #     ])
-        
-    #     # Rotate the point to align with the rotated coordinate system
-    #     rotated_point = np.dot(rotation_matrix, point - center)
-        
-    #     # Check radial distance (in x-z plane of rotated coordinates)
-    #     r = np.linalg.norm(rotated_point[[0, 2]]) <= self.radius
-        
-    #     # Check if point is within cylinder height
-    #     # Half-length of cylinder along principal axis
-    #     half_length = axis_length / 2
-        
-    #     # Check if y-coordinate in rotated system is within half-length
-    #     h = abs(rotated_point[1]) <= half_length
-        
-    #     return r and h  # Both conditions must be true
-
-
     def is_inside(self, point: np.ndarray) -> bool:
         """
         Checks if a given point is inside the cylindrical object defined by two endpoints and a radius.
