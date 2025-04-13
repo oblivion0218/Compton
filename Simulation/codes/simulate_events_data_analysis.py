@@ -5,13 +5,21 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from iminuit import Minuit
 from iminuit.cost import LeastSquares
+from lib import particles as p
+from lib import detector as d
+from lib import interactions as i
 
 N_tot = 1000000  # Total number of photons in each simulation
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/110_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/"
 # file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/70_deg/"
+
 angle = 110  # Angle in degrees
+
 angle_rad = angle * np.pi / 180  # Convert to radians
+file_path = file_path + str(angle) + "_deg/"
+
+spettrometer_efficiency = {40: 0.42514, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
 
 sim_runs = []
 photons_left_target = []
@@ -59,15 +67,10 @@ for file_name in file_names:
         # photons_observed.append(int(lines[14].split(": ")[1]))
         
         capture_true_energies = False
-        for i in range(15, len(lines)):
-            line = lines[i].strip()
-            if line == "True Detected Energies:":
-                capture_true_energies = True
-                continue
-            if line and not capture_true_energies:  # Detected energies
-                energies.append(float(line))
-            elif line and capture_true_energies:  # True energies
-                true_energies.append(float(line))
+        for j in range(15, len(lines)):
+            line = lines[j].strip()
+
+            energies.append(float(line))
 
 # Convert lists to numpy arrays for easier manipulation
 sim_runs = np.array(sim_runs)
@@ -80,8 +83,23 @@ compton_3rd = np.array(compton_3rd)
 compton_4th = np.array(compton_4th)
 photons_reached_detector = np.array(photons_reached_detector)
 # photons_observed = np.array(photons_observed)
-energies = np.array(energies)
+
+true_energies = []
+detected_energies = []
+
+detector = d.Detector([[0, 0, 0], [0, 1, 0]], 2.54, 0.0695)
+for energy in energies:
+    photon = p.Photon(energy, [0, 0, 0])
+    
+    interaction = i.Interaction(i.which_interaction(photon, Z=49.7))
+    electron = interaction.interaction(photon)
+    
+    true_energies.append(electron.energy)
+    detected_energies.append(detector.detection(electron))
+
+detected_energies = np.array(detected_energies)
 true_energies = np.array(true_energies)
+energies_out_of_detector = np.array(energies)
 
 plt.figure(figsize=(12, 8))
 
@@ -123,21 +141,6 @@ plt.savefig(file_path + "plots/detector_parameter.png")
 # plt.grid(True)
 # plt.savefig(file_path + "plots/detection_efficiency.png")
 
-# Create a new combined histogram with Freedman-Diaconis binning
-plt.figure(figsize=(12, 8))
-
-# Create histograms
-plt.hist(energies, bins=100, alpha=0.4, color='blue', 
-         edgecolor='black', label='Detected Energies')
-plt.hist(true_energies, bins=100, color='red', 
-              histtype="step", label='True Energies')
-
-plt.title('Probability Density of Photon Energies')
-plt.xlabel('Energy (keV)')
-plt.ylabel('Counts')
-plt.legend(fontsize=12)
-plt.grid(True)
-plt.savefig(file_path + "plots/photon_energies.png")
 
 # Fit the histogram of detected energies
 def gaussian(x, a, x0, sigma):
@@ -147,7 +150,7 @@ def compton_energy(theta):
     return 511 / (2 - np.cos(theta))
 
 # Create histogram of detected energies
-counts, bin_edges = np.histogram(energies, bins=100)
+counts, bin_edges = np.histogram(detected_energies, bins=100)
 bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
 
 # Initial guess for parameters
@@ -184,8 +187,11 @@ print(correlation_matrix)
 
 # Plot the histogram and the fitted Gaussian
 plt.figure(figsize=(12, 8))
-plt.hist(energies, bins=100, alpha=0.4, color='blue', 
-         edgecolor='black', label='Detected Energies')
+plt.hist(detected_energies, bins=100, alpha=0.3, color='blue', label='Detected Energies')
+plt.hist(true_energies, bins=100, color='blue', 
+              histtype="step", label='Detected Energies (True)')
+plt.hist(energies_out_of_detector, bins=100, color='purple', 
+              histtype="step",linestyle='--', label='True Energies')
 plt.plot(bin_centers, gaussian(bin_centers, a_fit, x0_fit, sigma_fit),
             color='red', label='Fitted Gaussian')
 plt.axvline(x0_init, color='green', linestyle='--', label='Compton Energy')
@@ -211,10 +217,12 @@ N_hit_err = np.sqrt((errors[0]*sigma_fit*np.sqrt(2*np.pi))**2 +
 # t = I / (S * epsilon * solid_angle/4pi)
 S = 175000 * 903/1000 # Bq (Only for 511 KeV)
 epsilon_gate = 0.4796 # Gate efficiency
+epsilon_spectrometer = spettrometer_efficiency[angle]  # Spectrometer efficiency
+epsilon = epsilon_gate * epsilon_spectrometer  # Total efficiency
 solid_angle = 0.0197 # rad
 n_run = len(file_names)  # Number of runs
 I = N_tot * n_run  # beam intensity
-time = 2 * I / (S * epsilon_gate * solid_angle / (4 * np.pi))  # s
+time = 2 * I / (S * epsilon * solid_angle / (4 * np.pi))  # s
 # The factor 2 is because 511 keV is back to back
 
 # Add statistics text box to the plot
@@ -226,7 +234,7 @@ stats_text += f"N = {N_hit:.1f} ± {N_hit_err:.1f}\n"
 stats_text += f"Rate = {N_hit/time:.4f} ± {N_hit_err/time:.4f} Hz"
 
 # Position the text box in the upper right corner
-plt.text(0.3, 0.7, stats_text, transform=plt.gca().transAxes, fontsize=14, color="black", ha='left')
+plt.text(0.36, 0.7, stats_text, transform=plt.gca().transAxes, fontsize=14, color="black", ha='left')
 
 plt.title('Fitting Gaussian to Detected Energies')
 plt.xlabel('Energy (keV)')
@@ -235,4 +243,4 @@ plt.legend(fontsize=12, loc='upper left')
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
 plt.savefig(file_path + "plots/fitted_gaussian.png")
 
-print(time)
+print(f"time :{time:.2f} s")

@@ -12,8 +12,8 @@ from lib import visualization as v
 # Object initialization
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 source = s.Source({511: 1, 1274: 0})  # Create a source object
-
 angle = 70
+
 
 angle_rad = angle * np.pi / 180  
 target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
