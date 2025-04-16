@@ -15,8 +15,10 @@ source = s.Source({511: 1, 1274: 0})  # Create a source object
 
 angle = 40
 
+
 angle_rad = angle * np.pi / 180  
-target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
+#target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
+target_angle_rad = 0
 
 target = d.Target(([0, 5, 0], [0, 6, 0]), 3)  # Create a target object
 target.rotate(target_angle_rad, [0, 5.5, 0], "z")  # Rotate the target
@@ -54,7 +56,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
     photons = source.photon_emission(number_of_photons, theta_gate, 2 * np.pi, axis="y", forward_backward=False) 
 
     [e.photon_propagation_to_target(photon, target) for photon in photons] 
-    #v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
+    v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
     [photon.propagation(step) for photon in photons]  # Propagate the photons
 
     photons_out_of_target = []
