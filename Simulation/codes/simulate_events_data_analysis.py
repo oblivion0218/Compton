@@ -11,7 +11,13 @@ from lib import interactions as i
 
 N_tot = 1000000  # Total number of photons in each simulation
 
+<<<<<<< HEAD
 #file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/"
+=======
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/"
+# file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/70_deg/"
+# file_path = "../"
+>>>>>>> 7843b46 (Rate_vs_CrossSection)
 
 file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Simulation/simulated_events_NoEff/"
 
