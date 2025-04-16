@@ -12,12 +12,8 @@ from lib import visualization as v
 # Object initialization
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 source = s.Source({511: 1, 1274: 0})  # Create a source object
-<<<<<<< HEAD
-angle = 70
-=======
 
 angle = 40
->>>>>>> 7d12f6a (40 deg)
 
 angle_rad = angle * np.pi / 180  
 target_angle_rad = - ((180 - angle)/2) * np.pi / 180  
@@ -31,7 +27,7 @@ detector.rotate(angle_rad, [0, 5.5, 0], "z")  # Rotate the detector
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 step = 0.1
-N_cycles = 20
+N_cycles = 10
 number_of_photons = 1000000
 
 r_gate = 1.27
