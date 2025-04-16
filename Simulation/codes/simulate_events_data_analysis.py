@@ -11,15 +11,16 @@ from lib import interactions as i
 
 N_tot = 1000000  # Total number of photons in each simulation
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/"
+#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulation/simulated_events_NoEff/"
 # file_path = "/mnt/c/Users/User/Desktop/info/Gamma-simulation/simulated_events/70_deg/"
+file_path = "../"
 
-angle = 110  # Angle in degrees
+angle = 0  # Angle in degrees
 
 angle_rad = angle * np.pi / 180  # Convert to radians
 file_path = file_path + str(angle) + "_deg/"
 
-spettrometer_efficiency = {40: 0.42514, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
+spettrometer_efficiency = {0: 0.4, 40: 0.42514, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
 
 sim_runs = []
 photons_left_target = []
