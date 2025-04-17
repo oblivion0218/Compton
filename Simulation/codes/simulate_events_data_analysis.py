@@ -16,11 +16,11 @@ N_tot = 1000000  # Total number of photons in each simulation
 file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Simulation/simulated_events_NoEff/"
 
 
-angle = 40  # Angle in degrees
+angle = 0  # Angle in degrees
 
 angle_rad = angle * np.pi / 180  # Convert to radians
-#file_path = file_path + str(angle) + "_deg/"
-file_path = file_path + str(angle) + "_deg_NO_multicompton/"
+file_path = file_path + str(angle) + "_deg/"
+#file_path = file_path + str(angle) + "_deg_NO_multicompton/"
 
 
 spettrometer_efficiency = {0: 0.4, 40: 0.42514, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
