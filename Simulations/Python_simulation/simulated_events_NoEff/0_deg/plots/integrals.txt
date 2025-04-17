@@ -1,11 +1,11 @@
 # Filename	Net Gaussian Integral (bg subtracted)
-0_detected_energies.txt	1316733.598938
-1_detected_energies.txt	1133600.563598
-2_detected_energies.txt	23384.733430
-3_detected_energies.txt	669558.722285
-4_detected_energies.txt	2290144.072024
-5_detected_energies.txt	1611149.621246
-6_detected_energies.txt	1387993.015995
-7_detected_energies.txt	-15880.049545
-8_detected_energies.txt	1282414.018078
-9_detected_energies.txt	-20643.728561
+0_detected_energies.txt	2465763.408331
+1_detected_energies.txt	2499143.876955
+2_detected_energies.txt	2518098.009852
+3_detected_energies.txt	2571023.319382
+4_detected_energies.txt	2573373.530149
+5_detected_energies.txt	2512842.952158
+6_detected_energies.txt	2506563.154268
+7_detected_energies.txt	2560082.820268
+8_detected_energies.txt	2524168.210450
+9_detected_energies.txt	2512913.499762
