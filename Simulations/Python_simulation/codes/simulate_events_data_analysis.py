@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from iminuit import Minuit
@@ -17,14 +16,14 @@ file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulations/Python_simulatio
 # file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Simulation/simulated_events_NoEff/"
 
 
-angle = 40  # Angle in degrees
+angle = 0  # Angle in degrees
 
 angle_rad = angle * np.pi / 180  # Convert to radians
 file_path = file_path + str(angle) + "_deg/"
 # file_path = file_path + str(angle) + "_deg_NO_multicompton/"
 
 
-spettrometer_efficiency = {40: 0.42514, 50: 0.47027, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
+spettrometer_efficiency = {0: 0.3, 40: 0.42514, 50: 0.47027, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
 
 sim_runs = []
 photons_left_target = []
@@ -93,18 +92,19 @@ true_energies = []
 detected_energies = []
 
 detector = d.Detector([[0, 0, 0], [0, 1, 0]], 2.54, 0.0695)
-for energy in energies:
+for energy in tqdm(energies, desc="Simulating interactions", unit="photon"):
     photon = p.Photon(energy, [0, 0, 0])
     
     interaction = i.Interaction(i.which_interaction(photon, Z=49.7))
     electron = interaction.interaction(photon)
-    
+
     true_energies.append(electron.energy)
     detected_energies.append(detector.detection(electron))
-
+ 
 detected_energies = np.array(detected_energies)
 true_energies = np.array(true_energies)
 energies_out_of_detector = np.array(energies)
+
 
 plt.figure(figsize=(12, 8))
 
