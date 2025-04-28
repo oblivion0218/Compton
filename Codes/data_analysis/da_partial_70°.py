@@ -5,8 +5,8 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/75_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/75_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/70_deg_2nd/"
+# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/75_deg/"
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
     """

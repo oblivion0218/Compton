@@ -16,7 +16,7 @@ file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulations/Python_simulatio
 # file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Simulation/simulated_events_NoEff/"
 
 
-angle = 0  # Angle in degrees
+angle = 60  # Angle in degrees
 
 angle_rad = angle * np.pi / 180  # Convert to radians
 file_path = file_path + str(angle) + "_deg/"
@@ -221,7 +221,7 @@ N_hit_err = np.sqrt((errors[0]*sigma_fit*np.sqrt(2*np.pi))**2 +
 # I = S * t * epsilon * solid_angle/4pi
 # t = I / (S * epsilon * solid_angle/4pi)
 S = 175000 * 903/1000 # Bq (Only for 511 KeV)
-epsilon_gate = 0.4796 # Gate efficiency
+epsilon_gate = 0.16696 # Gate efficiency
 epsilon_spectrometer = spettrometer_efficiency[angle]  # Spectrometer efficiency
 epsilon = epsilon_gate * epsilon_spectrometer  # Total efficiency
 solid_angle = 0.0197 # rad

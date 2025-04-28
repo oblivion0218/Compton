@@ -121,6 +121,8 @@ graph_2, fit_2, A2, B2, C2 = fit_dataset(
     legend_label="2'' "
 )
 
+print(A2, B2, C2)
+
 graph_1_5, fit_1_5, A1_5, B1_5, C1_5 = fit_dataset(
     x_1_5pollici, y_1_5pollici,
     color=ROOT.kRed,
@@ -242,6 +244,13 @@ c.SaveAs("Efficienze.png")
 
 
 #-------------- STAMPA VALORI A SCHERMO --------
+
+print("\nParametri del fit per il rivelatore da 2 pollici (A*x^-B*exp(-C*x)+D):")
+print(f"  A = {fit_2.GetParameter(0):.5f}")
+print(f"  B = {fit_2.GetParameter(1):.5f}")
+print(f"  C = {fit_2.GetParameter(2):.5f}")
+print(f"  D = {fit_2.GetParameter(3):.5f}\n")
+
 
 print("\nPrevisioni efficienza per 1'' usando il fit:")
 print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} \n")
