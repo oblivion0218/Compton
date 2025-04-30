@@ -95,7 +95,7 @@ fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_f
                                              file_path + "plots/fit/")
 
 
-time = 7 * 43000 + 41727
+time = 16 * 43000
 
 # Final fit
 counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 

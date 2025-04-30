@@ -6,7 +6,7 @@ from lib import LabLibrary as ll
 
 
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/40_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/40_deg_2nd/"
 # file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/40_deg/"
 #file_path = "/../../Measurments_riflection/60_deg/"
 
@@ -100,7 +100,7 @@ max_step = 20
 # ll.stability_study_extreme(fit_peaks, H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
 n_steps = 6
-min_fit = peakCompton - n_steps * step
+min_fit = peakCompton - (n_steps + 2) * step
 max_fit = peakCompton + n_steps * step
 
 # Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
@@ -114,7 +114,7 @@ H.Rebin(rebin_param)
 fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
                                              file_path + "plots/fit/")
 
-time = 43000 * 8 + 36356
+time = 43000 * 10
 
 # Final fit
 counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 

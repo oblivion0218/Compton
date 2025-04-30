@@ -28,8 +28,8 @@ detector.rotate(angle_rad, [0, 5.5, 0], "z")  # Rotate the detector
 # Initial parameters
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 step = 0.1
-N_cycles = 20
-number_of_photons = 1000000
+N_cycles = 1
+number_of_photons = 1000
 
 r_gate = 1.27
 d_gate_source = 16
@@ -55,7 +55,7 @@ for j in tqdm(range(N_cycles), desc="Simulating cycles", unit="cycle"):
     photons = source.photon_emission(number_of_photons, theta_gate, 2 * np.pi, axis="y", forward_backward=False) 
 
     [e.photon_propagation_to_target(photon, target) for photon in photons] 
-    # v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
+    v.visualization_3D_plotly("photons.html", [detector], photons, source, target)
     [photon.propagation(step) for photon in photons]  # Propagate the photons
 
     photons_out_of_target = []

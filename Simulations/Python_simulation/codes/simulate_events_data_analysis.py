@@ -16,14 +16,14 @@ file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulations/Python_simulatio
 # file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Simulation/simulated_events_NoEff/"
 
 
-angle = 60  # Angle in degrees
+angle = 40  # Angle in degrees
 
 angle_rad = angle * np.pi / 180  # Convert to radians
 file_path = file_path + str(angle) + "_deg/"
 # file_path = file_path + str(angle) + "_deg_NO_multicompton/"
 
 
-spettrometer_efficiency = {0: 0.3, 40: 0.42514, 50: 0.47027, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
+spettrometer_efficiency = {40: 0.42514, 50: 0.47027, 60: 0.52115, 70: 0.57572, 90: 0.68808, 110: 0.79343}
 
 sim_runs = []
 photons_left_target = []
@@ -220,14 +220,14 @@ N_hit_err = np.sqrt((errors[0]*sigma_fit*np.sqrt(2*np.pi))**2 +
 
 # I = S * t * epsilon * solid_angle/4pi
 # t = I / (S * epsilon * solid_angle/4pi)
-S = 175000 * 903/1000 # Bq (Only for 511 KeV)
+S = 175000 * 903/1000 * 2 # Bq (Only for 511 KeV)
 epsilon_gate = 0.16696 # Gate efficiency
 epsilon_spectrometer = spettrometer_efficiency[angle]  # Spectrometer efficiency
 epsilon = epsilon_gate * epsilon_spectrometer  # Total efficiency
 solid_angle = 0.0197 # rad
 n_run = len(file_names)  # Number of runs
 I = N_tot * n_run  # beam intensity
-time = 2 * I / (S * epsilon * solid_angle / (4 * np.pi))  # s
+time = I / (S * epsilon * solid_angle / (4 * np.pi))  # s
 # The factor 2 is because 511 keV is back to back
 
 # Add statistics text box to the plot
