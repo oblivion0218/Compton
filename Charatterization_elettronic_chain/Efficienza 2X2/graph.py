@@ -106,31 +106,32 @@ def fit_dataset(xvals, yvals, color, marker_style, legend_label):
     A = fit_func.GetParameter(0)
     B = fit_func.GetParameter(1)
     C = fit_func.GetParameter(2)
+    D = fit_func.GetParameter(3)
     
-    return graph, fit_func, A, B, C
+    return graph, fit_func, A, B, C, D
 
 
 # --------------------------------------------------------------------
 # 3) FITTIAMO I 3 SET DI DATI
 # --------------------------------------------------------------------
 # Assegniamo a ciascuno un colore e uno stile differente
-graph_2, fit_2, A2, B2, C2 = fit_dataset(
+graph_2, fit_2, A2, B2, C2 , D2 = fit_dataset(
     x_2pollici, y_2pollici,
     color=ROOT.kBlue, 
     marker_style=20,
     legend_label="2'' "
 )
 
-print(A2, B2, C2)
+print(A2, B2, C2, D2)
 
-graph_1_5, fit_1_5, A1_5, B1_5, C1_5 = fit_dataset(
+graph_1_5, fit_1_5, A1_5, B1_5, C1_5, D1_5 = fit_dataset(
     x_1_5pollici, y_1_5pollici,
     color=ROOT.kRed,
     marker_style=21,
     legend_label="1_5''"
 )
 
-graph_3, fit_3, A3, B3, C3 = fit_dataset(
+graph_3, fit_3, A3, B3, C3, D3 = fit_dataset(
     x_3pollici, y_3pollici,
     color=ROOT.kGreen+2,
     marker_style=22,
@@ -184,7 +185,7 @@ y_1=[]
 for i in range(7):
     y_1.append(interpolate_parameter(diams, [y_1_5pollici[i], y_2pollici[i], y_3pollici[i]],i))
 
-graph_1, fit_1, A1, B1, C1 = fit_dataset(
+graph_1, fit_1, A1, B1, C1, D1 = fit_dataset(
     x_2pollici, y_1,
     color=ROOT.kMagenta, 
     marker_style=24,
