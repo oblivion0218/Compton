@@ -23,7 +23,7 @@ def errors(rate_errors, counts_errors, times):
         time = times[i]
 
         error = np.sqrt((counts_error / time) ** 2 + (rate_error) ** 2)
-        errors.append(error*8)
+        errors.append(error)
     return errors
 
 angles = np.array([ 50, 60, 70, 90, 110]) * np.pi / 180
@@ -107,7 +107,7 @@ def constant(theta):
     # QUESTO PRODOTTO NON HA SENSO, MA NON CAPISCO PERCHè FUNZIONA
 
     def V(theta, R, width): # volume approssimato (sottostima)
-        return A(theta, R) * width * 1.1 #correzione a cazzo del volume, ma sono certo sia maggiore
+        return A(theta, R) * width  
 
     def N_c(theta, R, width):
         #For a Cu target

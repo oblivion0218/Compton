@@ -97,7 +97,7 @@ def visualization_3D(fileNamePNG: str, detectors: d.Detector, photons: list[p.Ph
     plt.close()
 
 
-def visualization_3D_plotly(fileNameHTML: str, detectors: d.Detector, photons: list[p.Photon], source: s.Source=None, target: d.Target=None):
+def visualization_3D_plotly(fileNameHTML: str, detectors: list[d.Detector], photons: list[p.Photon], source: s.Source=None, target: d.Target=None):
     """
     Creates an interactive 3D visualization of the photon hit points and detector positions using Plotly.
     

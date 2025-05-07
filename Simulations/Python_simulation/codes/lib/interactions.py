@@ -92,8 +92,6 @@ def attenuation_factor(total_cross_section: float, scattering_target: d.Object) 
     """
     Calculate the attenuation factor for a photon traveling through a material.
 
-    :param photon: Photon object containing energy information.
-    :param distance: Distance traveled in the material (in cm).
     :param total_cross_section: Total cross-section for the interaction (in cm²).
     :param scattering_target: Material properties (e.g., density, molar mass).
     :return: Attenuation factor (inverse mean free path).
@@ -108,7 +106,6 @@ def interaction_probability(photon: p.Photon, distance: float, scattering_target
 
     :param photon: Photon object containing energy information.
     :param distance: Distance traveled in the material (in cm).
-    :param total_cross_section: Total cross-section for the interaction (in cm²).
     :param scattering_target: Material properties (e.g., density, molar mass).
     :return: Interaction probability as a dimensionless value.
     """
