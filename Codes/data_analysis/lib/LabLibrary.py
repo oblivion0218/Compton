@@ -124,6 +124,21 @@ def search_first_peak(hist, noise_threshold, n_peaks, fileName=None):
 
 
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Calibration
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+def calibration(x, a = 0.36, b = -11.5):
+    """
+    Calibration function for converting ADC channels to energy in keV.
+    
+    :param x: ADC channel value.
+    :param a: Calibration coefficient (default: 0.36).
+    :param b: Calibration offset (default: -11.5).
+    :return: Energy in keV.
+    """
+    return a * x + b
+
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Fit functions for Compton study
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def fit_photopeak_linear_background(hist, fileNamePNG, noise_threshold, n_peaks):
@@ -408,10 +423,11 @@ def hist_vector(directory_path):
     for j, hist_file_name in enumerate(hist_file_names):
         
         data = read_histogram_data(directory_path + hist_file_name)
-        hist = ROOT.TH1D(f"h{j}", f"h{j}", len(data), 0, len(data))
+        n_bins = int(calibration(len(data)))
+        hist = ROOT.TH1D(f"h{j}", f"h{j}", n_bins, 0, n_bins)
         
         for i, bin_value in enumerate(data):
-            hist.SetBinContent(i + 1, bin_value)
+            hist.SetBinContent(int(calibration(i)) + 1, bin_value)
         
         hist_list.append(hist)
     
@@ -650,4 +666,3 @@ def stability_study_rebin(fit_peaks, H, peakCompton, sigmaCompton, rebin_max, mi
     plt.savefig(plot_file)
     plt.close()
     print(f"Rebin stability summary plot saved to {plot_file}")
-

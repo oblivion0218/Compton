@@ -20,7 +20,9 @@ def photon_propagation_to_target(photon: p.Photon, target: d.Object) -> p.Photon
     :return: Photon object after propagation to the target's first face.
     """
     # Get the first face position (position[0])
-    first_face_position = np.array(target.position[0])
+    d_photon_f0 = np.linalg.norm(photon.position - target.position[0])
+    d_photon_f1 = np.linalg.norm(photon.position - target.position[1])
+    first_face_position = np.array(target.position[0]) if d_photon_f0 < d_photon_f1 else np.array(target.position[1])
     
     # Calculate principal axis of the object
     principal_axis = target.principal_axis()

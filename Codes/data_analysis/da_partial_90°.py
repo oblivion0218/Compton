@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/90_deg/" # Andrea
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/90_deg/" # Andrea
 # file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/90_deg/" # Riccardo
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
@@ -28,17 +28,17 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PARTIAL FIT - Background
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    f_back_e = ROOT.TF1("f_background", "expo(0)", 0, 2000)
+    f_back_e = ROOT.TF1("f_background", "expo(0)", 0, ll.calibration(2000))
     f_back_e.SetParameter(0, 1)
     f_back_e.SetParameter(1, 1)
 
     mpr.stampa_graph_fit(hist, f_back_e, file_path + "background_exp_.png", "Compton peak", 
-                         x_axis_name, y_axis_name, "", 525, 2000, 2, coo0, ["f1", "f2"])
+                         x_axis_name, y_axis_name, "", ll.calibration(525), ll.calibration(2000), 2, coo0, ["f1", "f2"])
     
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PARTIAL FIT - Compton peak
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    f_Compton = ROOT.TF1("Compton_peak", "gaus(0)", 0, 2000)
+    f_Compton = ROOT.TF1("Compton_peak", "gaus(0)", 0, ll.calibration(2000))
     f_Compton.SetParameter(0, 100) 
     f_Compton.SetParameter(1, peak)
     f_Compton.SetParameter(2, sigma)
@@ -50,7 +50,7 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     # FIT - Complete model
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     
-    f_true = ROOT.TF1("model", "expo(0) + gaus(2)", 0, 2000) 
+    f_true = ROOT.TF1("model", "expo(0) + gaus(2)", 0, ll.calibration(2000))
     f_true.SetParameter(0, f_back_e.GetParameter(0))
     f_true.SetParameter(1, f_back_e.GetParameter(1))
     f_true.SetParameter(2, f_Compton.GetParameter(0))
@@ -66,15 +66,15 @@ def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, fil
     return fit_result, f_back_e, f_true
 
 
-# #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-# # Main 
-# #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+#  Main 
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 H = ll.create_hist(file_path, "hist_sum.png")
 peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
-sigmaCompton = 50
+sigmaCompton = ll.calibration(50)
 
 # Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
-step = 30
+step = ll.calibration(30)
 max_step = 20
 # ll.stability_study_extreme(fit_peaks, H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
 
