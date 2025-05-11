@@ -72,6 +72,7 @@ y_3pollici = [
     0.2036989525676702,
 ]
 
+Incertezza =  0.05 #L'HO SCELTA IO!
 
 # --------------------------------------------------------------------
 # 2) FUNZIONE DI FIT E FUNZIONE DI SUPPORTO PER FIT + GRAFICO
@@ -88,8 +89,10 @@ def fit_dataset(xvals, yvals, color, marker_style, legend_label):
     n = len(xvals)
     ax = array.array("d", xvals)
     ay = array.array("d", yvals)
+    ex = array.array("d", [0.0] * n)
+    ey = array.array("d", [Incertezza * y for y in yvals])  # 5% errore su y
     
-    graph = ROOT.TGraph(n, ax, ay)
+    graph = ROOT.TGraphErrors(n, ax, ay, ex ,ey)
     graph.SetMarkerColor(color)
     graph.SetLineColor(color)
     graph.SetMarkerStyle(marker_style)
@@ -122,8 +125,6 @@ graph_2, fit_2, A2, B2, C2 , D2 = fit_dataset(
     legend_label="2'' "
 )
 
-print(A2, B2, C2, D2)
-
 graph_1_5, fit_1_5, A1_5, B1_5, C1_5, D1_5 = fit_dataset(
     x_1_5pollici, y_1_5pollici,
     color=ROOT.kRed,
@@ -146,44 +147,52 @@ graph_3, fit_3, A3, B3, C3, D3 = fit_dataset(
 # Facciamo un fit lineare di A(d), B(d), C(d) in funzione di d (d=1.5,2,3)
 # e valutiamo a d=1 pollice.
 
-def interpolate_parameter(d, Y,i):
-    # Esegue un fit esponenziale param(d) = p3 + p0 * exp(p1 * d - p2)
-    # Restituisce param(1) e salva il plot del fit
-    
-    g = ROOT.TGraph(3)
-    for i in range(3):
-        g.SetPoint(i, d[i], Y[i])
-    
-    # Fit esponenziale
-    f_exp = ROOT.TF1("f_exp", "[3] + [0]*exp([1]*x - [2])", 0, 5)
-    g.Fit(f_exp, "Q")  # Q=quiet
-    
-    # Otteniamo i parametri del fit
-    p0 = f_exp.GetParameter(0)
-    p1 = f_exp.GetParameter(1)
-    p2 = f_exp.GetParameter(2)
-    p3 = f_exp.GetParameter(3)
-    
-    # Creazione del canvas per il plot
-    c_fit = ROOT.TCanvas("c_fit", "Fit Parameter", 800, 600)
+fit_511_params = {}
+
+def interpolate_parameter(d, Y, i):
+ # Costruzione di TGraphErrors con errore 5% su Y
+    n = len(d)
+    ax = array.array("d", d)
+    ay = array.array("d", Y)
+    ex = array.array("d", [0.0] * n)
+    ey = array.array("d", [Incertezza * y for y in Y])  # 5% errore relativo
+
+    g = ROOT.TGraphErrors(n, ax, ay, ex, ey)
+
+    # Fit function: f(d) = p3 + p0 * exp(p1 * d - p2)
+    f_exp = ROOT.TF1("f_exp", " [0]*x + [1]", 0, 5)
+    f_exp.SetParameters(1, 1, 1, 1)  # parametri iniziali
+
+    g.Fit(f_exp, "Q")  # Quiet fit
+
+    # Estrai parametri e incertezze
+    p = [f_exp.GetParameter(k) for k in range(2)]
+    dp = [f_exp.GetParError(k) for k in range(2)]
+
+    # Salva i parametri se i == 2 (511 keV)
+    if i == 2:
+        fit_511_params["params"] = p
+        fit_511_params["errors"] = dp
+        print("Parametri e errori salvati per 511 keV (1 pollice).")
+
+    # Plot
+    c_fit = ROOT.TCanvas("c_fit", f"Fit Param {i}", 800, 600)
     g.SetTitle("Fit dei parametri in funzione della dimensione; Dimensione (pollici); Valore del parametro")
     g.SetMarkerStyle(20)
     g.SetMarkerColor(ROOT.kBlue)
-    g.Draw("AP")  # A = draw axis, P = draw points
+    g.Draw("AP")
     f_exp.SetLineColor(ROOT.kRed)
     f_exp.Draw("same")
-    
-    # Salvataggio del grafico
-    c_fit.SaveAs("fit_parameter"+ str(i)+".png")
-    
-    return p3 + p0 * np.exp(p1 * 1 - p2)  # valore a d=1 pollice
-diams = [1.5, 2.0, 3.0]  # dimensioni in pollici
+    c_fit.SaveAs(f"fit_parameter{i}.png")
 
-y_1=[]
+    # Valore interpolato a d = 1
+    return  p[0] * 1 + p[1]  
 
+diams = [1.5, 2.0, 3.0]
+y_1 = []
 
 for i in range(7):
-    y_1.append(interpolate_parameter(diams, [y_1_5pollici[i], y_2pollici[i], y_3pollici[i]],i))
+    y_1.append(interpolate_parameter(diams, [y_1_5pollici[i], y_2pollici[i], y_3pollici[i]], i))
 
 graph_1, fit_1, A1, B1, C1, D1 = fit_dataset(
     x_2pollici, y_1,
@@ -191,6 +200,24 @@ graph_1, fit_1, A1, B1, C1, D1 = fit_dataset(
     marker_style=24,
     legend_label="1'' "
 )
+
+def predict_efficiency_511 (fit_params, d=1.0):
+    # Estrai parametri e incertezze
+    p0, p1 = fit_params['params']
+    dp0, dp1 = fit_params['errors']
+
+    print( "P0:", p0, "±", dp0)
+    print( "P1:", p1, "±", dp1)
+    
+
+    eff = p0 * d + p1
+    delta_eff = np.sqrt((dp0 * d)**2 + (dp1)**2)
+
+    return eff, delta_eff
+
+eff_511, err_511 = predict_efficiency_511(fit_511_params)
+print(f"\n Efficienza a 511 keV (1 pollice): {eff_511:.5f} ± {err_511:.5f} \n")
+
 
 # --------------------------------------------------------------------
 # 5) DISEGNO SU UN UNICO CANVAS + LEGENDA
@@ -247,14 +274,10 @@ c.SaveAs("Efficienze.png")
 #-------------- STAMPA VALORI A SCHERMO --------
 
 print("\nParametri del fit per il rivelatore da 2 pollici (A*x^-B*exp(-C*x)+D):")
-print(f"  A = {fit_2.GetParameter(0):.5f}")
-print(f"  B = {fit_2.GetParameter(1):.5f}")
-print(f"  C = {fit_2.GetParameter(2):.5f}")
-print(f"  D = {fit_2.GetParameter(3):.5f}\n")
-
-
-print("\nPrevisioni efficienza per 1'' usando il fit:")
-print(f"x = 0.511 MeV → efficienza = {fit_1.Eval(0.511):.5f} \n")
+print(f"  A = {fit_2.GetParameter(0):.5f} ± {fit_2.GetParError(0):.5f}")
+print(f"  B = {fit_2.GetParameter(1):.5f} ± {fit_2.GetParError(1):.5f}")
+print(f"  C = {fit_2.GetParameter(2):.5f} ± {fit_2.GetParError(2):.5f}")
+print(f"  D = {fit_2.GetParameter(3):.5f} ± {fit_2.GetParError(3):.5f}\n")
 
 print("Previsioni efficienza per 2'' usando il fit:")
 print(f"x = 0.511 MeV → efficienza = {fit_2.Eval(0.511):.5f} ")
