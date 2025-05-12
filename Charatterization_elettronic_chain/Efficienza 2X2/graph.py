@@ -161,7 +161,7 @@ def interpolate_parameter(d, Y, i):
 
     # Fit function: f(d) = p3 + p0 * exp(p1 * d - p2)
     f_exp = ROOT.TF1("f_exp", " [0]*x + [1]", 0, 5)
-    f_exp.SetParameters(1, 1, 1, 1)  # parametri iniziali
+    f_exp.SetParameters(1, 1)  # parametri iniziali
 
     g.Fit(f_exp, "Q")  # Quiet fit
 
