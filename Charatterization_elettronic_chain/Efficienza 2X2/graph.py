@@ -90,7 +90,7 @@ def fit_dataset(xvals, yvals, color, marker_style, legend_label):
     ax = array.array("d", xvals)
     ay = array.array("d", yvals)
     ex = array.array("d", [0.0] * n)
-    ey = array.array("d", [Incertezza * y for y in yvals])  # 5% errore su y
+    ey = array.array("d", [Incertezza * y for y in yvals])  
     
     graph = ROOT.TGraphErrors(n, ax, ay, ex ,ey)
     graph.SetMarkerColor(color)
@@ -201,7 +201,7 @@ graph_1, fit_1, A1, B1, C1, D1 = fit_dataset(
     legend_label="1'' "
 )
 
-def predict_efficiency_511 (fit_params, d=1.0):
+def predict_efficiency_511 (fit_params, d=1):
     # Estrai parametri e incertezze
     p0, p1 = fit_params['params']
     dp0, dp1 = fit_params['errors']
