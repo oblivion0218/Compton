@@ -274,6 +274,19 @@ def stampa_graph_fit_ComptonStudy(hist, f_true, scale_factor, min, max, file_pat
     else:            
         canvas.Print(file_path + "plots/fit/" + fileNamePNG, "png")
 
+def compton_scattering(theta):
+    return 511 / (2 - np.cos(theta))
+
+def efficiency (Angle):
+
+    A = 1.55710
+    B = -0.09831
+    C = 3.53226
+    D = 0.10209
+
+    Energy = compton_scattering(Angle)
+
+    return  A* Energy^(-B) * np.exp(-Energy*C) + D
 
 def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name, time):
     """

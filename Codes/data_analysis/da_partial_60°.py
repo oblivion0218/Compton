@@ -6,8 +6,8 @@ from lib import LabLibrary as ll
 
 
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/60_deg/"
-# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/60_deg/"
+#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_riflection/60_deg/"
+file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/60_deg/"
 #file_path = "/../../Measurments_riflection/60_deg/"
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
@@ -105,6 +105,8 @@ counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_tr
 centroid = f_true.GetParameter(3)
 centroid_err = f_true.GetParError(3)
 angle = 60
+
+rate = rate / ll.efficiency(angle)
 
 def update_or_append_line(file_name, angle, rate, rate_err, counts, counts_err, centroid, centroid_err):
     # Formattazione della nuova riga
