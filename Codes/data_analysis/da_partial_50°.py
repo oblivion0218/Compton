@@ -5,8 +5,8 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/50_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/50_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/50_deg/"
+# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/50_deg/"
 
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
@@ -98,7 +98,7 @@ fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_f
 time = 43000 * 6 + 40184 
 
 # Final fit
-counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
+counts , rate = ll.plot_results(H, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
                 "fit_results.png", "Energy [channels]", "Counts", time)
 
 centroid = f_true.GetParameter(3)

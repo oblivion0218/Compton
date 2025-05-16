@@ -288,12 +288,11 @@ def efficiency (Angle):
 
     return  A* Energy^(-B) * np.exp(-Energy*C) + D
 
-def plot_results(hist, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name, time):
+def plot_results(hist, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path, fileNamePNG, x_axis_name, y_axis_name, time):
     """
     Plot the results of the fit."
 
     :param hist: ROOT histogram object."
-    :param hist_integral: Integral of the histogram before rebinning."
     :param fit_result: Fit result."
     :param f_background: Background function."
     :param f_true: True function."
@@ -436,11 +435,11 @@ def hist_vector(directory_path):
     for j, hist_file_name in enumerate(hist_file_names):
         
         data = read_histogram_data(directory_path + hist_file_name)
-        n_bins = int(calibration(len(data)))
+        n_bins = int(len(data))
         hist = ROOT.TH1D(f"h{j}", f"h{j}", n_bins, 0, n_bins)
         
         for i, bin_value in enumerate(data):
-            hist.SetBinContent(int(calibration(i)) + 1, bin_value)
+            hist.SetBinContent(int(i) + 1, bin_value)
         
         hist_list.append(hist)
     
