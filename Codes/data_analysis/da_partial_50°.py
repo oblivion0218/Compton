@@ -6,8 +6,8 @@ from lib import LabLibrary as ll
 
 
 #file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/50_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_riflection/50_deg/"
-
+#file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_riflection/50_deg/"
+file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_trasmission/50_deg/"
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
     """
@@ -94,8 +94,11 @@ H.Rebin(rebin_param)
 
 fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
                                              file_path + "plots/fit/")
+#riflssione
+#time = 43000 * 6 + 40184 
 
-time = 43000 * 6 + 40184 
+#trasmissione
+time = 43200 * 17 + 27346
 
 # Final fit
 counts , rate = ll.plot_results(H, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
@@ -103,6 +106,6 @@ counts , rate = ll.plot_results(H, fit_result, f_background, f_true, rebin_param
 
 centroid = f_true.GetParameter(3)
 centroid_err = f_true.GetParError(3)
-angle = 50
+angle = 51
 
 ll.update_or_append_line("parameters.txt", angle, rate[0], rate[1], counts[0], counts[1], centroid, centroid_err)
