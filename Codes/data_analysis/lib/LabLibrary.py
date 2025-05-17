@@ -678,3 +678,35 @@ def stability_study_rebin(fit_peaks, H, peakCompton, sigmaCompton, rebin_max, mi
     plt.savefig(plot_file)
     plt.close()
     print(f"Rebin stability summary plot saved to {plot_file}")
+
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# saving parameters by ricky
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+def update_or_append_line(file_name, angle, rate, rate_err, counts, counts_err, centroid, centroid_err):
+    new_line = f"{angle}\t{rate:.5f}\t{rate_err:.5f}\t{counts:.1f}\t{counts_err:.1f}\t{centroid:.2f}\t{centroid_err:.2f}\n"
+
+    try:
+        with open(file_name, "r") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        lines = []
+
+    updated_lines = []
+    for line in lines:
+        try:
+            existing_angle = int(line.strip().split()[0])
+            if existing_angle != int(angle):
+                updated_lines.append(line)
+        except (ValueError, IndexError):
+            updated_lines.append(line)  # se la riga è malformata la manteniamo
+
+    updated_lines.append(new_line)
+
+    try:
+        with open(file_name, "w") as f:
+            f.writelines(updated_lines)
+        print("DONE!!")
+    except Exception as e:
+        print("WRONG")
+        print(f"Errore: {e}")

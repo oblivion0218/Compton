@@ -5,8 +5,8 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/70_deg_2nd/"
-# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/75_deg/"
+#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/70_deg_2nd/"
+file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_riflection/70_deg_2nd/"
 
 def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
     """
@@ -98,33 +98,11 @@ fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_f
 time = 16 * 43000
 
 # Final fit
-counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
+counts , rate = ll.plot_results(H, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
                 "fit_results.png", "Energy [channels]", "Counts", time)
 
 centroid = f_true.GetParameter(3)
 centroid_err = f_true.GetParError(3)
 angle = 70
 
-def update_or_append_line(file_name, angle, rate, rate_err, counts, counts_err, centroid, centroid_err):
-    # Formattazione della nuova riga
-    new_line = f"{angle}\t{rate:.5f}\t{rate_err:.5f}\t{counts:.1f}\t{counts_err:.1f}\t{centroid:.2f}\t{centroid_err:.2f}\n"
-    
-    # Legge tutte le righe esistenti, se ci sono
-    try:
-        with open(file_name, "r") as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        lines = []
-
-    # Filtra le righe: tiene solo quelle che non iniziano con lo stesso angolo
-    updated_lines = [line for line in lines if not line.strip().startswith(str(angle))]
-
-    # Aggiunge la nuova riga
-    updated_lines.append(new_line)
-
-    # Riscrive tutto il file con la riga aggiornata
-    with open(file_name, "w") as f:
-        f.writelines(updated_lines)
-
-
-update_or_append_line("parameters.txt", angle, rate[0], rate[1], counts[0], counts[1], centroid, centroid_err)
+ll.update_or_append_line("parameters.txt", angle, rate[0], rate[1], counts[0], counts[1], centroid, centroid_err)
