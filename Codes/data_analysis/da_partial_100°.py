@@ -25,8 +25,7 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
     """
     coo0 = [0.1, 0.65, 0.45, 0.9]
     str0 = ["Amp", "<x>", "#sigma"]
-    coo1 = [0.1, 0.5, 0.45, 0.9]
-    coo2 = [0.1, 0.35, 0.45, 0.9]
+    coo2 = [0.55, 0.35, 0.9, 0.9]
     
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PARTIAL FIT - Compton peak
@@ -50,7 +49,7 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
     f_background.SetParameter(4, 1)
 
     mpr.stampa_graph_fit(hist, f_background, file_path + "background_.png", "Background",
-                         x_axis_name, y_axis_name, "", 600, 1800)
+                         x_axis_name, y_axis_name, "", 100, 1100)
 
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # FIT - Complete model
@@ -84,12 +83,13 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
 angle = 100
 time = 43000 * 11
 
+
 H = ll.create_hist(file_path, "hist_sum.png")
 peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
-sigmaCompton = 50
+sigmaCompton = 100
 
-left_step = 250
-right_step = 250
+left_step = 200
+right_step = 170
 
 hist_integral = H.Integral()
 rebin_param = 5
@@ -107,8 +107,4 @@ max_fit = E_mean[0] + right_step
 counts , rate = ll.plot_results(H, fit_result, f_background, f_true, rebin_param, time, E_mean, sigma, min_fit, max_fit, 
                                 file_path + "plots/fit/", "fit_results.png", "Energy [channels]", "Counts")
 
-centroid = E_mean[0]
-centroid_err = E_mean[1]
-
-ll.update_or_append_line("parameters.txt", angle, rate[0], rate[1], counts[0], counts[1], centroid, centroid_err)
-
+ll.update_or_append_line("parameters.txt", angle, rate[0], rate[1], counts[0], counts[1], E_mean[0], E_mean[1], sigma[0], sigma[1])

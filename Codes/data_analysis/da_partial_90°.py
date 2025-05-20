@@ -85,7 +85,7 @@ H = ll.create_hist(file_path, "hist_sum.png")
 peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
 sigmaCompton = 100
 
-left_step = 200
+left_step = 150
 right_step = 200
 
 hist_integral = H.Integral()
