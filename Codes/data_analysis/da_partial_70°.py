@@ -65,8 +65,7 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
     f_true.SetParameter(7, f_Compton.GetParameter(2))
 
     fit_result = mpr.stampa_graph_fit(hist, f_true, file_path + "final_fit_.png", "Spectrum", x_axis_name, y_axis_name, 
-                                      "", f_Compton.GetParameter(1) - left_step, f_Compton.GetParameter(1) + right_step, 
-                                      5, coo2, ["f1", "f2", "Amp", "<x>", "#sigma"])
+                                      "", f_Compton.GetParameter(1) - left_step, f_Compton.GetParameter(1) + right_step)
 
     f_background.SetParameter(0, f_true.GetParameter(0))
     f_background.SetParameter(1, f_true.GetParameter(1))    

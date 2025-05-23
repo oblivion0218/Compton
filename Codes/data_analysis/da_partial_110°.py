@@ -63,15 +63,19 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
     f_true.SetParameter(6, f_Compton.GetParameter(1))
     f_true.SetParameter(7, f_Compton.GetParameter(2))
 
+    f_true.SetParLimits(7, 1, sigma * 5) 
+
     fit_result = mpr.stampa_graph_fit(hist, f_true, file_path + "final_fit_.png", "Spectrum", x_axis_name, y_axis_name, 
-                                      "", f_Compton.GetParameter(1) - left_step, f_Compton.GetParameter(1) + right_step, 
-                                      5, coo2, ["f1", "f2", "Amp", "<x>", "#sigma"])
+                                      "", f_Compton.GetParameter(1) - left_step, f_Compton.GetParameter(1) + right_step,)
 
     f_background.SetParameter(0, f_true.GetParameter(0))
     f_background.SetParameter(1, f_true.GetParameter(1))    
     f_background.SetParameter(2, f_true.GetParameter(2))
     f_background.SetParameter(3, f_true.GetParameter(3))
     f_background.SetParameter(4, f_true.GetParameter(4))
+
+    mpr.plot_TF1_MPL(f_true, 0, 1000, file_path + "TF1.png")
+    mpr.plot_TF1_MPL(f_background, 0, 1000, file_path + "TF1_background.png")
 
     return fit_result, f_background, f_true
 
@@ -99,6 +103,7 @@ fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, left_
 
 E_mean = (f_true.GetParameter(6), f_true.GetParError(6))
 sigma = (f_true.GetParameter(7), f_true.GetParError(7))
+
 min_fit = E_mean[0] - left_step
 max_fit = E_mean[0] + right_step
 
