@@ -63,7 +63,7 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
     f_background.FixParameter(7, f_511.GetParameter(2))
 
     mpr.stampa_graph_fit(hist, f_background, file_path + "background_.png", "Background",
-                         x_axis_name, y_axis_name, "", 600, 1800)
+                         x_axis_name, y_axis_name, "", 600, 2000)
 
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # FIT - Complete model
@@ -106,7 +106,7 @@ H = ll.create_hist(file_path, "hist_sum.png")
 peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
 sigmaCompton = 50
 
-left_step = 250
+left_step = 300
 right_step = 200
 
 hist_integral = H.Integral()
