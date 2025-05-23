@@ -5,7 +5,7 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/40_deg_4th/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/40_deg_3th/"
 # file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_riflection/40_deg_3th/"
 
 
@@ -100,10 +100,13 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
 # Main 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 angle = 40
-time = 43000 * 9
+# trasmission
+# time = 43000 * 9
+# riflection
+time = 43000 * 13
 
 H = ll.create_hist(file_path, "hist_sum.png")
-peakCompton = ll.search_photopeak(H, 0.7, 2, file_path + "plots/fit/find_Compton_peak.png")
+peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
 sigmaCompton = 50
 
 left_step = 300
