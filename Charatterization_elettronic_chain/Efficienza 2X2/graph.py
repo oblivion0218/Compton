@@ -72,7 +72,7 @@ y_3pollici = [
     0.2036989525676702,
 ]
 
-Incertezza =  0.05 #L'HO SCELTA IO!
+Incertezza =  0.025 #L'HO SCELTA IO!
 
 # --------------------------------------------------------------------
 # 2) FUNZIONE DI FIT E FUNZIONE DI SUPPORTO PER FIT + GRAFICO
@@ -217,7 +217,8 @@ def predict_efficiency_511 (fit_params, d=1):
 
 eff_511, err_511 = predict_efficiency_511(fit_511_params)
 print(f"\n Efficienza a 511 keV (1 pollice): {eff_511:.5f} ± {err_511:.5f} \n")
-
+print("ATTENZIONE L'ERRORE SOPRA è DATO DA GLI ERRORI DEI PARAMETRI DEL FIT, NON DA UN ERRORE STATISTICO!")
+print("Se impongo come nei casi precedenti un errore del ", Incertezza*100 , "% su ogni punto, l'errore finale sarà: " , eff_511 *  Incertezza)
 
 # --------------------------------------------------------------------
 # 5) DISEGNO SU UN UNICO CANVAS + LEGENDA
