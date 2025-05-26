@@ -5,7 +5,7 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/90_deg/"
-
+file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_riflection/90_deg/"
 
 def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name, file_path):
     """
@@ -77,7 +77,7 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
 # Main 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 angle = 90
-time = 13 * 43000 + 37225
+time = 14 * 43000
 
 
 H = ll.create_hist(file_path, "hist_sum.png")
