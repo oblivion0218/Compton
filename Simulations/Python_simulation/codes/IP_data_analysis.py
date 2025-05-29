@@ -8,12 +8,12 @@ from tqdm import tqdm
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulations/Python_simulation/interaction_point/"
 
 
-angles = [40, 50, 60, 70, 80, 90, 100, 110, 120]
+angles = [35, 40, 50, 60, 70, 80, 90, 100, 110, 120]
 N_photons = 1000000 # Assuming this is a constant for normalization across simulations
-data = {40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
-Omega_orizontal = {40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
-Omega_vertical = {40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
-Omega_mean = {40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+data = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+Omega_orizontal = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+Omega_vertical = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+Omega_mean = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
 
 for filename in os.listdir(file_path + "data/"):
     # Extract angle string: e.g., "lambda_simulation_30.txt" -> "30"
@@ -43,9 +43,12 @@ for filename in os.listdir(file_path + "data/"):
         data[angle] = ip
 
 target_center = [0, 5.5, 0]
-detector_center_0 = [0, 30.5, 0]
+detector_center_0 = [0, 33.04, 0]
 d_target_detector = np.abs(target_center[1] - detector_center_0[1])
 detector_radius = 2.54
+
+with open("solid_angle.txt", "a") as f:
+    f.write("Angle\tMean\tMedian\tIQR\n")
 
 for angle in tqdm(angles, desc="Calculating Omega", unit="angle"):
     detector_center_rotated = [target_center[0] - d_target_detector * np.sin(angle), target_center[1] + d_target_detector * np.cos(angle), 0]
@@ -80,25 +83,28 @@ for angle in tqdm(angles, desc="Calculating Omega", unit="angle"):
 
     # print an histogram of the Omega_orizontal and Omega_vertical for each angle
     plt.figure(figsize=(12, 6))
-    plt.hist(Omega_orizontal[angle], bins=100, alpha=0.5, color='blue', label='Omega_orizontal')
-    plt.hist(Omega_vertical[angle], bins=100, alpha=0.5, color='red', label='Omega_vertical')
-    plt.hist(Omega_mean[angle], bins=100, alpha=0.5, color='green', label='Omega_mean')
+    plt.hist(Omega_orizontal[angle], bins=100, alpha=0.5, color='blue', label='Omega_orizontal', density=True)
+    plt.hist(Omega_vertical[angle], bins=100, alpha=0.5, color='red', label='Omega_vertical', density=True)
+    plt.hist(Omega_mean[angle], bins=100, alpha=0.5, color='green', label='Omega_mean', density=True)
 
     mean_omega = np.mean(Omega_mean[angle])
     median_omega = np.median(Omega_mean[angle])
-    std_omega = np.std(Omega_mean[angle])
-    plt.text(0.1, 0.9, f'Mean: {mean_omega:.5f}\nMedian: {median_omega:.5}\nStd: {std_omega:.5f}', transform=plt.gca().transAxes, fontsize=12,
+
+    # Calculate IQR instead of STD
+    q75 = np.percentile(Omega_mean[angle], 75)
+    q25 = np.percentile(Omega_mean[angle], 25)
+    iqr_omega = q75 - q25
+
+    plt.text(0.1, 0.9, f'Mean: {mean_omega:.5f}\nMedian: {median_omega:.5f}\nIQR: {iqr_omega:.5f}', transform=plt.gca().transAxes, fontsize=12,
                 verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
-    
-    print(f"Angle: {angle}, Mean Omega: {mean_omega:.5f}, Median Omega: {median_omega:.5f}, Std Omega: {std_omega:.5f}")
+
+    print(angle, mean_omega, median_omega, iqr_omega)
 
     plt.xlabel('Omega')
-    plt.ylabel('Frequency')
-    plt.title(f'Omega_orizontal Histogram for Angle {angle}')
+    plt.ylabel('Probability Density')  # Changed y-label to reflect normalization
+    plt.title(f'Normalized Omega Histogram for Angle {angle}')  # Updated title
     plt.legend()
     plt.grid()
     plt.savefig(file_path + "plots/Omega_histogram_" + str(angle) + ".png")
     plt.close()
-
-
 
