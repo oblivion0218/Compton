@@ -8,12 +8,12 @@ from tqdm import tqdm
 file_path = "/mnt/c/Users/User/Desktop/info/Compton/Simulations/Python_simulation/interaction_point/"
 
 
-angles = [35, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+angles = [35]
 N_photons = 1000000 # Assuming this is a constant for normalization across simulations
-data = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
-Omega_orizontal = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
-Omega_vertical = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
-Omega_mean = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+data = {35: []}
+Omega_orizontal = {35: []}
+Omega_vertical = {35: []}
+Omega_mean = {35: []}
 
 for filename in os.listdir(file_path + "data/"):
     # Extract angle string: e.g., "lambda_simulation_30.txt" -> "30"
@@ -105,6 +105,6 @@ for angle in tqdm(angles, desc="Calculating Omega", unit="angle"):
     plt.title(f'Normalized Omega Histogram for Angle {angle}')  # Updated title
     plt.legend()
     plt.grid()
-    plt.savefig(file_path + "plots/Omega_histogram_" + str(angle) + ".png")
+    plt.savefig(file_path + "plots/Omega_histogram_" + str(angle) + "_trasm.png")
     plt.close()
 
