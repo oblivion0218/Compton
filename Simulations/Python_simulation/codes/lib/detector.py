@@ -126,6 +126,119 @@ class Object:
         # Update the position of the object
         self.position = (rotated_position[0], rotated_position[1])
         return rotated_position
+
+    
+    def find_exit_point(self, P_in: np.ndarray, P_out: np.ndarray) -> np.ndarray:
+        """
+        Find the point where a line segment from P_in (inside the object) to P_out (outside the object) 
+        intersects the external surface of the cylindrical object.
+        
+        :param P_in: Point inside the object (numpy array [x, y, z])
+        :param P_out: Point outside the object (numpy array [x, y, z])
+        :return: Intersection point on the external surface (numpy array [x, y, z]), or None if no intersection
+        """
+        P_in = np.array(P_in)
+        P_out = np.array(P_out)
+        
+        # Validate inputs
+        if not self.is_inside(P_in):
+            raise ValueError("P_in must be inside the object")
+        
+        if self.is_inside(P_out):
+            raise ValueError("P_out must be outside the object")
+        
+        # Get cylinder parameters
+        axis = self.principal_axis()
+        axis_length = np.linalg.norm(axis)
+        
+        if axis_length == 0:
+            return None  # Degenerate cylinder
+        
+        axis_unit = axis / axis_length
+        cylinder_start = np.array(self.position[0])
+        cylinder_end = np.array(self.position[1])
+        
+        # Direction vector of the line segment
+        line_dir = P_out - P_in
+        line_length = np.linalg.norm(line_dir)
+        
+        if line_length == 0:
+            return None  # Degenerate line segment
+        
+        line_dir_unit = line_dir / line_length
+        
+        # We need to check intersections with:
+        # 1. Cylindrical surface
+        # 2. Top cap
+        # 3. Bottom cap
+        
+        intersections = []
+        
+        # 1. Intersection with cylindrical surface
+        # Vector from cylinder start to P_in
+        w = P_in - cylinder_start
+        
+        # Project onto cylinder axis
+        w_parallel = np.dot(w, axis_unit) * axis_unit
+        w_perp = w - w_parallel
+        
+        # Project line direction onto cylinder axis
+        d_parallel = np.dot(line_dir_unit, axis_unit) * axis_unit
+        d_perp = line_dir_unit - d_parallel
+        
+        # Solve quadratic equation for intersection with cylindrical surface
+        # |w_perp + t * d_perp|^2 = radius^2
+        a = np.dot(d_perp, d_perp)
+        b = 2 * np.dot(w_perp, d_perp)
+        c = np.dot(w_perp, w_perp) - self.radius**2
+        
+        discriminant = b**2 - 4*a*c
+        
+        if discriminant >= 0 and abs(a) > 1e-10:  # Avoid division by zero
+            sqrt_discriminant = np.sqrt(discriminant)
+            t1 = (-b - sqrt_discriminant) / (2*a)
+            t2 = (-b + sqrt_discriminant) / (2*a)
+            
+            for t in [t1, t2]:
+                if 0 <= t <= line_length:
+                    intersection_point = P_in + t * line_dir_unit
+                    # Check if intersection is within cylinder height
+                    h = np.dot(intersection_point - cylinder_start, axis_unit)
+                    if 0 <= h <= axis_length:
+                        intersections.append((t, intersection_point))
+        
+        # 2. Intersection with bottom cap (at cylinder_start)
+        denominator = np.dot(line_dir_unit, axis_unit)
+        if abs(denominator) > 1e-10:  # Line is not parallel to the cap
+            t = np.dot(cylinder_start - P_in, axis_unit) / denominator
+            if 0 <= t <= line_length:
+                intersection_point = P_in + t * line_dir_unit
+                # Check if intersection is within radius
+                radial_vector = intersection_point - cylinder_start
+                radial_dist = np.linalg.norm(radial_vector - np.dot(radial_vector, axis_unit) * axis_unit)
+                if radial_dist <= self.radius:
+                    intersections.append((t, intersection_point))
+        
+        # 3. Intersection with top cap (at cylinder_end)
+        if abs(denominator) > 1e-10:  # Line is not parallel to the cap
+            t = np.dot(cylinder_end - P_in, axis_unit) / denominator
+            if 0 <= t <= line_length:
+                intersection_point = P_in + t * line_dir_unit
+                # Check if intersection is within radius
+                radial_vector = intersection_point - cylinder_end
+                radial_dist = np.linalg.norm(radial_vector - np.dot(radial_vector, axis_unit) * axis_unit)
+                if radial_dist <= self.radius:
+                    intersections.append((t, intersection_point))
+        
+        # Return the closest intersection point (smallest t value > 0)
+        if intersections:
+            # Filter out intersections that are too close to P_in (numerical precision issues)
+            valid_intersections = [(t, point) for t, point in intersections if t > 1e-10]
+            if valid_intersections:
+                valid_intersections.sort(key=lambda x: x[0])  # Sort by parameter t
+                return valid_intersections[0][1]  # Return the intersection point
+        
+        return None
     
 
     def draw_3D(self, ax, color='blue', alpha=0.5, label=None):
@@ -438,3 +551,4 @@ class Target(Object):
         print(f"Z: {self.Z}")
         print(f"Density: {self.density}")
         print(f"Molar mass: {self.molar_mass}")
+
