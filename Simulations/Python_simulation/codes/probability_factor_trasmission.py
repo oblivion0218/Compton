@@ -62,8 +62,6 @@ def probability_factor(x: float, l: float, theta: float) -> float:
 
     return np.exp(-x / lam) * np.exp(-l / lam_prime)
 
-
-target = d.Target(([0, 5, 0], [0, 6, 0]), 3)
 interacion_points = []
 
 with open(file_path + "data/IP_simulation_35.txt", 'r') as f:
@@ -85,59 +83,91 @@ with open(file_path + "data/IP_simulation_35.txt", 'r') as f:
         else:
             print(f"Warning: Line {i+1} in file IP_simulation_35.txt does not contain exactly 3 values: {line}")
 
-# INPUT points --> lenghts before IP 
-x = []
-source_position = [0, 0, 0]  # Source position
+def prob_factor_calculus(detector_angles, target_angles):
+    """
+    Calculate the probability factor for each interaction point based on the detector angles and target angles.
 
-for ip in interacion_points:
-    in_point = target.find_exit_point(np.array(ip), np.array(source_position))
-    x.append(np.linalg.norm(in_point - np.array(ip)))
+    :param detector_angles: List of angles for the detector in degrees.
+    :param target_angles: List of angles for the target in degrees.
+    :return: List of probability factors for each interaction point.
+    """
+    prob_factor = []
 
-# OUTPUT points --> lenghts after IP
-prob_factor = []
-angles = [35, 40, 50, 60]
+    for angle, target_angle in tqdm(zip(detector_angles, target_angles), desc="Calculating probability factors"):
+        target = d.Target(([0, 5, 0], [0, 6, 0]), 3)
+        target.rotate(target_angle, [0, 5.5, 0], "z") 
+    
 
-for angle in tqdm(angles, desc="Calculating probability factors"):
-    l = []
-    angle = np.radians(35) 
-    detector_radius = 2.54  # cm
-    detector_distance = 27.54  # cm
-    theta_max = np.arctan(detector_radius / detector_distance) 
+        # INPUT points --> lenghts before IP 
+        x = []
+        in_vectors = []
+        source_position = [0, 0, 0]  # Source position
 
-    skip_idx = []
-    for i, ip in enumerate(interacion_points):
-        theta = random.uniform(0, theta_max)
-        phi = random.uniform(0, 2 * np.pi)
-        r = detector_distance * np.tan(theta)
-
-        external_point = np.array([r * np.sin(phi), detector_distance, r * np.cos(phi)])
-        rotation_center = np.array([0, 5.5, 0])  # Center of the target
-        rotation_matrix = np.array([
-                    [np.cos(angle), -np.sin(angle), 0],
-                    [np.sin(angle), np.cos(angle), 0],
-                    [0, 0, 1]
-                ])
-        rotated_external_point = np.dot(rotation_matrix, external_point - rotation_center) + rotation_center
-
-        out_point = target.find_exit_point(np.array(ip), np.array(rotated_external_point))
-
-        if out_point is None:
-            skip_idx.append(i)
-            continue
-
-        else: 
-            l.append(np.linalg.norm(out_point - np.array(ip)))
+        for ip in interacion_points:
+            ip = np.array(ip)
+            in_point = target.find_exit_point(ip, np.array(source_position))
+            x.append(np.linalg.norm(in_point - ip))
+            in_vectors.append(in_point - ip)
 
 
-    interacion_points_def = [ip for i, ip in enumerate(interacion_points) if i not in skip_idx]
-    x_def = [x_val for i, x_val in enumerate(x) if i not in skip_idx]
-    l_def = l
+        # OUTPUT points --> lenghts after IP
+        l = []
+        out_vectors = []
+        angle = np.radians(angle) 
+        detector_radius = 2.54  # cm
+        detector_distance = 27.54  # cm
+        theta_max = np.arctan(detector_radius / detector_distance) 
 
-    correction = 0
-    for l, x in zip(l_def, x_def):
-        correction += probability_factor(x, l, angle)
+        skip_idx = []
+        for i, ip in enumerate(interacion_points):
+            ip = np.array(ip)
+            theta = random.uniform(0, theta_max)
+            phi = random.uniform(0, 2 * np.pi)
+            r = detector_distance * np.tan(theta)
 
-    correction /= len(l_def)
-    prob_factor.append(correction)
+            external_point = np.array([r * np.sin(phi), detector_distance, r * np.cos(phi)])
+            rotation_center = np.array([0, 5.5, 0])  # Center of the target
+            rotation_matrix = np.array([
+                        [np.cos(angle), -np.sin(angle), 0],
+                        [np.sin(angle), np.cos(angle), 0],
+                        [0, 0, 1]
+                    ])
+            rotated_external_point = np.dot(rotation_matrix, external_point - rotation_center) + rotation_center
 
-print(prob_factor)
+            out_point = target.find_exit_point(ip, np.array(rotated_external_point))
+
+            if out_point is None:
+                skip_idx.append(i)
+                continue
+
+            else: 
+                l.append(np.linalg.norm(out_point - ip))
+                out_vectors.append(out_point - ip)
+
+
+        interacion_points_def = [ip for i, ip in enumerate(interacion_points) if i not in skip_idx]
+        x_def = [x_val for i, x_val in enumerate(x) if i not in skip_idx]
+        l_def = l
+        in_vectors = [vec for i, vec in enumerate(in_vectors) if i not in skip_idx]
+        out_vectors = [vec for i, vec in enumerate(out_vectors) if i not in skip_idx]
+
+
+        correction = 0
+        for l, x, x_vec, l_vec in zip(l_def, x_def, in_vectors, out_vectors):
+            alpha = np.pi - np.arccos(np.dot(x_vec, l_vec) / (np.linalg.norm(x_vec) * np.linalg.norm(l_vec)))
+            correction += probability_factor(x, l, alpha)
+
+        correction /= len(l_def)
+        prob_factor.append(correction)
+        print(correction)
+
+    return prob_factor
+
+trasmission_angles = np.radians(np.array([35, 40, 50, 60]))
+trasmission_target_angles = np.radians(np.array([0, 0, 0, 0]))
+
+reflection_angles = np.radians(np.array([40, 50, 60, 70, 80, 90, 100, 110, 120]))
+reflection_target_angles = np.radians(np.array([(theta + (np.pi - theta) / 2) for theta in reflection_angles]))
+
+print(prob_factor_calculus(trasmission_angles, trasmission_target_angles))
+print(prob_factor_calculus(reflection_angles, reflection_target_angles))
