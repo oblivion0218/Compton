@@ -14,6 +14,42 @@ data = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: []
 Omega_orizontal = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
 Omega_vertical = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
 Omega_mean = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+A_or = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+B_or = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+A_ve = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+B_ve = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+A_mn = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+B_mn = {35: [], 40: [], 50: [], 60: [], 70: [], 80: [], 90: [], 100: [], 110: [], 120: []}
+
+
+def histogram_comp(vec_orizontal, vec_vertical, vec_mean, angle, x_axis, filenamePNG):
+    plt.figure(figsize=(12, 6))
+    plt.hist(vec_orizontal[angle], bins=100, alpha=0.5, color='blue', label='Omega_orizontal', density=True)
+    plt.hist(vec_vertical[angle], bins=100, alpha=0.5, color='red', label='Omega_vertical', density=True)
+    plt.hist(vec_mean[angle], bins=100, alpha=0.5, color='green', label='Omega_mean', density=True)
+
+    mean = np.mean(vec_mean[angle])
+    median = np.median(vec_mean[angle])
+    std = np.std(vec_mean[angle])
+
+    # Calculate IQR instead of STD
+    q75 = np.percentile(vec_mean[angle], 75)
+    q25 = np.percentile(vec_mean[angle], 25)
+    iqr = q75 - q25
+
+    plt.text(0.1, 0.9, f'Mean: {mean:.5f}\nMedian: {median:.5f}\nSTD: {std:.5f}\nIQR: {iqr:.5f}', transform=plt.gca().transAxes, fontsize=12,
+                verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+
+    print(x_axis, angle, mean, median, std, iqr)
+
+    plt.xlabel(x_axis)
+    plt.ylabel('Probability Density')  # Changed y-label to reflect normalization
+    plt.title(x_axis + f'Histogram for Angle {angle}')  # Updated title
+    plt.legend()
+    plt.grid()
+    plt.savefig(filenamePNG)
+    plt.close()
+
 
 for filename in os.listdir(file_path + "data/"):
     # Extract angle string: e.g., "lambda_simulation_30.txt" -> "30"
@@ -79,32 +115,18 @@ for angle in tqdm(angles, desc="Calculating Omega", unit="angle"):
         Omega_orizontal[angle].append(omega_orizontal)
         Omega_vertical[angle].append(omega_vertical)
         Omega_mean[angle].append((omega_orizontal + omega_vertical) / 2)
+        A_or[angle].append(A_orizontal)
+        B_or[angle].append(B_orizontal)
+        A_ve[angle].append(A_vertical)
+        B_ve[angle].append(B_vertical)
+        A_mn[angle].append((A_orizontal + A_vertical) / 2)
+        B_mn[angle].append((B_orizontal + B_vertical) / 2)
 
-
-    # print an histogram of the Omega_orizontal and Omega_vertical for each angle
-    plt.figure(figsize=(12, 6))
-    plt.hist(Omega_orizontal[angle], bins=100, alpha=0.5, color='blue', label='Omega_orizontal', density=True)
-    plt.hist(Omega_vertical[angle], bins=100, alpha=0.5, color='red', label='Omega_vertical', density=True)
-    plt.hist(Omega_mean[angle], bins=100, alpha=0.5, color='green', label='Omega_mean', density=True)
-
-    mean_omega = np.mean(Omega_mean[angle])
-    median_omega = np.median(Omega_mean[angle])
-
-    # Calculate IQR instead of STD
-    q75 = np.percentile(Omega_mean[angle], 75)
-    q25 = np.percentile(Omega_mean[angle], 25)
-    iqr_omega = q75 - q25
-
-    plt.text(0.1, 0.9, f'Mean: {mean_omega:.5f}\nMedian: {median_omega:.5f}\nIQR: {iqr_omega:.5f}', transform=plt.gca().transAxes, fontsize=12,
-                verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
-
-    print(angle, mean_omega, median_omega, iqr_omega)
-
-    plt.xlabel('Omega')
-    plt.ylabel('Probability Density')  # Changed y-label to reflect normalization
-    plt.title(f'Normalized Omega Histogram for Angle {angle}')  # Updated title
-    plt.legend()
-    plt.grid()
-    plt.savefig(file_path + "plots/Omega_histogram_" + str(angle) + "_trasm.png")
-    plt.close()
+    histogram_comp(Omega_orizontal, Omega_vertical, Omega_mean, angle, "Omega", 
+              file_path + "plots/solid_angles/Omega_histogram_angle_" + str(angle) + ".png")
+    histogram_comp(A_or, A_ve, A_mn, angle, "A",
+                file_path + "plots/A/A_histogram_angle_" + str(angle) + ".png")
+    histogram_comp(B_or, B_ve, B_mn, angle, "B",
+                file_path + "plots/B/B_histogram_angle_" + str(angle) + ".png")
+    
 
