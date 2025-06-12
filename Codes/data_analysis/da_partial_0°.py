@@ -1,156 +1,127 @@
 import ROOT
 import numpy as np
-import matplotlib.pyplot as plt
 from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
-
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments_trasmission/35_deg/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments_riflection/0_deg/"
-
-
-def fit_peaks(hist, peak, sigma, min_fit, max_fit, x_axis_name, y_axis_name, file_path):
-    """
-    Fit a peak with a gaussian function and a background with a linear function 
-    
-    :param hist: ROOT histogram object.
-    :param peak: Peak position.
-    :param sigma: Range of the peak.
-    :param min_fit: Minimum value of the fit.
-    :param max_fit: Maximum value of the fit.
-    :param x_axis_name: Name of the x-axis. 
-    :param y_axis_name: Name of the y-axis.
-    :param file_path: Path to save the plots.
-    """
-    coo0 = [0.1, 0.65, 0.45, 0.9]
-    str0 = ["Amp", "<x>", "#sigma"]
-    coo1 = [0.1, 0.5, 0.45, 0.9]
-    coo2 = [0.1, 0.35, 0.45, 0.9]
-
-    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    # PARTIAL FIT - Background
-    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    f_back_e = ROOT.TF1("f_background", "expo(0)", 0, 2000)
-    f_back_e.SetParameter(0, 1)
-    f_back_e.SetParameter(1, 1)
-
-    mpr.stampa_graph_fit(hist, f_back_e, file_path + "background_exp_.png", "Compton peak", 
-                         x_axis_name, y_axis_name, "", 600, 2000, 2, coo0, ["f1", "f2"])
-    
-    pos_511 = 1500
-    sigma_511 = 50
-    f_back_511 = ROOT.TF1("f_511", "gaus(0)", 0, 2000)
-    f_back_511.SetParameter(0, 1)
-    f_back_511.SetParameter(1, pos_511)
-    f_back_511.SetParameter(2, sigma_511)
-
-    mpr.stampa_graph_fit(hist, f_back_511, file_path + "background_511_.png", "Compton peak",
-                         x_axis_name, y_axis_name, "", pos_511 - 2 * sigma_511, pos_511 + 2 * sigma_511, 2, coo1, str0)
-    
-    f_background = ROOT.TF1("f_background", "expo(0) + gaus(2)", 0, 2000)
-    f_background.SetParameter(0, f_back_e.GetParameter(0))
-    f_background.SetParameter(1, f_back_e.GetParameter(1))
-    f_background.SetParameter(2, f_back_511.GetParameter(0))
-    f_background.SetParameter(3, f_back_511.GetParameter(1))
-    f_background.SetParameter(4, f_back_511.GetParameter(2))
-
-    mpr.stampa_graph_fit(hist, f_background, file_path + "background_.png", "Compton peak",
-                            x_axis_name, y_axis_name, "", 600, 2000, 5, coo2, ["f1", "f2", "Amp", "<x>", "#sigma"])
-    
-    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    # PARTIAL FIT - Compton peak
-    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    f_Compton = ROOT.TF1("Compton_peak", "gaus(0)", 0, 2000)
-    f_Compton.SetParameter(0, 100) 
-    f_Compton.SetParameter(1, peak)
-    f_Compton.SetParameter(2, sigma)
-
-    mpr.stampa_graph_fit(hist, f_Compton, file_path + "Compton_peak_.png", "Compton peak", 
-                         x_axis_name, y_axis_name, "", peak - 2 * sigma, peak + 2 * sigma, 3, coo0, str0)
-    
-    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    # FIT - Complete model
-    #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-    
-    f_true = ROOT.TF1("model", "expo(0) + gaus(2) + gaus(5)", 0, 2000)
-    f_true.SetParameter(0, f_background.GetParameter(0))
-    f_true.SetParameter(1, f_background.GetParameter(1))    
-    f_true.SetParameter(2, f_Compton.GetParameter(0))
-    f_true.SetParameter(3, f_Compton.GetParameter(1))
-    f_true.SetParameter(4, f_Compton.GetParameter(2))
-    f_true.SetParameter(5, f_background.GetParameter(2))
-    f_true.SetParameter(6, f_background.GetParameter(3))
-    f_true.SetParameter(7, f_background.GetParameter(4))
-
-    fit_result = mpr.stampa_graph_fit(hist, f_true, file_path + "final_fit_.png", "Spectrum",
-                                      x_axis_name, y_axis_name, "", min_fit, max_fit, 8, coo2, ["f1", "f2", "Amp", "<x>", "#sigma", "Amp_{511}", "<x>_{511}", "#sigma_{511}"])
-    
-    f_background.SetParameter(0, f_true.GetParameter(0))
-    f_background.SetParameter(1, f_true.GetParameter(1))
-    f_background.SetParameter(2, f_true.GetParameter(5))
-    f_background.SetParameter(3, f_true.GetParameter(6))
-    f_background.SetParameter(4, f_true.GetParameter(7))
-
-    mpr.plot_TF1_MPL(f_background, 0, 2000, file_path + "background_final_.png")
-
-    return fit_result, f_background, f_true
+# === Percorso ai dati ===
+file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_riflection/0_deg/"
+H = ll.create_hist(file_path, "hist_sum.png")  # Istogramma ROOT
 
 
-# #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-# # Main 
-# #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-H = ll.create_hist(file_path, "hist_sum.png")
-peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
-sigmaCompton = 50
-
-# Study of the stability of the fit changing fit extremes, in order to choose the domain of the fit
-step = 30
-max_step = 20
-# ll.stability_study_extreme(fit_peaks, H, peakCompton, sigmaCompton, step, max_step, "Energy [channels]", "Counts", file_path + "plots/fit/")
-
-n_steps = 10
-min_fit = peakCompton - n_steps * step
-max_fit = peakCompton + n_steps * step
-
-# Study of the stability of the fit changing hist rebin, in order to choose the domain of the fit
-rebin_max = 28
-# ll.stability_study_rebin(fit_peaks, H, peakCompton, sigmaCompton, rebin_max, min_fit, max_fit, "Energy [channels]", "Counts", file_path + "plots/fit/")
-
-hist_integral = H.Integral()
-rebin_param = 5
-H.Rebin(rebin_param)
-
-fit_result, f_background, f_true = fit_peaks(H, peakCompton, sigmaCompton, min_fit, max_fit, "Energy [channels]", "Counts", 
-                                             file_path + "plots/fit/")
-
-time = 7 * 43000 
-counts , rate = ll.plot_results(H, hist_integral, fit_result, f_background, f_true, rebin_param, min_fit, max_fit, file_path + "plots/fit/", 
-                "fit_results.png", "Energy [channels]", "Counts", time)
-
-centroid = f_true.GetParameter(3)
-centroid_err = f_true.GetParError(3)
-angle = 0
-
-def update_or_append_line(file_name, angle, rate, rate_err, counts, counts_err, centroid, centroid_err):
-    # Formattazione della nuova riga
-    new_line = f"{angle}\t{rate:.5f}\t{rate_err:.5f}\t{counts:.1f}\t{counts_err:.1f}\t{centroid:.2f}\t{centroid_err:.2f}\n"
-    
-    # Legge tutte le righe esistenti, se ci sono
-    try:
-        with open(file_name, "r") as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        lines = []
-
-    # Filtra le righe: tiene solo quelle che non iniziano con lo stesso angolo
-    updated_lines = [line for line in lines if not line.strip().startswith(str(angle))]
-
-    # Aggiunge la nuova riga
-    updated_lines.append(new_line)
-
-    # Riscrive tutto il file con la riga aggiornata
-    with open(file_name, "w") as f:
-        f.writelines(updated_lines)
+# === Guess iniziali: (mu, sigma, ampiezza) ===
+mu_guess = 1487     
+sigma_guess = 55
+amp_guess = 3500
 
 
-#update_or_append_line("parameters.txt", angle, rate[0], rate[1], counts[0], counts[1], centroid, centroid_err)
+# === Background parabola ===
+a_guess, b_guess, c_guess = 0, 0, 600
+
+
+# === Range di fit ===
+fit_min = mu_guess - 3 * sigma_guess
+fit_max = mu_guess + 3 * sigma_guess
+
+
+# === Definizione della funzione di fit ===
+fit_func = ROOT.TF1("fit_func", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]*x*x + [4]*x + [5]", fit_min, fit_max)
+fit_func.SetParameters(amp_guess, mu_guess, sigma_guess, a_guess, b_guess, c_guess)
+
+
+# === Fit ===
+H.Fit(fit_func, "R")  # "R" = usa solo l'intervallo specificato
+
+
+# === Parametri e loro errori ===
+A = fit_func.GetParameter(0)
+mu = fit_func.GetParameter(1)
+sigma = fit_func.GetParameter(2)
+sigma_A = fit_func.GetParError(0)
+sigma_sigma = fit_func.GetParError(2)
+a = fit_func.GetParameter(3)
+b = fit_func.GetParameter(4)
+c = fit_func.GetParameter(5)
+sigma_a = fit_func.GetParError(3)
+sigma_b = fit_func.GetParError(4)
+sigma_c = fit_func.GetParError(5)
+
+
+# === Calcolo area della gaussiana (sottesa) ===
+area_totale = fit_func.Integral(fit_min, fit_max)
+parabola_only = ROOT.TF1("parabola", "[0]*x*x + [1]*x + [2]", fit_min, fit_max)
+parabola_only.SetParameters(a,b,c)
+area_parabola = parabola_only.Integral(fit_min, fit_max)
+area_net = area_totale - area_parabola
+
+
+# === Calcolo dell'errore sull'area netta ===
+factor = np.sqrt(2 * np.pi)
+sigma_area_gauss = np.sqrt((sigma * factor * sigma_A)**2 + (A * factor * sigma_sigma)**2) 
+
+# Intervallo di integrazione
+x1 = fit_min
+x2 = fit_max
+
+# Derivate parziali
+da = (x2**3 - x1**3) / 3
+db = (x2**2 - x1**2) / 2
+dc = (x2 - x1)
+
+# Errore sul fondo
+sigma_area_parabola = np.sqrt((da * sigma_a)**2 + (db * sigma_b)**2 + (dc * sigma_c)**2)
+
+# Errore totale su area_net
+sigma_area_net = np.sqrt(sigma_area_gauss**2 + sigma_area_parabola**2)
+
+print(f"Conteggi sottesi alla gaussiana: {area_net:.3f} ±{sigma_area_net:.3f}")
+
+
+# === Plot ===
+c = ROOT.TCanvas("c", "Fit Gauss + Fondo", 800, 600)
+
+# Imposta range X del disegno
+H.GetXaxis().SetRangeUser(fit_min-100, fit_max+100)
+
+H.Draw("E")  # Disegna istogramma con barre d'errore
+fit_func.SetLineColor(ROOT.kRed)
+fit_func.SetLineWidth(2)
+fit_func.Draw("SAME")  # Sovrappone il fit
+
+c.Update()
+c.SaveAs("fit_gauss_parabola.png")
+
+
+# === Calcolo del rateo di conteggio ===
+time = 7 * 43000
+
+rate_meas = area_net / time
+print(f"Conteggi al secondo: {rate_meas:.3f}")
+
+# === Calcolo del coefficiente di attenuazione ===
+# --- Dati sperimentali ---
+A_src = 188900         # Bq (fotoni/s)
+err_A_src = 11647      # Bq (errore)
+
+x = 1.0               # cm, spessore del bersaglio
+BR = 0.903
+fuga = 2.54 
+diam_gate = 1.0 * 2.54        # cm
+
+d_gate  = 16.0 + fuga         # cm
+err_d_gate = 0.5              # cm (errore)
+
+eff_spec = 0.33
+err_eff_spec = 0.009780
+
+eff_gate = 0.147
+err_eff_gate = 0.01672  
+
+# --- Angolo solido
+beta = np.arctan((diam_gate/2) / d_gate)
+Omega =  (1 - np.cos(beta))/2  #porzione di sfera
+
+# PONENDO LO SPETTROMETRO A 25 CM IL CONO DELLA SORGENTE è CONTENUTO NELLA ZONA DELLA GEOMETRIA DEL DETECTOR
+denominatore = A_src  * Omega * eff_gate * time * 2 * BR * eff_spec
+lambda_val = - (1.0 / x) * np.log(area_net / denominatore)
+
+print(f"Coefficiente di attenuazione λ = {lambda_val:.4f} cm⁻¹")
