@@ -95,7 +95,7 @@ c.SaveAs("fit_gauss_parabola.png")
 time = 7 * 43000
 
 rate_meas = area_net / time
-print(f"Conteggi al secondo: {rate_meas:.3f}")
+print(f"\n \nConteggi al secondo: {rate_meas:.3f}")
 
 # === Calcolo del coefficiente di attenuazione ===
 # --- Dati sperimentali ---
