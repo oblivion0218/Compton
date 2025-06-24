@@ -5,8 +5,8 @@ from lib import MoraPyRoot as mpr
 from lib import LabLibrary as ll
 
 
-#file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/40_deg_3th/"
-file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_trasmission/40_deg/"
+file_path = "/mnt/c/Users/User/Desktop/info/Compton/Measurments/Measurments_riflection/40_deg_cz/"
+# file_path = "/mnt/c/Users/ASUS/Desktop/WSL_shared/Compton/Measurments/Measurments_trasmission/40_deg_cz/"
 
 
 def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name, file_path):
@@ -27,6 +27,7 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
     coo1 = [0.1, 0.5, 0.45, 0.9]
     coo2 = [0.1, 0.35, 0.45, 0.9]
     
+    peak = 1200
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     # PARTIAL FIT - Compton peak
     #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -101,7 +102,8 @@ def fit_peaks(hist, peak, sigma, left_step, right_step, x_axis_name, y_axis_name
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 angle = 40
 
-time = 43000 * 9
+# time = 43000 * 9
+time = 43000 * 8
 
 H = ll.create_hist(file_path, "hist_sum.png")
 peakCompton = ll.search_photopeak(H, 0.4, 2, file_path + "plots/fit/find_Compton_peak.png")
