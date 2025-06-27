@@ -15,7 +15,8 @@ data['Resolution_err'] = data['Resolution'] * np.sqrt(
 
 # Grafico
 plt.errorbar(data['x'], data['Resolution'], yerr=data['Resolution_err'], fmt='o', capsize=3, label="Risoluzione")
+plt.plot(data['x'], data['Resolution'], linestyle='-', color='C0')  # unisce i punti con una linea
 plt.xlabel("Shaping time (ns)")
-plt.ylabel("Risoluzione")
-plt.title("Risoluzione con shaping time FRANCO senza media con PZ")
+plt.ylabel("Resolution (%)")
+plt.grid()
 plt.savefig("Risoluzione-shaping-FRANCO.png")

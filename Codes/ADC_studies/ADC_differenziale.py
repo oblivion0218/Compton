@@ -1,11 +1,9 @@
 import ROOT
-from lib import MoraPyRoot as mpr
 import matplotlib.pyplot as plt
 
-file_path = "/mnt/c/Users/User/Desktop/info/Compton/ADC/"
-# formatura = "gaussiana"
-# formatura = "preamplificata"
-formatura = "gaussiana-shaping"
+file_path = "/mnt/c/Users/ASUS/Desktop/WSL_Shared/Compton/Charatterization_elettronic_chain/ADC/"
+formatura = ["gaussiana", "preamplificata", "gaussiana-shaping"]
+title = ["Gaussian", "Preamplified", "Gaussian + shaping"]
 
 # Funzione per leggere i dati da un file
 def read_data(fileName):
@@ -19,14 +17,18 @@ def read_data(fileName):
                 x_errors.append(dx)
     return x_values, x_errors
 
-channel_values, channel_errors = read_data(file_path + "data/formatura_" + formatura + "_canale.txt")
-counts_values, counts_errors = read_data(file_path + "data/formatura_" + formatura + "_conteggi.txt")
+plt.figure(figsize=(16, 6))
+i = 0
+for name in formatura:
+    channel_values, channel_errors = read_data(file_path + "data/formatura_" + name + "_canale.txt")
+    counts_values, counts_errors = read_data(file_path + "data/formatura_" + name + "_conteggi.txt")
+    plt.errorbar(channel_values, counts_values, xerr=channel_errors, yerr=counts_errors, label = title[i])
+    i+= 1
 
-plt.errorbar(channel_values, counts_values, xerr=channel_errors, yerr=counts_errors)
-
-plt.xlabel("Canale")
-plt.ylabel("Conteggi")
-plt.ylim(0, 90)
-plt.title("ADC differenziale formatura " + formatura)
+plt.xlabel("Channel", fontsize=14)
+plt.ylabel("Counts", fontsize=14)
+plt.tick_params(labelsize=12)  # ingrandisce numeri sugli assi
+plt.ylim(50, 90)
 plt.grid(True)
-plt.savefig(file_path + "plots/ADC_differenziale_formatura_" + formatura + ".png")
+plt.legend(fontsize=16)
+plt.savefig(file_path + "plots/ADC_differenziale_TOT.png")
