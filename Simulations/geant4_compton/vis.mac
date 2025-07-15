@@ -1,7 +1,0 @@
-# Abilita la visualizzazione della geometria
-/vis/open OGL 600x600+0+0   # Tipo di finestra visiva
-/vis/scene/add/volume       # Aggiungi volumi alla scena
-/vis/scene/endOfEventAction accumulate   # Aggiungi eventi
-/vis/viewer/set/viewpointThetaPhi 90 90 # Imposta l'angolo di visualizzazione
-/vis/scene/clear            # Pulisci la scena
-/vis/forceVisUpdate         # Forza aggiornamento visivo

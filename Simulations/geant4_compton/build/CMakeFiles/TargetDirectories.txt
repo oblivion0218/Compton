@@ -1,3 +1,0 @@
-/home/leonardo/geant4_compton/build/CMakeFiles/geant4_compton.dir
-/home/leonardo/geant4_compton/build/CMakeFiles/edit_cache.dir
-/home/leonardo/geant4_compton/build/CMakeFiles/rebuild_cache.dir
